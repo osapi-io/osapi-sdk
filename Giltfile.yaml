@@ -1,0 +1,19 @@
+---
+repositories:
+  - git: https://github.com/osapi-io/osapi.git
+    version: main
+    sources:
+      - src: internal/api/audit/gen/api.yaml
+        dstDir: pkg/osapi/gen/audit/gen/
+      - src: internal/api/command/gen/api.yaml
+        dstDir: pkg/osapi/gen/command/gen/
+      - src: internal/api/common/gen/api.yaml
+        dstDir: pkg/osapi/gen/common/gen/
+      - src: internal/api/health/gen/api.yaml
+        dstDir: pkg/osapi/gen/health/gen/
+      - src: internal/api/job/gen/api.yaml
+        dstDir: pkg/osapi/gen/job/gen/
+      - src: internal/api/network/gen/api.yaml
+        dstDir: pkg/osapi/gen/network/gen/
+      - src: internal/api/system/gen/api.yaml
+        dstDir: pkg/osapi/gen/system/gen/

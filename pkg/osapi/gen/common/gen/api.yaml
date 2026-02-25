@@ -1,0 +1,105 @@
+# Copyright (c) 2024 John Dewey
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+
+---
+openapi: "3.0.0"
+servers:
+  - url: http://127.0.0.1:8080
+    description: Mock API (local).
+info:
+  title: OSAPI - A CRUD API for managing Linux systems
+  description: |
+    OSAPI is a lightweight, minimalistic RESTful API designed to manage and
+    configure Linux systems as appliances. The API provides comprehensive
+    management capabilities, including reading the current state of the system
+    and making privileged, asynchronous changes to match a desired configuration
+    state.
+
+    OSAPI is built with pluggability and extensibility in mind, allowing it to
+    adapt to different Linux distributions and environments by implementing
+    custom handlers for various system operations.
+
+    Key Features:
+    - **RESTful API Design:** A RESTful approach for managing Linux systems,
+      enabling clear and organized endpoints for system configurations,
+      diagnostics, and state management.
+    - **Pluggable Architecture:** Easily extend or replace components to suit
+      different Linux environments. This flexibility allows users to customize
+      behavior based on specific distribution requirements or operational needs.
+    - **Job System for Privileged Actions:** Asynchronous job execution via
+      NATS JetStream to perform system modifications securely, ensuring that
+      changes are managed in a controlled and orderly manner.
+    - **System Information Gathering:** Provides detailed system insights, such
+      as OS details, hostname, and other environment-specific information,
+      facilitating diagnostics and monitoring.
+    - **CLI Equivalence:** All functionalities accessible via the API are also
+      available through an equivalent command-line interface, making the tool
+      adaptable to both programmatic and manual use cases.
+    - **Written in Go:** The API and its supporting tools are written in Go,
+      ensuring high performance, low resource usage, and easy cross-platform
+      deployment.
+  version: 1.0.0
+  contact:
+    url: https://github.com/retr0h/osapi
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+tags:
+  - name: info
+    x-displayName: Info
+    description: Operations related to the info endpoint.
+
+paths:
+  /version:
+    get:
+      summary: Retrieve the software version
+      description: Get the current version of the software running on the system.
+      tags:
+        - info
+      responses:
+        "400":
+          description: A common JSON error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: A description of the error that occurred.
+          example: Failed to retrieve status.
+        details:
+          type: string
+          description: Additional details about the error.
+          example: Failed due to network timeout.
+        code:
+          type: integer
+          description: The error code.
+          example: 500
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
