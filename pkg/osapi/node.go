@@ -62,3 +62,11 @@ func (s *NodeService) Agents(
 ) (*gen.GetNodeResponse, error) {
 	return s.client.GetNodeWithResponse(ctx)
 }
+
+// Get retrieves detailed information about a specific agent by hostname.
+func (s *NodeService) Get(
+	ctx context.Context,
+	hostname string,
+) (*gen.GetNodeDetailsResponse, error) {
+	return s.client.GetNodeDetailsWithResponse(ctx, hostname)
+}

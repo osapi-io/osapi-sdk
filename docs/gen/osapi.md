@@ -58,6 +58,7 @@ resp, err := client.Command.Exec(ctx, osapi.ExecRequest{
   - [func \(s \*NetworkService\) UpdateDNS\(ctx context.Context, target string, interfaceName string, servers \[\]string, searchDomains \[\]string\) \(\*gen.PutNetworkDNSResponse, error\)](<#NetworkService.UpdateDNS>)
 - [type NodeService](<#NodeService>)
   - [func \(s \*NodeService\) Agents\(ctx context.Context\) \(\*gen.GetNodeResponse, error\)](<#NodeService.Agents>)
+  - [func \(s \*NodeService\) Get\(ctx context.Context, hostname string\) \(\*gen.GetNodeDetailsResponse, error\)](<#NodeService.Get>)
   - [func \(s \*NodeService\) Hostname\(ctx context.Context, target string\) \(\*gen.GetNodeHostnameResponse, error\)](<#NodeService.Hostname>)
   - [func \(s \*NodeService\) Status\(ctx context.Context, target string\) \(\*gen.GetNodeStatusResponse, error\)](<#NodeService.Status>)
 - [type Option](<#Option>)
@@ -397,6 +398,15 @@ func (s *NodeService) Agents(ctx context.Context) (*gen.GetNodeResponse, error)
 ```
 
 Agents retrieves active agents.
+
+<a name="NodeService.Get"></a>
+### func \(\*NodeService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L67-L70>)
+
+```go
+func (s *NodeService) Get(ctx context.Context, hostname string) (*gen.GetNodeDetailsResponse, error)
+```
+
+Get retrieves detailed information about a specific agent by hostname.
 
 <a name="NodeService.Hostname"></a>
 ### func \(\*NodeService\) [Hostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L35-L38>)

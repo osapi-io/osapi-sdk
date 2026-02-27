@@ -22,6 +22,12 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
+// Defines values for AgentInfoStatus.
+const (
+	NotReady AgentInfoStatus = "NotReady"
+	Ready    AgentInfoStatus = "Ready"
+)
+
 // Defines values for DNSUpdateResultItemStatus.
 const (
 	DNSUpdateResultItemStatusFailed DNSUpdateResultItemStatus = "failed"
@@ -41,6 +47,42 @@ const (
 type AgentInfo struct {
 	// Hostname The hostname of the agent.
 	Hostname string `json:"hostname"`
+
+	// Labels Key-value labels configured on the agent.
+	Labels *map[string]string `json:"labels,omitempty"`
+
+	// LoadAverage The system load averages for 1, 5, and 15 minutes.
+	LoadAverage *LoadAverageResponse `json:"load_average,omitempty"`
+
+	// Memory Memory usage information.
+	Memory *MemoryResponse `json:"memory,omitempty"`
+
+	// OsInfo Operating system information.
+	OsInfo *OSInfoResponse `json:"os_info,omitempty"`
+
+	// RegisteredAt When the agent last refreshed its heartbeat.
+	RegisteredAt *time.Time `json:"registered_at,omitempty"`
+
+	// StartedAt When the agent process started.
+	StartedAt *time.Time `json:"started_at,omitempty"`
+
+	// Status The current status of the agent.
+	Status AgentInfoStatus `json:"status"`
+
+	// Uptime The system uptime.
+	Uptime *string `json:"uptime,omitempty"`
+}
+
+// AgentInfoStatus The current status of the agent.
+type AgentInfoStatus string
+
+// AgentStats defines model for AgentStats.
+type AgentStats struct {
+	// Ready Number of agents with Ready status.
+	Ready int `json:"ready"`
+
+	// Total Total number of registered agents.
+	Total int `json:"total"`
 }
 
 // AuditEntry defines model for AuditEntry.
@@ -538,6 +580,8 @@ type RetryJobRequest struct {
 
 // StatusResponse defines model for StatusResponse.
 type StatusResponse struct {
+	Agents *AgentStats `json:"agents,omitempty"`
+
 	// Components Per-component health status.
 	Components map[string]ComponentHealth `json:"components"`
 	Jobs       *JobStats                  `json:"jobs,omitempty"`
@@ -808,6 +852,9 @@ type ClientInterface interface {
 
 	// GetNodeStatus request
 	GetNodeStatus(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNodeDetails request
+	GetNodeDetails(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetVersion request
 	GetVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1115,6 +1162,18 @@ func (c *Client) GetNodeHostname(ctx context.Context, params *GetNodeHostnamePar
 
 func (c *Client) GetNodeStatus(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetNodeStatusRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNodeDetails(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeDetailsRequest(c.Server, hostname)
 	if err != nil {
 		return nil, err
 	}
@@ -2036,6 +2095,40 @@ func NewGetNodeStatusRequest(server string, params *GetNodeStatusParams) (*http.
 	return req, nil
 }
 
+// NewGetNodeDetailsRequest generates requests for GetNodeDetails
+func NewGetNodeDetailsRequest(server string, hostname string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetVersionRequest generates requests for GetVersion
 func NewGetVersionRequest(server string) (*http.Request, error) {
 	var err error
@@ -2177,6 +2270,9 @@ type ClientWithResponsesInterface interface {
 
 	// GetNodeStatusWithResponse request
 	GetNodeStatusWithResponse(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error)
+
+	// GetNodeDetailsWithResponse request
+	GetNodeDetailsWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*GetNodeDetailsResponse, error)
 
 	// GetVersionWithResponse request
 	GetVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetVersionResponse, error)
@@ -2693,6 +2789,32 @@ func (r GetNodeStatusResponse) StatusCode() int {
 	return 0
 }
 
+type GetNodeDetailsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AgentInfo
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON404      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNodeDetailsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNodeDetailsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetVersionResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2941,6 +3063,15 @@ func (c *ClientWithResponses) GetNodeStatusWithResponse(ctx context.Context, par
 		return nil, err
 	}
 	return ParseGetNodeStatusResponse(rsp)
+}
+
+// GetNodeDetailsWithResponse request returning *GetNodeDetailsResponse
+func (c *ClientWithResponses) GetNodeDetailsWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*GetNodeDetailsResponse, error) {
+	rsp, err := c.GetNodeDetails(ctx, hostname, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNodeDetailsResponse(rsp)
 }
 
 // GetVersionWithResponse request returning *GetVersionResponse
@@ -3956,6 +4087,60 @@ func ParseGetNodeStatusResponse(rsp *http.Response) (*GetNodeStatusResponse, err
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNodeDetailsResponse parses an HTTP response from a GetNodeDetailsWithResponse call
+func ParseGetNodeDetailsResponse(rsp *http.Response) (*GetNodeDetailsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNodeDetailsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AgentInfo
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
