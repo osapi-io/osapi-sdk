@@ -32,7 +32,7 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
 
-type NodePublicTestSuite struct {
+type AgentPublicTestSuite struct {
 	suite.Suite
 
 	ctx    context.Context
@@ -40,7 +40,7 @@ type NodePublicTestSuite struct {
 	sut    *osapi.Client
 }
 
-func (suite *NodePublicTestSuite) SetupTest() {
+func (suite *AgentPublicTestSuite) SetupTest() {
 	suite.ctx = context.Background()
 
 	suite.server = httptest.NewServer(
@@ -60,19 +60,17 @@ func (suite *NodePublicTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 }
 
-func (suite *NodePublicTestSuite) TearDownTest() {
+func (suite *AgentPublicTestSuite) TearDownTest() {
 	suite.server.Close()
 }
 
-func (suite *NodePublicTestSuite) TestHostname() {
+func (suite *AgentPublicTestSuite) TestList() {
 	tests := []struct {
 		name         string
-		target       string
 		validateFunc func(error)
 	}{
 		{
-			name:   "when requesting hostname returns no error",
-			target: "_any",
+			name: "when requesting agents returns no error",
 			validateFunc: func(err error) {
 				suite.NoError(err)
 			},
@@ -81,21 +79,21 @@ func (suite *NodePublicTestSuite) TestHostname() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Node.Hostname(suite.ctx, tc.target)
+			_, err := suite.sut.Agent.List(suite.ctx)
 			tc.validateFunc(err)
 		})
 	}
 }
 
-func (suite *NodePublicTestSuite) TestStatus() {
+func (suite *AgentPublicTestSuite) TestGet() {
 	tests := []struct {
 		name         string
-		target       string
+		hostname     string
 		validateFunc func(error)
 	}{
 		{
-			name:   "when requesting status returns no error",
-			target: "_any",
+			name:     "when requesting agent details returns no error",
+			hostname: "server1",
 			validateFunc: func(err error) {
 				suite.NoError(err)
 			},
@@ -104,12 +102,12 @@ func (suite *NodePublicTestSuite) TestStatus() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Node.Status(suite.ctx, tc.target)
+			_, err := suite.sut.Agent.Get(suite.ctx, tc.hostname)
 			tc.validateFunc(err)
 		})
 	}
 }
 
-func TestNodePublicTestSuite(t *testing.T) {
-	suite.Run(t, new(NodePublicTestSuite))
+func TestAgentPublicTestSuite(t *testing.T) {
+	suite.Run(t, new(AgentPublicTestSuite))
 }

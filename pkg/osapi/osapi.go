@@ -47,7 +47,10 @@ import (
 
 // Client is the top-level OSAPI SDK client. Use New() to create one.
 type Client struct {
-	// Node provides node management operations (hostname, status, agents).
+	// Agent provides agent discovery and details operations.
+	Agent *AgentService
+
+	// Node provides node management operations (hostname, status).
 	Node *NodeService
 
 	// Network provides network management operations (DNS, ping).
@@ -136,6 +139,7 @@ func New(
 	}
 
 	c.httpClient = httpClient
+	c.Agent = &AgentService{client: httpClient}
 	c.Node = &NodeService{client: httpClient}
 	c.Network = &NetworkService{client: httpClient}
 	c.Command = &CommandService{client: httpClient}

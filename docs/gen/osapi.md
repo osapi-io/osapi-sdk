@@ -28,6 +28,9 @@ resp, err := client.Command.Exec(ctx, osapi.ExecRequest{
 
 ## Index
 
+- [type AgentService](<#AgentService>)
+  - [func \(s \*AgentService\) Get\(ctx context.Context, hostname string\) \(\*gen.GetAgentDetailsResponse, error\)](<#AgentService.Get>)
+  - [func \(s \*AgentService\) List\(ctx context.Context\) \(\*gen.GetAgentResponse, error\)](<#AgentService.List>)
 - [type AuditService](<#AuditService>)
   - [func \(s \*AuditService\) Export\(ctx context.Context\) \(\*gen.GetAuditExportResponse, error\)](<#AuditService.Export>)
   - [func \(s \*AuditService\) Get\(ctx context.Context, id string\) \(\*gen.GetAuditLogByIDResponse, error\)](<#AuditService.Get>)
@@ -57,8 +60,6 @@ resp, err := client.Command.Exec(ctx, osapi.ExecRequest{
   - [func \(s \*NetworkService\) Ping\(ctx context.Context, target string, address string\) \(\*gen.PostNetworkPingResponse, error\)](<#NetworkService.Ping>)
   - [func \(s \*NetworkService\) UpdateDNS\(ctx context.Context, target string, interfaceName string, servers \[\]string, searchDomains \[\]string\) \(\*gen.PutNetworkDNSResponse, error\)](<#NetworkService.UpdateDNS>)
 - [type NodeService](<#NodeService>)
-  - [func \(s \*NodeService\) Agents\(ctx context.Context\) \(\*gen.GetNodeResponse, error\)](<#NodeService.Agents>)
-  - [func \(s \*NodeService\) Get\(ctx context.Context, hostname string\) \(\*gen.GetNodeDetailsResponse, error\)](<#NodeService.Get>)
   - [func \(s \*NodeService\) Hostname\(ctx context.Context, target string\) \(\*gen.GetNodeHostnameResponse, error\)](<#NodeService.Hostname>)
   - [func \(s \*NodeService\) Status\(ctx context.Context, target string\) \(\*gen.GetNodeStatusResponse, error\)](<#NodeService.Status>)
 - [type Option](<#Option>)
@@ -66,6 +67,35 @@ resp, err := client.Command.Exec(ctx, osapi.ExecRequest{
   - [func WithLogger\(logger \*slog.Logger\) Option](<#WithLogger>)
 - [type ShellRequest](<#ShellRequest>)
 
+
+<a name="AgentService"></a>
+## type [AgentService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L30-L32>)
+
+AgentService provides agent discovery and details operations.
+
+```go
+type AgentService struct {
+    // contains filtered or unexported fields
+}
+```
+
+<a name="AgentService.Get"></a>
+### func \(\*AgentService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L42-L45>)
+
+```go
+func (s *AgentService) Get(ctx context.Context, hostname string) (*gen.GetAgentDetailsResponse, error)
+```
+
+Get retrieves detailed information about a specific agent by hostname.
+
+<a name="AgentService.List"></a>
+### func \(\*AgentService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L35-L37>)
+
+```go
+func (s *AgentService) List(ctx context.Context) (*gen.GetAgentResponse, error)
+```
+
+List retrieves all active agents.
 
 <a name="AuditService"></a>
 ## type [AuditService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/audit.go#L32-L34>)
@@ -106,13 +136,16 @@ func (s *AuditService) List(ctx context.Context, limit int, offset int) (*gen.Ge
 List retrieves audit log entries with pagination.
 
 <a name="Client"></a>
-## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L49-L75>)
+## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L49-L78>)
 
 Client is the top\-level OSAPI SDK client. Use New\(\) to create one.
 
 ```go
 type Client struct {
-    // Node provides node management operations (hostname, status, agents).
+    // Agent provides agent discovery and details operations.
+    Agent *AgentService
+
+    // Node provides node management operations (hostname, status).
     Node *NodeService
 
     // Network provides network management operations (DNS, ping).
@@ -137,7 +170,7 @@ type Client struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L108-L112>)
+### func [New](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L111-L115>)
 
 ```go
 func New(baseURL string, bearerToken string, opts ...Option) (*Client, error)
@@ -390,24 +423,6 @@ type NodeService struct {
 }
 ```
 
-<a name="NodeService.Agents"></a>
-### func \(\*NodeService\) [Agents](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L60-L62>)
-
-```go
-func (s *NodeService) Agents(ctx context.Context) (*gen.GetNodeResponse, error)
-```
-
-Agents retrieves active agents.
-
-<a name="NodeService.Get"></a>
-### func \(\*NodeService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L67-L70>)
-
-```go
-func (s *NodeService) Get(ctx context.Context, hostname string) (*gen.GetNodeDetailsResponse, error)
-```
-
-Get retrieves detailed information about a specific agent by hostname.
-
 <a name="NodeService.Hostname"></a>
 ### func \(\*NodeService\) [Hostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L35-L38>)
 
@@ -427,7 +442,7 @@ func (s *NodeService) Status(ctx context.Context, target string) (*gen.GetNodeSt
 Status retrieves node status \(OS info, disk, memory, load\) from the target host.
 
 <a name="Option"></a>
-## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L78>)
+## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L81>)
 
 Option configures the Client.
 
@@ -436,7 +451,7 @@ type Option func(*Client)
 ```
 
 <a name="WithHTTPTransport"></a>
-### func [WithHTTPTransport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L90-L92>)
+### func [WithHTTPTransport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L93-L95>)
 
 ```go
 func WithHTTPTransport(transport http.RoundTripper) Option
@@ -445,7 +460,7 @@ func WithHTTPTransport(transport http.RoundTripper) Option
 WithHTTPTransport sets a custom base HTTP transport.
 
 <a name="WithLogger"></a>
-### func [WithLogger](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L81-L83>)
+### func [WithLogger](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L84-L86>)
 
 ```go
 func WithLogger(logger *slog.Logger) Option
