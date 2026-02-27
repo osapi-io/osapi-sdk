@@ -26,32 +26,22 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
 
-// NodeService provides node management operations.
-type NodeService struct {
+// AgentService provides agent discovery and details operations.
+type AgentService struct {
 	client *gen.ClientWithResponses
 }
 
-// Hostname retrieves the hostname from the target host.
-func (s *NodeService) Hostname(
+// List retrieves all active agents.
+func (s *AgentService) List(
 	ctx context.Context,
-	target string,
-) (*gen.GetNodeHostnameResponse, error) {
-	params := &gen.GetNodeHostnameParams{
-		TargetHostname: &target,
-	}
-
-	return s.client.GetNodeHostnameWithResponse(ctx, params)
+) (*gen.GetAgentResponse, error) {
+	return s.client.GetAgentWithResponse(ctx)
 }
 
-// Status retrieves node status (OS info, disk, memory, load) from the
-// target host.
-func (s *NodeService) Status(
+// Get retrieves detailed information about a specific agent by hostname.
+func (s *AgentService) Get(
 	ctx context.Context,
-	target string,
-) (*gen.GetNodeStatusResponse, error) {
-	params := &gen.GetNodeStatusParams{
-		TargetHostname: &target,
-	}
-
-	return s.client.GetNodeStatusWithResponse(ctx, params)
+	hostname string,
+) (*gen.GetAgentDetailsResponse, error) {
+	return s.client.GetAgentDetailsWithResponse(ctx, hostname)
 }
