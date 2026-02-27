@@ -39,7 +39,7 @@ type ExecRequest struct {
 	// Args is the argument list passed to the command.
 	Args []string
 
-	// Cwd is the working directory. Empty uses the worker default.
+	// Cwd is the working directory. Empty uses the agent default.
 	Cwd string
 
 	// Timeout in seconds. Zero uses the server default (30s).
@@ -55,7 +55,7 @@ type ShellRequest struct {
 	// Command is the shell command string passed to /bin/sh -c (required).
 	Command string
 
-	// Cwd is the working directory. Empty uses the worker default.
+	// Cwd is the working directory. Empty uses the agent default.
 	Cwd string
 
 	// Timeout in seconds. Zero uses the server default (30s).

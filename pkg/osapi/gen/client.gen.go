@@ -37,6 +37,12 @@ const (
 	GetJobParamsStatusSubmitted      GetJobParamsStatus = "submitted"
 )
 
+// AgentInfo defines model for AgentInfo.
+type AgentInfo struct {
+	// Hostname The hostname of the agent.
+	Hostname string `json:"hostname"`
+}
+
 // AuditEntry defines model for AuditEntry.
 type AuditEntry struct {
 	// DurationMs Request duration in milliseconds.
@@ -105,13 +111,13 @@ type CommandResultItem struct {
 	// DurationMs Execution time in milliseconds.
 	DurationMs *int64 `json:"duration_ms,omitempty"`
 
-	// Error Error message if the worker failed to process the request.
+	// Error Error message if the agent failed to process the request.
 	Error *string `json:"error,omitempty"`
 
 	// ExitCode Exit code of the command.
 	ExitCode *int `json:"exit_code,omitempty"`
 
-	// Hostname The hostname of the worker that executed the command.
+	// Hostname The hostname of the agent that executed the command.
 	Hostname string `json:"hostname"`
 
 	// Stderr Standard error output of the command.
@@ -175,10 +181,10 @@ type DNSConfigCollectionResponse struct {
 
 // DNSConfigResponse defines model for DNSConfigResponse.
 type DNSConfigResponse struct {
-	// Error Error message if the worker failed to process the request.
+	// Error Error message if the agent failed to process the request.
 	Error *string `json:"error,omitempty"`
 
-	// Hostname The hostname of the worker that served this DNS config.
+	// Hostname The hostname of the agent that served this DNS config.
 	Hostname string `json:"hostname"`
 
 	// SearchDomains List of search domains.
@@ -264,25 +270,32 @@ type HostnameCollectionResponse struct {
 
 // HostnameResponse The hostname of the system.
 type HostnameResponse struct {
-	// Error Error message if the worker failed to process the request.
+	// Error Error message if the agent failed to process the request.
 	Error *string `json:"error,omitempty"`
 
 	// Hostname The system's hostname.
 	Hostname string `json:"hostname"`
 
-	// Labels Key-value labels configured on the worker.
+	// Labels Key-value labels configured on the agent.
 	Labels *map[string]string `json:"labels,omitempty"`
 }
 
 // JobDetailResponse defines model for JobDetailResponse.
 type JobDetailResponse struct {
+	// AgentStates Per-agent processing state for broadcast jobs.
+	AgentStates *map[string]struct {
+		Duration *string `json:"duration,omitempty"`
+		Error    *string `json:"error,omitempty"`
+		Status   *string `json:"status,omitempty"`
+	} `json:"agent_states,omitempty"`
+
 	// Created Creation timestamp.
 	Created *string `json:"created,omitempty"`
 
 	// Error Error message if failed.
 	Error *string `json:"error,omitempty"`
 
-	// Hostname Worker hostname that processed the job.
+	// Hostname Agent hostname that processed the job.
 	Hostname *string `json:"hostname,omitempty"`
 
 	// Id Unique identifier of the job.
@@ -291,9 +304,9 @@ type JobDetailResponse struct {
 	// Operation The operation data.
 	Operation *map[string]interface{} `json:"operation,omitempty"`
 
-	// Responses Per-worker response data for broadcast jobs.
+	// Responses Per-agent response data for broadcast jobs.
 	Responses *map[string]struct {
-		// Data Worker result data.
+		// Data Agent result data.
 		Data     interface{} `json:"data,omitempty"`
 		Error    *string     `json:"error,omitempty"`
 		Hostname *string     `json:"hostname,omitempty"`
@@ -314,7 +327,7 @@ type JobDetailResponse struct {
 		// Event Event type (submitted, acknowledged, started, completed, failed, retried).
 		Event *string `json:"event,omitempty"`
 
-		// Hostname Worker or source that generated the event.
+		// Hostname Agent or source that generated the event.
 		Hostname *string `json:"hostname,omitempty"`
 
 		// Message Human-readable description of the event.
@@ -326,13 +339,6 @@ type JobDetailResponse struct {
 
 	// UpdatedAt Last update timestamp.
 	UpdatedAt *string `json:"updated_at,omitempty"`
-
-	// WorkerStates Per-worker processing state for broadcast jobs.
-	WorkerStates *map[string]struct {
-		Duration *string `json:"duration,omitempty"`
-		Error    *string `json:"error,omitempty"`
-		Status   *string `json:"status,omitempty"`
-	} `json:"worker_states,omitempty"`
 }
 
 // JobStats defines model for JobStats.
@@ -368,6 +374,14 @@ type KVBucketInfo struct {
 	Name string `json:"name"`
 }
 
+// ListAgentsResponse defines model for ListAgentsResponse.
+type ListAgentsResponse struct {
+	Agents []AgentInfo `json:"agents"`
+
+	// Total Total number of active agents.
+	Total int `json:"total"`
+}
+
 // ListAuditResponse defines model for ListAuditResponse.
 type ListAuditResponse struct {
 	// Items The audit entries for this page.
@@ -383,13 +397,6 @@ type ListJobsResponse struct {
 
 	// TotalItems Total number of jobs matching the filter.
 	TotalItems *int `json:"total_items,omitempty"`
-}
-
-// ListWorkersResponse defines model for ListWorkersResponse.
-type ListWorkersResponse struct {
-	// Total Total number of active workers.
-	Total   int          `json:"total"`
-	Workers []WorkerInfo `json:"workers"`
 }
 
 // LoadAverageResponse The system load averages for 1, 5, and 15 minutes.
@@ -425,6 +432,37 @@ type NATSInfo struct {
 	Version string `json:"version"`
 }
 
+// NodeStatusCollectionResponse defines model for NodeStatusCollectionResponse.
+type NodeStatusCollectionResponse struct {
+	// JobId The job ID used to process this request.
+	JobId   *openapi_types.UUID  `json:"job_id,omitempty"`
+	Results []NodeStatusResponse `json:"results"`
+}
+
+// NodeStatusResponse defines model for NodeStatusResponse.
+type NodeStatusResponse struct {
+	// Disks List of local disk usage information.
+	Disks *DisksResponse `json:"disks,omitempty"`
+
+	// Error Error message if the agent failed to process the request.
+	Error *string `json:"error,omitempty"`
+
+	// Hostname The hostname of the system.
+	Hostname string `json:"hostname"`
+
+	// LoadAverage The system load averages for 1, 5, and 15 minutes.
+	LoadAverage *LoadAverageResponse `json:"load_average,omitempty"`
+
+	// Memory Memory usage information.
+	Memory *MemoryResponse `json:"memory,omitempty"`
+
+	// OsInfo Operating system information.
+	OsInfo *OSInfoResponse `json:"os_info,omitempty"`
+
+	// Uptime The uptime of the system.
+	Uptime *string `json:"uptime,omitempty"`
+}
+
 // OSInfoResponse Operating system information.
 type OSInfoResponse struct {
 	// Distribution The name of the Linux distribution.
@@ -446,10 +484,10 @@ type PingResponse struct {
 	// AvgRtt Average round-trip time as a string in Go's time.Duration format.
 	AvgRtt *string `json:"avg_rtt,omitempty"`
 
-	// Error Error message if the worker failed to process the request.
+	// Error Error message if the agent failed to process the request.
 	Error *string `json:"error,omitempty"`
 
-	// Hostname The hostname of the worker that executed the ping.
+	// Hostname The hostname of the agent that executed the ping.
 	Hostname string `json:"hostname"`
 
 	// MaxRtt Maximum round-trip time as a string in Go's time.Duration format.
@@ -536,43 +574,6 @@ type StreamInfo struct {
 	Name string `json:"name"`
 }
 
-// SystemStatusCollectionResponse defines model for SystemStatusCollectionResponse.
-type SystemStatusCollectionResponse struct {
-	// JobId The job ID used to process this request.
-	JobId   *openapi_types.UUID    `json:"job_id,omitempty"`
-	Results []SystemStatusResponse `json:"results"`
-}
-
-// SystemStatusResponse defines model for SystemStatusResponse.
-type SystemStatusResponse struct {
-	// Disks List of local disk usage information.
-	Disks *DisksResponse `json:"disks,omitempty"`
-
-	// Error Error message if the worker failed to process the request.
-	Error *string `json:"error,omitempty"`
-
-	// Hostname The hostname of the system.
-	Hostname string `json:"hostname"`
-
-	// LoadAverage The system load averages for 1, 5, and 15 minutes.
-	LoadAverage *LoadAverageResponse `json:"load_average,omitempty"`
-
-	// Memory Memory usage information.
-	Memory *MemoryResponse `json:"memory,omitempty"`
-
-	// OsInfo Operating system information.
-	OsInfo *OSInfoResponse `json:"os_info,omitempty"`
-
-	// Uptime The uptime of the system.
-	Uptime *string `json:"uptime,omitempty"`
-}
-
-// WorkerInfo defines model for WorkerInfo.
-type WorkerInfo struct {
-	// Hostname The hostname of the worker.
-	Hostname string `json:"hostname"`
-}
-
 // GetAuditLogsParams defines parameters for GetAuditLogs.
 type GetAuditLogsParams struct {
 	// Limit Maximum number of entries to return.
@@ -633,14 +634,14 @@ type PostNetworkPingParams struct {
 	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
 }
 
-// GetSystemHostnameParams defines parameters for GetSystemHostname.
-type GetSystemHostnameParams struct {
+// GetNodeHostnameParams defines parameters for GetNodeHostname.
+type GetNodeHostnameParams struct {
 	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
 	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
 }
 
-// GetSystemStatusParams defines parameters for GetSystemStatus.
-type GetSystemStatusParams struct {
+// GetNodeStatusParams defines parameters for GetNodeStatus.
+type GetNodeStatusParams struct {
 	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
 	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
 }
@@ -775,9 +776,6 @@ type ClientInterface interface {
 	// GetJobStatus request
 	GetJobStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetJobWorkers request
-	GetJobWorkers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// DeleteJobByID request
 	DeleteJobByID(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -802,11 +800,14 @@ type ClientInterface interface {
 
 	PostNetworkPing(ctx context.Context, params *PostNetworkPingParams, body PostNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetSystemHostname request
-	GetSystemHostname(ctx context.Context, params *GetSystemHostnameParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetNode request
+	GetNode(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetSystemStatus request
-	GetSystemStatus(ctx context.Context, params *GetSystemStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetNodeHostname request
+	GetNodeHostname(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNodeStatus request
+	GetNodeStatus(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetVersion request
 	GetVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -980,18 +981,6 @@ func (c *Client) GetJobStatus(ctx context.Context, reqEditors ...RequestEditorFn
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetJobWorkers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetJobWorkersRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) DeleteJobByID(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteJobByIDRequest(c.Server, id)
 	if err != nil {
@@ -1100,8 +1089,8 @@ func (c *Client) PostNetworkPing(ctx context.Context, params *PostNetworkPingPar
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetSystemHostname(ctx context.Context, params *GetSystemHostnameParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetSystemHostnameRequest(c.Server, params)
+func (c *Client) GetNode(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1112,8 +1101,20 @@ func (c *Client) GetSystemHostname(ctx context.Context, params *GetSystemHostnam
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetSystemStatus(ctx context.Context, params *GetSystemStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetSystemStatusRequest(c.Server, params)
+func (c *Client) GetNodeHostname(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeHostnameRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNodeStatus(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeStatusRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1615,33 +1616,6 @@ func NewGetJobStatusRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewGetJobWorkersRequest generates requests for GetJobWorkers
-func NewGetJobWorkersRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/job/workers")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 // NewDeleteJobByIDRequest generates requests for DeleteJobByID
 func NewDeleteJobByIDRequest(server string, id openapi_types.UUID) (*http.Request, error) {
 	var err error
@@ -1937,8 +1911,8 @@ func NewPostNetworkPingRequestWithBody(server string, params *PostNetworkPingPar
 	return req, nil
 }
 
-// NewGetSystemHostnameRequest generates requests for GetSystemHostname
-func NewGetSystemHostnameRequest(server string, params *GetSystemHostnameParams) (*http.Request, error) {
+// NewGetNodeRequest generates requests for GetNode
+func NewGetNodeRequest(server string) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -1946,7 +1920,34 @@ func NewGetSystemHostnameRequest(server string, params *GetSystemHostnameParams)
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/system/hostname")
+	operationPath := fmt.Sprintf("/node")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetNodeHostnameRequest generates requests for GetNodeHostname
+func NewGetNodeHostnameRequest(server string, params *GetNodeHostnameParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/hostname")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1986,8 +1987,8 @@ func NewGetSystemHostnameRequest(server string, params *GetSystemHostnameParams)
 	return req, nil
 }
 
-// NewGetSystemStatusRequest generates requests for GetSystemStatus
-func NewGetSystemStatusRequest(server string, params *GetSystemStatusParams) (*http.Request, error) {
+// NewGetNodeStatusRequest generates requests for GetNodeStatus
+func NewGetNodeStatusRequest(server string, params *GetNodeStatusParams) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -1995,7 +1996,7 @@ func NewGetSystemStatusRequest(server string, params *GetSystemStatusParams) (*h
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/system/status")
+	operationPath := fmt.Sprintf("/node/status")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2144,9 +2145,6 @@ type ClientWithResponsesInterface interface {
 	// GetJobStatusWithResponse request
 	GetJobStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetJobStatusResponse, error)
 
-	// GetJobWorkersWithResponse request
-	GetJobWorkersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetJobWorkersResponse, error)
-
 	// DeleteJobByIDWithResponse request
 	DeleteJobByIDWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteJobByIDResponse, error)
 
@@ -2171,11 +2169,14 @@ type ClientWithResponsesInterface interface {
 
 	PostNetworkPingWithResponse(ctx context.Context, params *PostNetworkPingParams, body PostNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNetworkPingResponse, error)
 
-	// GetSystemHostnameWithResponse request
-	GetSystemHostnameWithResponse(ctx context.Context, params *GetSystemHostnameParams, reqEditors ...RequestEditorFn) (*GetSystemHostnameResponse, error)
+	// GetNodeWithResponse request
+	GetNodeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetNodeResponse, error)
 
-	// GetSystemStatusWithResponse request
-	GetSystemStatusWithResponse(ctx context.Context, params *GetSystemStatusParams, reqEditors ...RequestEditorFn) (*GetSystemStatusResponse, error)
+	// GetNodeHostnameWithResponse request
+	GetNodeHostnameWithResponse(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*GetNodeHostnameResponse, error)
+
+	// GetNodeStatusWithResponse request
+	GetNodeStatusWithResponse(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error)
 
 	// GetVersionWithResponse request
 	GetVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetVersionResponse, error)
@@ -2457,31 +2458,6 @@ func (r GetJobStatusResponse) StatusCode() int {
 	return 0
 }
 
-type GetJobWorkersResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *ListWorkersResponse
-	JSON401      *ErrorResponse
-	JSON403      *ErrorResponse
-	JSON500      *ErrorResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r GetJobWorkersResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetJobWorkersResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 type DeleteJobByIDResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -2640,7 +2616,32 @@ func (r PostNetworkPingResponse) StatusCode() int {
 	return 0
 }
 
-type GetSystemHostnameResponse struct {
+type GetNodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *ListAgentsResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNodeHostnameResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *HostnameCollectionResponse
@@ -2651,7 +2652,7 @@ type GetSystemHostnameResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetSystemHostnameResponse) Status() string {
+func (r GetNodeHostnameResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2659,17 +2660,17 @@ func (r GetSystemHostnameResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetSystemHostnameResponse) StatusCode() int {
+func (r GetNodeHostnameResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type GetSystemStatusResponse struct {
+type GetNodeStatusResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *SystemStatusCollectionResponse
+	JSON200      *NodeStatusCollectionResponse
 	JSON400      *ErrorResponse
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
@@ -2677,7 +2678,7 @@ type GetSystemStatusResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetSystemStatusResponse) Status() string {
+func (r GetNodeStatusResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2685,7 +2686,7 @@ func (r GetSystemStatusResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetSystemStatusResponse) StatusCode() int {
+func (r GetNodeStatusResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2837,15 +2838,6 @@ func (c *ClientWithResponses) GetJobStatusWithResponse(ctx context.Context, reqE
 	return ParseGetJobStatusResponse(rsp)
 }
 
-// GetJobWorkersWithResponse request returning *GetJobWorkersResponse
-func (c *ClientWithResponses) GetJobWorkersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetJobWorkersResponse, error) {
-	rsp, err := c.GetJobWorkers(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetJobWorkersResponse(rsp)
-}
-
 // DeleteJobByIDWithResponse request returning *DeleteJobByIDResponse
 func (c *ClientWithResponses) DeleteJobByIDWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteJobByIDResponse, error) {
 	rsp, err := c.DeleteJobByID(ctx, id, reqEditors...)
@@ -2924,22 +2916,31 @@ func (c *ClientWithResponses) PostNetworkPingWithResponse(ctx context.Context, p
 	return ParsePostNetworkPingResponse(rsp)
 }
 
-// GetSystemHostnameWithResponse request returning *GetSystemHostnameResponse
-func (c *ClientWithResponses) GetSystemHostnameWithResponse(ctx context.Context, params *GetSystemHostnameParams, reqEditors ...RequestEditorFn) (*GetSystemHostnameResponse, error) {
-	rsp, err := c.GetSystemHostname(ctx, params, reqEditors...)
+// GetNodeWithResponse request returning *GetNodeResponse
+func (c *ClientWithResponses) GetNodeWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetNodeResponse, error) {
+	rsp, err := c.GetNode(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetSystemHostnameResponse(rsp)
+	return ParseGetNodeResponse(rsp)
 }
 
-// GetSystemStatusWithResponse request returning *GetSystemStatusResponse
-func (c *ClientWithResponses) GetSystemStatusWithResponse(ctx context.Context, params *GetSystemStatusParams, reqEditors ...RequestEditorFn) (*GetSystemStatusResponse, error) {
-	rsp, err := c.GetSystemStatus(ctx, params, reqEditors...)
+// GetNodeHostnameWithResponse request returning *GetNodeHostnameResponse
+func (c *ClientWithResponses) GetNodeHostnameWithResponse(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*GetNodeHostnameResponse, error) {
+	rsp, err := c.GetNodeHostname(ctx, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetSystemStatusResponse(rsp)
+	return ParseGetNodeHostnameResponse(rsp)
+}
+
+// GetNodeStatusWithResponse request returning *GetNodeStatusResponse
+func (c *ClientWithResponses) GetNodeStatusWithResponse(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error) {
+	rsp, err := c.GetNodeStatus(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNodeStatusResponse(rsp)
 }
 
 // GetVersionWithResponse request returning *GetVersionResponse
@@ -3475,53 +3476,6 @@ func ParseGetJobStatusResponse(rsp *http.Response) (*GetJobStatusResponse, error
 	return response, nil
 }
 
-// ParseGetJobWorkersResponse parses an HTTP response from a GetJobWorkersWithResponse call
-func ParseGetJobWorkersResponse(rsp *http.Response) (*GetJobWorkersResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetJobWorkersResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest ListWorkersResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ParseDeleteJobByIDResponse parses an HTTP response from a DeleteJobByIDWithResponse call
 func ParseDeleteJobByIDResponse(rsp *http.Response) (*DeleteJobByIDResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -3860,15 +3814,62 @@ func ParsePostNetworkPingResponse(rsp *http.Response) (*PostNetworkPingResponse,
 	return response, nil
 }
 
-// ParseGetSystemHostnameResponse parses an HTTP response from a GetSystemHostnameWithResponse call
-func ParseGetSystemHostnameResponse(rsp *http.Response) (*GetSystemHostnameResponse, error) {
+// ParseGetNodeResponse parses an HTTP response from a GetNodeWithResponse call
+func ParseGetNodeResponse(rsp *http.Response) (*GetNodeResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetSystemHostnameResponse{
+	response := &GetNodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest ListAgentsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNodeHostnameResponse parses an HTTP response from a GetNodeHostnameWithResponse call
+func ParseGetNodeHostnameResponse(rsp *http.Response) (*GetNodeHostnameResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNodeHostnameResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -3914,22 +3915,22 @@ func ParseGetSystemHostnameResponse(rsp *http.Response) (*GetSystemHostnameRespo
 	return response, nil
 }
 
-// ParseGetSystemStatusResponse parses an HTTP response from a GetSystemStatusWithResponse call
-func ParseGetSystemStatusResponse(rsp *http.Response) (*GetSystemStatusResponse, error) {
+// ParseGetNodeStatusResponse parses an HTTP response from a GetNodeStatusWithResponse call
+func ParseGetNodeStatusResponse(rsp *http.Response) (*GetNodeStatusResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetSystemStatusResponse{
+	response := &GetNodeStatusResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest SystemStatusCollectionResponse
+		var dest NodeStatusCollectionResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

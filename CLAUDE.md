@@ -24,10 +24,10 @@ just fetch / just deps / just test / just go::unit / just go::vet / just go::fmt
 - **`pkg/osapi/`** - Core SDK library
   - `osapi.go` - Client struct, New() factory, Option funcs
   - `transport.go` - HTTP transport with Bearer token and OTel tracing
-  - `system.go` - SystemService (hostname, status)
+  - `node.go` - NodeService (hostname, status, agents)
   - `network.go` - NetworkService (DNS get/update, ping)
   - `command.go` - CommandService (exec, shell)
-  - `job.go` - JobService (create, get, list, delete, retry, stats, workers)
+  - `job.go` - JobService (create, get, list, delete, retry, stats)
   - `health.go` - HealthService (liveness, readiness, status)
   - `audit.go` - AuditService (list, get, export)
   - `metrics.go` - MetricsService (Prometheus text)

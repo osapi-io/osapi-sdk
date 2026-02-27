@@ -29,7 +29,7 @@
 //	}
 //
 //	// Get hostname
-//	resp, err := client.System.Hostname(ctx, "_any")
+//	resp, err := client.Node.Hostname(ctx, "_any")
 //
 //	// Execute a command
 //	resp, err := client.Command.Exec(ctx, osapi.ExecRequest{
@@ -47,8 +47,8 @@ import (
 
 // Client is the top-level OSAPI SDK client. Use New() to create one.
 type Client struct {
-	// System provides system management operations (hostname, status).
-	System *SystemService
+	// Node provides node management operations (hostname, status, agents).
+	Node *NodeService
 
 	// Network provides network management operations (DNS, ping).
 	Network *NetworkService
@@ -136,7 +136,7 @@ func New(
 	}
 
 	c.httpClient = httpClient
-	c.System = &SystemService{client: httpClient}
+	c.Node = &NodeService{client: httpClient}
 	c.Network = &NetworkService{client: httpClient}
 	c.Command = &CommandService{client: httpClient}
 	c.Job = &JobService{client: httpClient}

@@ -15,5 +15,5 @@ repositories:
         dstDir: pkg/osapi/gen/job/gen/
       - src: internal/api/network/gen/api.yaml
         dstDir: pkg/osapi/gen/network/gen/
-      - src: internal/api/system/gen/api.yaml
-        dstDir: pkg/osapi/gen/system/gen/
+      - src: internal/api/node/gen/api.yaml
+        dstDir: pkg/osapi/gen/node/gen/
