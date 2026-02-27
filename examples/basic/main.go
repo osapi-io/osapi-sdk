@@ -48,14 +48,14 @@ func main() {
 
 	ctx := context.Background()
 
-	// Get hostname from any available worker.
-	hostnameResp, err := client.System.Hostname(ctx, "_any")
+	// Get hostname from any available agent.
+	hostnameResp, err := client.Node.Hostname(ctx, "_any")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Hostname response status: %d\n", hostnameResp.StatusCode())
 
-	// Execute a command on any available worker.
+	// Execute a command on any available agent.
 	execResp, err := client.Command.Exec(ctx, osapi.ExecRequest{
 		Command: "uptime",
 		Target:  "_any",

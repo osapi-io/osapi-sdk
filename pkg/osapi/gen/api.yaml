@@ -24,12 +24,12 @@ tags:
   - name: Network_Management_API_dns_operations
     x-displayName: Network/DNS
     description: Operations related to DNS configuration.
-  - name: System_Management_API_system_operations
-    x-displayName: System
-    description: Operations related to the system endpoint.
-  - name: System_Management_API_system_status
-    x-displayName: System/Status
-    description: Operations related to system status endpoint.
+  - name: Node_Management_API_node_operations
+    x-displayName: Node
+    description: Operations related to the node endpoint.
+  - name: Node_Management_API_node_status
+    x-displayName: Node/Status
+    description: Operations related to node status endpoint.
 paths:
   /audit:
     servers: []
@@ -556,43 +556,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /job/workers:
-    servers: []
-    get:
-      summary: List active workers
-      description: >-
-        Discover all active workers in the fleet by broadcasting a hostname
-        query.
-      tags:
-        - Job_Management_API_job_operations
-      security:
-        - BearerAuth:
-            - job:read
-      responses:
-        '200':
-          description: List of active workers.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListWorkersResponse'
-        '401':
-          description: Unauthorized - API key required
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - Insufficient permissions
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Error discovering workers.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
   /job/{id}:
     servers: []
     get:
@@ -966,18 +929,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /system/status:
+  /node:
     servers: []
     get:
-      summary: Retrieve system status
-      description: >-
-        Get the current status of the system including hostname, uptime, load
-        averages, memory, and disk usage.
+      summary: List active agents
+      description: Discover all active agents in the fleet.
       tags:
-        - System_Management_API_system_status
+        - Node_Management_API_node_operations
       security:
         - BearerAuth:
-            - system:read
+            - node:read
+      responses:
+        '200':
+          description: List of active agents.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAgentsResponse'
+        '401':
+          description: Unauthorized - API key required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error discovering agents.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /node/status:
+    servers: []
+    get:
+      summary: Retrieve node status
+      description: >-
+        Get the current status of the node including hostname, uptime, load
+        averages, memory, and disk usage.
+      tags:
+        - Node_Management_API_node_status
+      security:
+        - BearerAuth:
+            - node:read
       parameters:
         - name: target_hostname
           in: query
@@ -992,11 +990,11 @@ paths:
             or key:value (label group, e.g., group:web.dev).
       responses:
         '200':
-          description: A JSON object containing the system's status information.
+          description: A JSON object containing the node's status information.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemStatusCollectionResponse'
+                $ref: '#/components/schemas/NodeStatusCollectionResponse'
         '400':
           description: Invalid request parameters.
           content:
@@ -1016,21 +1014,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
-          description: Error retrieving system status.
+          description: Error retrieving node status.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /system/hostname:
+  /node/hostname:
     servers: []
     get:
-      summary: Retrieve system hostname
-      description: Get the current hostname of the system.
+      summary: Retrieve node hostname
+      description: Get the current hostname of the node.
       tags:
-        - System_Management_API_system_operations
+        - Node_Management_API_node_operations
       security:
         - BearerAuth:
-            - system:read
+            - node:read
       parameters:
         - name: target_hostname
           in: query
@@ -1045,7 +1043,7 @@ paths:
             or key:value (label group, e.g., group:web.dev).
       responses:
         '200':
-          description: A JSON object containing the system's hostname.
+          description: A JSON object containing the node's hostname.
           content:
             application/json:
               schema:
@@ -1127,11 +1125,11 @@ components:
         path:
           type: string
           description: Request URL path.
-          example: /system/hostname
+          example: /node/hostname
         operation_id:
           type: string
           description: OpenAPI operation ID.
-          example: GetSystemHostname
+          example: GetNodeHostname
         source_ip:
           type: string
           description: Client IP address.
@@ -1236,7 +1234,7 @@ components:
       properties:
         hostname:
           type: string
-          description: The hostname of the worker that executed the command.
+          description: The hostname of the agent that executed the command.
         stdout:
           type: string
           description: Standard output of the command.
@@ -1256,7 +1254,7 @@ components:
         error:
           type: string
           description: |
-            Error message if the worker failed to process the request.
+            Error message if the agent failed to process the request.
       required:
         - hostname
     CommandResultCollectionResponse:
@@ -1524,27 +1522,27 @@ components:
           description: Error message if failed.
         hostname:
           type: string
-          description: Worker hostname that processed the job.
+          description: Agent hostname that processed the job.
         updated_at:
           type: string
           description: Last update timestamp.
         responses:
           type: object
-          description: Per-worker response data for broadcast jobs.
+          description: Per-agent response data for broadcast jobs.
           additionalProperties:
             type: object
             properties:
               status:
                 type: string
               data:
-                description: Worker result data.
+                description: Agent result data.
               error:
                 type: string
               hostname:
                 type: string
-        worker_states:
+        agent_states:
           type: object
-          description: Per-worker processing state for broadcast jobs.
+          description: Per-agent processing state for broadcast jobs.
           additionalProperties:
             type: object
             properties:
@@ -1570,34 +1568,13 @@ components:
                   failed, retried).
               hostname:
                 type: string
-                description: Worker or source that generated the event.
+                description: Agent or source that generated the event.
               message:
                 type: string
                 description: Human-readable description of the event.
               error:
                 type: string
                 description: Error details if applicable.
-    ListWorkersResponse:
-      type: object
-      properties:
-        workers:
-          type: array
-          items:
-            $ref: '#/components/schemas/WorkerInfo'
-        total:
-          type: integer
-          description: Total number of active workers.
-      required:
-        - workers
-        - total
-    WorkerInfo:
-      type: object
-      properties:
-        hostname:
-          type: string
-          description: The hostname of the worker.
-      required:
-        - hostname
     QueueStatsResponse:
       type: object
       properties:
@@ -1623,7 +1600,7 @@ components:
       properties:
         hostname:
           type: string
-          description: The hostname of the worker that executed the ping.
+          description: The hostname of the agent that executed the ping.
         packets_sent:
           type: integer
           description: Number of packets sent.
@@ -1651,7 +1628,7 @@ components:
           example: 24.309240ms
         error:
           type: string
-          description: Error message if the worker failed to process the request.
+          description: Error message if the agent failed to process the request.
       required:
         - hostname
     PingCollectionResponse:
@@ -1673,7 +1650,7 @@ components:
       properties:
         hostname:
           type: string
-          description: The hostname of the worker that served this DNS config.
+          description: The hostname of the agent that served this DNS config.
         servers:
           type: array
           description: List of configured DNS servers.
@@ -1687,7 +1664,7 @@ components:
             type: string
         error:
           type: string
-          description: Error message if the worker failed to process the request.
+          description: Error message if the agent failed to process the request.
       required:
         - hostname
     DNSConfigCollectionResponse:
@@ -1763,6 +1740,27 @@ components:
             Must only contain letters and numbers.
       required:
         - interface_name
+    ListAgentsResponse:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentInfo'
+        total:
+          type: integer
+          description: Total number of active agents.
+      required:
+        - agents
+        - total
+    AgentInfo:
+      type: object
+      properties:
+        hostname:
+          type: string
+          description: The hostname of the agent.
+      required:
+        - hostname
     LoadAverageResponse:
       type: object
       description: The system load averages for 1, 5, and 15 minutes.
@@ -1833,7 +1831,7 @@ components:
       description: List of local disk usage information.
       items:
         $ref: '#/components/schemas/DiskResponse'
-    SystemStatusResponse:
+    NodeStatusResponse:
       type: object
       properties:
         hostname:
@@ -1854,7 +1852,7 @@ components:
           $ref: '#/components/schemas/OSInfoResponse'
         error:
           type: string
-          description: Error message if the worker failed to process the request.
+          description: Error message if the agent failed to process the request.
       required:
         - hostname
     HostnameResponse:
@@ -1869,13 +1867,13 @@ components:
           type: object
           additionalProperties:
             type: string
-          description: Key-value labels configured on the worker.
+          description: Key-value labels configured on the agent.
         error:
           type: string
-          description: Error message if the worker failed to process the request.
+          description: Error message if the agent failed to process the request.
       required:
         - hostname
-    SystemStatusCollectionResponse:
+    NodeStatusCollectionResponse:
       type: object
       properties:
         job_id:
@@ -1886,7 +1884,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/SystemStatusResponse'
+            $ref: '#/components/schemas/NodeStatusResponse'
       required:
         - results
     HostnameCollectionResponse:
@@ -1938,7 +1936,7 @@ x-tagGroups:
     tags:
       - Network_Management_API_network_operations
       - Network_Management_API_dns_operations
-  - name: System Management API
+  - name: Node Management API
     tags:
-      - System_Management_API_system_operations
-      - System_Management_API_system_status
+      - Node_Management_API_node_operations
+      - Node_Management_API_node_status

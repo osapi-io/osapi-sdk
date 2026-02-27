@@ -61,7 +61,7 @@ func (suite *ClientPublicTestSuite) TestNew() {
 			validateFunc: func(c *osapi.Client, err error) {
 				suite.NoError(err)
 				suite.NotNil(c)
-				suite.NotNil(c.System)
+				suite.NotNil(c.Node)
 				suite.NotNil(c.Network)
 				suite.NotNil(c.Command)
 				suite.NotNil(c.Job)

@@ -21,25 +21,59 @@
 ---
 openapi: 3.0.0
 info:
-  title: System Management API
+  title: Node Management API
   version: 1.0.0
 tags:
-  - name: system_operations
-    x-displayName: System
-    description: Operations related to the system endpoint.
-  - name: system_status
-    x-displayName: System/Status
-    description: Operations related to system status endpoint.
+  - name: node_operations
+    x-displayName: Node
+    description: Operations related to the node endpoint.
+  - name: node_status
+    x-displayName: Node/Status
+    description: Operations related to node status endpoint.
 paths:
-  /system/status:
+  /node:
     get:
-      summary: Retrieve system status
-      description: Get the current status of the system including hostname, uptime, load averages, memory, and disk usage.
+      summary: List active agents
+      description: Discover all active agents in the fleet.
       tags:
-        - system_status
+        - node_operations
       security:
         - BearerAuth:
-            - system:read
+            - node:read
+      responses:
+        '200':
+          description: List of active agents.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAgentsResponse'
+        '401':
+          description: Unauthorized - API key required
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/gen/api.yaml#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/gen/api.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Error discovering agents.
+          content:
+            application/json:
+              schema:
+                $ref: '../../common/gen/api.yaml#/components/schemas/ErrorResponse'
+  /node/status:
+    get:
+      summary: Retrieve node status
+      description: Get the current status of the node including hostname, uptime, load averages, memory, and disk usage.
+      tags:
+        - node_status
+      security:
+        - BearerAuth:
+            - node:read
       parameters:
         - name: target_hostname
           in: query
@@ -54,11 +88,11 @@ paths:
             (direct), or key:value (label group, e.g., group:web.dev).
       responses:
         '200':
-          description: A JSON object containing the system's status information.
+          description: A JSON object containing the node's status information.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SystemStatusCollectionResponse'
+                $ref: '#/components/schemas/NodeStatusCollectionResponse'
         '400':
           description: Invalid request parameters.
           content:
@@ -78,20 +112,20 @@ paths:
               schema:
                 $ref: '../../common/gen/api.yaml#/components/schemas/ErrorResponse'
         '500':
-          description: Error retrieving system status.
+          description: Error retrieving node status.
           content:
             application/json:
               schema:
                 $ref: '../../common/gen/api.yaml#/components/schemas/ErrorResponse'
-  /system/hostname:
+  /node/hostname:
     get:
-      summary: Retrieve system hostname
-      description: Get the current hostname of the system.
+      summary: Retrieve node hostname
+      description: Get the current hostname of the node.
       tags:
-        - system_operations
+        - node_operations
       security:
         - BearerAuth:
-            - system:read
+            - node:read
       parameters:
         - name: target_hostname
           in: query
@@ -106,7 +140,7 @@ paths:
             (direct), or key:value (label group, e.g., group:web.dev).
       responses:
         '200':
-          description: A JSON object containing the system's hostname.
+          description: A JSON object containing the node's hostname.
           content:
             application/json:
               schema:
@@ -146,6 +180,29 @@ components:
   schemas:
     ErrorResponse:
       $ref: '../../common/gen/api.yaml#/components/schemas/ErrorResponse'
+
+    ListAgentsResponse:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentInfo'
+        total:
+          type: integer
+          description: Total number of active agents.
+      required:
+        - agents
+        - total
+
+    AgentInfo:
+      type: object
+      properties:
+        hostname:
+          type: string
+          description: The hostname of the agent.
+      required:
+        - hostname
 
     LoadAverageResponse:
       type: object
@@ -221,7 +278,7 @@ components:
       items:
         $ref: '#/components/schemas/DiskResponse'
 
-    SystemStatusResponse:
+    NodeStatusResponse:
       type: object
       properties:
         hostname:
@@ -242,7 +299,7 @@ components:
           $ref: '#/components/schemas/OSInfoResponse'
         error:
           type: string
-          description: Error message if the worker failed to process the request.
+          description: Error message if the agent failed to process the request.
       required:
         - hostname
 
@@ -258,14 +315,14 @@ components:
           type: object
           additionalProperties:
             type: string
-          description: Key-value labels configured on the worker.
+          description: Key-value labels configured on the agent.
         error:
           type: string
-          description: Error message if the worker failed to process the request.
+          description: Error message if the agent failed to process the request.
       required:
         - hostname
 
-    SystemStatusCollectionResponse:
+    NodeStatusCollectionResponse:
       type: object
       properties:
         job_id:
@@ -276,7 +333,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/SystemStatusResponse'
+            $ref: '#/components/schemas/NodeStatusResponse'
       required:
         - results
 

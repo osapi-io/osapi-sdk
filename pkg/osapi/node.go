@@ -26,32 +26,39 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
 
-// SystemService provides system management operations.
-type SystemService struct {
+// NodeService provides node management operations.
+type NodeService struct {
 	client *gen.ClientWithResponses
 }
 
 // Hostname retrieves the hostname from the target host.
-func (s *SystemService) Hostname(
+func (s *NodeService) Hostname(
 	ctx context.Context,
 	target string,
-) (*gen.GetSystemHostnameResponse, error) {
-	params := &gen.GetSystemHostnameParams{
+) (*gen.GetNodeHostnameResponse, error) {
+	params := &gen.GetNodeHostnameParams{
 		TargetHostname: &target,
 	}
 
-	return s.client.GetSystemHostnameWithResponse(ctx, params)
+	return s.client.GetNodeHostnameWithResponse(ctx, params)
 }
 
-// Status retrieves system status (OS info, disk, memory, load) from the
+// Status retrieves node status (OS info, disk, memory, load) from the
 // target host.
-func (s *SystemService) Status(
+func (s *NodeService) Status(
 	ctx context.Context,
 	target string,
-) (*gen.GetSystemStatusResponse, error) {
-	params := &gen.GetSystemStatusParams{
+) (*gen.GetNodeStatusResponse, error) {
+	params := &gen.GetNodeStatusParams{
 		TargetHostname: &target,
 	}
 
-	return s.client.GetSystemStatusWithResponse(ctx, params)
+	return s.client.GetNodeStatusWithResponse(ctx, params)
+}
+
+// Agents retrieves active agents.
+func (s *NodeService) Agents(
+	ctx context.Context,
+) (*gen.GetNodeResponse, error) {
+	return s.client.GetNodeWithResponse(ctx)
 }

@@ -117,13 +117,6 @@ func (s *JobService) QueueStats(
 	return s.client.GetJobStatusWithResponse(ctx)
 }
 
-// Workers retrieves active workers.
-func (s *JobService) Workers(
-	ctx context.Context,
-) (*gen.GetJobWorkersResponse, error) {
-	return s.client.GetJobWorkersWithResponse(ctx)
-}
-
 // Retry retries a failed job by ID, optionally on a different target.
 func (s *JobService) Retry(
 	ctx context.Context,

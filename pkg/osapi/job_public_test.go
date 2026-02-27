@@ -206,27 +206,6 @@ func (suite *JobPublicTestSuite) TestQueueStats() {
 	}
 }
 
-func (suite *JobPublicTestSuite) TestWorkers() {
-	tests := []struct {
-		name         string
-		validateFunc func(error)
-	}{
-		{
-			name: "when requesting workers returns no error",
-			validateFunc: func(err error) {
-				suite.NoError(err)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			_, err := suite.sut.Job.Workers(suite.ctx)
-			tc.validateFunc(err)
-		})
-	}
-}
-
 func (suite *JobPublicTestSuite) TestRetry() {
 	tests := []struct {
 		name         string
