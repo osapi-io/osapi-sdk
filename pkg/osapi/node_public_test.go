@@ -110,6 +110,29 @@ func (suite *NodePublicTestSuite) TestStatus() {
 	}
 }
 
+func (suite *NodePublicTestSuite) TestGet() {
+	tests := []struct {
+		name         string
+		hostname     string
+		validateFunc func(error)
+	}{
+		{
+			name:     "when requesting agent details returns no error",
+			hostname: "server1",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Get(suite.ctx, tc.hostname)
+			tc.validateFunc(err)
+		})
+	}
+}
+
 func (suite *NodePublicTestSuite) TestAgents() {
 	tests := []struct {
 		name         string

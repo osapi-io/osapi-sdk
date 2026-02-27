@@ -964,6 +964,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /node/{hostname}:
+    servers: []
+    get:
+      summary: Get agent details
+      description: Get detailed information about a specific agent by hostname.
+      operationId: getNodeDetails
+      tags:
+        - Node_Management_API_node_operations
+      security:
+        - BearerAuth:
+            - node:read
+      parameters:
+        - name: hostname
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The hostname of the agent to retrieve.
+      responses:
+        '200':
+          description: Agent details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentInfo'
+        '401':
+          description: Unauthorized - API key required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error retrieving agent details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /node/status:
     servers: []
     get:
@@ -1395,6 +1444,20 @@ components:
         - completed
         - failed
         - dlq
+    AgentStats:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of registered agents.
+          example: 5
+        ready:
+          type: integer
+          description: Number of agents with Ready status.
+          example: 5
+      required:
+        - total
+        - ready
     StatusResponse:
       type: object
       properties:
@@ -1429,6 +1492,8 @@ components:
           description: KV bucket statistics.
         jobs:
           $ref: '#/components/schemas/JobStats'
+        agents:
+          $ref: '#/components/schemas/AgentStats'
       required:
         - status
         - components
@@ -1759,8 +1824,37 @@ components:
         hostname:
           type: string
           description: The hostname of the agent.
+        status:
+          type: string
+          enum:
+            - Ready
+            - NotReady
+          description: The current status of the agent.
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value labels configured on the agent.
+        registered_at:
+          type: string
+          format: date-time
+          description: When the agent last refreshed its heartbeat.
+        started_at:
+          type: string
+          format: date-time
+          description: When the agent process started.
+        os_info:
+          $ref: '#/components/schemas/OSInfoResponse'
+        uptime:
+          type: string
+          description: The system uptime.
+        load_average:
+          $ref: '#/components/schemas/LoadAverageResponse'
+        memory:
+          $ref: '#/components/schemas/MemoryResponse'
       required:
         - hostname
+        - status
     LoadAverageResponse:
       type: object
       description: The system load averages for 1, 5, and 15 minutes.
