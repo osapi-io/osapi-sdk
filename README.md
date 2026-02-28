@@ -14,7 +14,7 @@ A Go client library for the [OSAPI][] REST API.
 
 ## Usage
 
-https://github.com/osapi-io/osapi-sdk/blob/8d27cc3/examples/basic/main.go#L34-L79
+https://github.com/osapi-io/osapi-sdk/blob/fe66750e11c0ca62e5dd342a32fe566d61080ba4/examples/basic/main.go#L21-L81
 
 See the [examples][] section for additional use cases.
 
