@@ -3,11 +3,11 @@ mod? go '.just/remote/go.mod.just'
 
 # --- Fetch ---
 
-# Fetch shared justfiles from osapi-io-justfiles
+# Fetch shared justfiles from osapi-justfiles
 fetch:
     mkdir -p .just/remote
-    curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-io-justfiles/refs/heads/main/go.mod.just -o .just/remote/go.mod.just
-    curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-io-justfiles/refs/heads/main/go.just -o .just/remote/go.just
+    curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/go.mod.just -o .just/remote/go.mod.just
+    curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/go.just -o .just/remote/go.just
 
 # --- Top-level orchestration ---
 
