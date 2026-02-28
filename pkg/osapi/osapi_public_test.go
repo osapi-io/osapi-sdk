@@ -62,8 +62,6 @@ func (suite *ClientPublicTestSuite) TestNew() {
 				suite.NoError(err)
 				suite.NotNil(c)
 				suite.NotNil(c.Node)
-				suite.NotNil(c.Network)
-				suite.NotNil(c.Command)
 				suite.NotNil(c.Job)
 				suite.NotNil(c.Health)
 				suite.NotNil(c.Audit)

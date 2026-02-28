@@ -110,6 +110,313 @@ func (suite *NodePublicTestSuite) TestStatus() {
 	}
 }
 
+func (suite *NodePublicTestSuite) TestDisk() {
+	tests := []struct {
+		name         string
+		target       string
+		validateFunc func(error)
+	}{
+		{
+			name:   "when requesting disk returns no error",
+			target: "_any",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Disk(suite.ctx, tc.target)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestMemory() {
+	tests := []struct {
+		name         string
+		target       string
+		validateFunc func(error)
+	}{
+		{
+			name:   "when requesting memory returns no error",
+			target: "_any",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Memory(suite.ctx, tc.target)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestLoad() {
+	tests := []struct {
+		name         string
+		target       string
+		validateFunc func(error)
+	}{
+		{
+			name:   "when requesting load returns no error",
+			target: "_any",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Load(suite.ctx, tc.target)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestOS() {
+	tests := []struct {
+		name         string
+		target       string
+		validateFunc func(error)
+	}{
+		{
+			name:   "when requesting OS info returns no error",
+			target: "_any",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.OS(suite.ctx, tc.target)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestUptime() {
+	tests := []struct {
+		name         string
+		target       string
+		validateFunc func(error)
+	}{
+		{
+			name:   "when requesting uptime returns no error",
+			target: "_any",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Uptime(suite.ctx, tc.target)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestGetDNS() {
+	tests := []struct {
+		name         string
+		target       string
+		iface        string
+		validateFunc func(error)
+	}{
+		{
+			name:   "when requesting DNS returns no error",
+			target: "_any",
+			iface:  "eth0",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.GetDNS(suite.ctx, tc.target, tc.iface)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestUpdateDNS() {
+	tests := []struct {
+		name          string
+		target        string
+		iface         string
+		servers       []string
+		searchDomains []string
+		validateFunc  func(error)
+	}{
+		{
+			name:          "when servers only provided sets servers",
+			target:        "_any",
+			iface:         "eth0",
+			servers:       []string{"8.8.8.8", "8.8.4.4"},
+			searchDomains: nil,
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name:          "when search domains only provided sets search domains",
+			target:        "_any",
+			iface:         "eth0",
+			servers:       nil,
+			searchDomains: []string{"example.com"},
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name:          "when both provided sets servers and search domains",
+			target:        "_any",
+			iface:         "eth0",
+			servers:       []string{"8.8.8.8"},
+			searchDomains: []string{"example.com"},
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name:          "when neither provided sends empty body",
+			target:        "_any",
+			iface:         "eth0",
+			servers:       nil,
+			searchDomains: nil,
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.UpdateDNS(
+				suite.ctx,
+				tc.target,
+				tc.iface,
+				tc.servers,
+				tc.searchDomains,
+			)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestPing() {
+	tests := []struct {
+		name         string
+		target       string
+		address      string
+		validateFunc func(error)
+	}{
+		{
+			name:    "when pinging address returns no error",
+			target:  "_any",
+			address: "8.8.8.8",
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Ping(suite.ctx, tc.target, tc.address)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestExec() {
+	tests := []struct {
+		name         string
+		req          osapi.ExecRequest
+		validateFunc func(error)
+	}{
+		{
+			name: "when basic command returns no error",
+			req: osapi.ExecRequest{
+				Command: "whoami",
+				Target:  "_any",
+			},
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name: "when all options provided returns no error",
+			req: osapi.ExecRequest{
+				Command: "ls",
+				Args:    []string{"-la", "/tmp"},
+				Cwd:     "/tmp",
+				Timeout: 10,
+				Target:  "_any",
+			},
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Exec(suite.ctx, tc.req)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestShell() {
+	tests := []struct {
+		name         string
+		req          osapi.ShellRequest
+		validateFunc func(error)
+	}{
+		{
+			name: "when basic command returns no error",
+			req: osapi.ShellRequest{
+				Command: "uname -a",
+				Target:  "_any",
+			},
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name: "when cwd and timeout provided returns no error",
+			req: osapi.ShellRequest{
+				Command: "ls -la",
+				Cwd:     "/var/log",
+				Timeout: 15,
+				Target:  "_any",
+			},
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			_, err := suite.sut.Node.Shell(suite.ctx, tc.req)
+			tc.validateFunc(err)
+		})
+	}
+}
+
 func TestNodePublicTestSuite(t *testing.T) {
 	suite.Run(t, new(NodePublicTestSuite))
 }

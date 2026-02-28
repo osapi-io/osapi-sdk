@@ -168,7 +168,7 @@ type CommandResultItem struct {
 	// DurationMs Execution time in milliseconds.
 	DurationMs *int64 `json:"duration_ms,omitempty"`
 
-	// Error Error message if the agent failed to process the request.
+	// Error Error message if the agent failed.
 	Error *string `json:"error,omitempty"`
 
 	// ExitCode Exit code of the command.
@@ -262,10 +262,10 @@ type DNSConfigCollectionResponse struct {
 
 // DNSConfigResponse defines model for DNSConfigResponse.
 type DNSConfigResponse struct {
-	// Error Error message if the agent failed to process the request.
+	// Error Error message if the agent failed.
 	Error *string `json:"error,omitempty"`
 
-	// Hostname The hostname of the agent that served this DNS config.
+	// Hostname The hostname of the agent that served this config.
 	Hostname string `json:"hostname"`
 
 	// SearchDomains List of search domains.
@@ -306,6 +306,13 @@ type DNSUpdateResultItem struct {
 // DNSUpdateResultItemStatus defines model for DNSUpdateResultItem.Status.
 type DNSUpdateResultItemStatus string
 
+// DiskCollectionResponse defines model for DiskCollectionResponse.
+type DiskCollectionResponse struct {
+	// JobId The job ID used to process this request.
+	JobId   *openapi_types.UUID `json:"job_id,omitempty"`
+	Results []DiskResultItem    `json:"results"`
+}
+
 // DiskResponse Local disk usage information.
 type DiskResponse struct {
 	// Free Free disk space in bytes.
@@ -319,6 +326,18 @@ type DiskResponse struct {
 
 	// Used Used disk space in bytes.
 	Used int `json:"used"`
+}
+
+// DiskResultItem defines model for DiskResultItem.
+type DiskResultItem struct {
+	// Disks List of local disk usage information.
+	Disks *DisksResponse `json:"disks,omitempty"`
+
+	// Error Error message if the agent failed.
+	Error *string `json:"error,omitempty"`
+
+	// Hostname The hostname of the agent.
+	Hostname string `json:"hostname"`
 }
 
 // DisksResponse List of local disk usage information.
@@ -351,7 +370,7 @@ type HostnameCollectionResponse struct {
 
 // HostnameResponse The hostname of the system.
 type HostnameResponse struct {
-	// Error Error message if the agent failed to process the request.
+	// Error Error message if the agent failed.
 	Error *string `json:"error,omitempty"`
 
 	// Hostname The system's hostname.
@@ -492,6 +511,32 @@ type LoadAverageResponse struct {
 	N5min float32 `json:"5min"`
 }
 
+// LoadCollectionResponse defines model for LoadCollectionResponse.
+type LoadCollectionResponse struct {
+	// JobId The job ID used to process this request.
+	JobId   *openapi_types.UUID `json:"job_id,omitempty"`
+	Results []LoadResultItem    `json:"results"`
+}
+
+// LoadResultItem defines model for LoadResultItem.
+type LoadResultItem struct {
+	// Error Error message if the agent failed.
+	Error *string `json:"error,omitempty"`
+
+	// Hostname The hostname of the agent.
+	Hostname string `json:"hostname"`
+
+	// LoadAverage The system load averages for 1, 5, and 15 minutes.
+	LoadAverage *LoadAverageResponse `json:"load_average,omitempty"`
+}
+
+// MemoryCollectionResponse defines model for MemoryCollectionResponse.
+type MemoryCollectionResponse struct {
+	// JobId The job ID used to process this request.
+	JobId   *openapi_types.UUID `json:"job_id,omitempty"`
+	Results []MemoryResultItem  `json:"results"`
+}
+
 // MemoryResponse Memory usage information.
 type MemoryResponse struct {
 	// Free Free memory in bytes.
@@ -502,6 +547,18 @@ type MemoryResponse struct {
 
 	// Used Used memory in bytes.
 	Used int `json:"used"`
+}
+
+// MemoryResultItem defines model for MemoryResultItem.
+type MemoryResultItem struct {
+	// Error Error message if the agent failed.
+	Error *string `json:"error,omitempty"`
+
+	// Hostname The hostname of the agent.
+	Hostname string `json:"hostname"`
+
+	// Memory Memory usage information.
+	Memory *MemoryResponse `json:"memory,omitempty"`
 }
 
 // NATSInfo defines model for NATSInfo.
@@ -525,7 +582,7 @@ type NodeStatusResponse struct {
 	// Disks List of local disk usage information.
 	Disks *DisksResponse `json:"disks,omitempty"`
 
-	// Error Error message if the agent failed to process the request.
+	// Error Error message if the agent failed.
 	Error *string `json:"error,omitempty"`
 
 	// Hostname The hostname of the system.
@@ -544,6 +601,13 @@ type NodeStatusResponse struct {
 	Uptime *string `json:"uptime,omitempty"`
 }
 
+// OSInfoCollectionResponse defines model for OSInfoCollectionResponse.
+type OSInfoCollectionResponse struct {
+	// JobId The job ID used to process this request.
+	JobId   *openapi_types.UUID `json:"job_id,omitempty"`
+	Results []OSInfoResultItem  `json:"results"`
+}
+
 // OSInfoResponse Operating system information.
 type OSInfoResponse struct {
 	// Distribution The name of the Linux distribution.
@@ -551,6 +615,18 @@ type OSInfoResponse struct {
 
 	// Version The version of the Linux distribution.
 	Version string `json:"version"`
+}
+
+// OSInfoResultItem defines model for OSInfoResultItem.
+type OSInfoResultItem struct {
+	// Error Error message if the agent failed.
+	Error *string `json:"error,omitempty"`
+
+	// Hostname The hostname of the agent.
+	Hostname string `json:"hostname"`
+
+	// OsInfo Operating system information.
+	OsInfo *OSInfoResponse `json:"os_info,omitempty"`
 }
 
 // PingCollectionResponse defines model for PingCollectionResponse.
@@ -562,19 +638,19 @@ type PingCollectionResponse struct {
 
 // PingResponse defines model for PingResponse.
 type PingResponse struct {
-	// AvgRtt Average round-trip time as a string in Go's time.Duration format.
+	// AvgRtt Average round-trip time in Go time.Duration format.
 	AvgRtt *string `json:"avg_rtt,omitempty"`
 
-	// Error Error message if the agent failed to process the request.
+	// Error Error message if the agent failed.
 	Error *string `json:"error,omitempty"`
 
 	// Hostname The hostname of the agent that executed the ping.
 	Hostname string `json:"hostname"`
 
-	// MaxRtt Maximum round-trip time as a string in Go's time.Duration format.
+	// MaxRtt Maximum round-trip time in Go time.Duration format.
 	MaxRtt *string `json:"max_rtt,omitempty"`
 
-	// MinRtt Minimum round-trip time as a string in Go's time.Duration format.
+	// MinRtt Minimum round-trip time in Go time.Duration format.
 	MinRtt *string `json:"min_rtt,omitempty"`
 
 	// PacketLoss Percentage of packet loss.
@@ -658,6 +734,28 @@ type StreamInfo struct {
 	Name string `json:"name"`
 }
 
+// UptimeCollectionResponse defines model for UptimeCollectionResponse.
+type UptimeCollectionResponse struct {
+	// JobId The job ID used to process this request.
+	JobId   *openapi_types.UUID `json:"job_id,omitempty"`
+	Results []UptimeResponse    `json:"results"`
+}
+
+// UptimeResponse System uptime information.
+type UptimeResponse struct {
+	// Error Error message if the agent failed.
+	Error *string `json:"error,omitempty"`
+
+	// Hostname The hostname of the agent.
+	Hostname string `json:"hostname"`
+
+	// Uptime The uptime of the system.
+	Uptime *string `json:"uptime,omitempty"`
+}
+
+// Hostname defines model for Hostname.
+type Hostname = string
+
 // GetAuditLogsParams defines parameters for GetAuditLogs.
 type GetAuditLogsParams struct {
 	// Limit Maximum number of entries to return.
@@ -665,18 +763,6 @@ type GetAuditLogsParams struct {
 
 	// Offset Number of entries to skip.
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" validate:"omitempty,min=0"`
-}
-
-// PostCommandExecParams defines parameters for PostCommandExec.
-type PostCommandExecParams struct {
-	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
-	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
-}
-
-// PostCommandShellParams defines parameters for PostCommandShell.
-type PostCommandShellParams struct {
-	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
-	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
 }
 
 // GetJobParams defines parameters for GetJob.
@@ -694,47 +780,11 @@ type GetJobParams struct {
 // GetJobParamsStatus defines parameters for GetJob.
 type GetJobParamsStatus string
 
-// PutNetworkDNSParams defines parameters for PutNetworkDNS.
-type PutNetworkDNSParams struct {
-	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
-	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
-}
-
-// GetNetworkDNSByInterfaceParams defines parameters for GetNetworkDNSByInterface.
-type GetNetworkDNSByInterfaceParams struct {
-	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
-	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
-}
-
-// PostNetworkPingJSONBody defines parameters for PostNetworkPing.
-type PostNetworkPingJSONBody struct {
+// PostNodeNetworkPingJSONBody defines parameters for PostNodeNetworkPing.
+type PostNodeNetworkPingJSONBody struct {
 	// Address The IP address of the server to ping. Supports both IPv4 and IPv6.
 	Address string `json:"address" validate:"required,ip"`
 }
-
-// PostNetworkPingParams defines parameters for PostNetworkPing.
-type PostNetworkPingParams struct {
-	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
-	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
-}
-
-// GetNodeHostnameParams defines parameters for GetNodeHostname.
-type GetNodeHostnameParams struct {
-	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
-	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
-}
-
-// GetNodeStatusParams defines parameters for GetNodeStatus.
-type GetNodeStatusParams struct {
-	// TargetHostname Target: _any (load-balanced), _all (broadcast), hostname (direct), or key:value (label group, e.g., group:web.dev).
-	TargetHostname *string `form:"target_hostname,omitempty" json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
-}
-
-// PostCommandExecJSONRequestBody defines body for PostCommandExec for application/json ContentType.
-type PostCommandExecJSONRequestBody = CommandExecRequest
-
-// PostCommandShellJSONRequestBody defines body for PostCommandShell for application/json ContentType.
-type PostCommandShellJSONRequestBody = CommandShellRequest
 
 // PostJobJSONRequestBody defines body for PostJob for application/json ContentType.
 type PostJobJSONRequestBody = CreateJobRequest
@@ -742,11 +792,17 @@ type PostJobJSONRequestBody = CreateJobRequest
 // RetryJobByIDJSONRequestBody defines body for RetryJobByID for application/json ContentType.
 type RetryJobByIDJSONRequestBody = RetryJobRequest
 
-// PutNetworkDNSJSONRequestBody defines body for PutNetworkDNS for application/json ContentType.
-type PutNetworkDNSJSONRequestBody = DNSConfigUpdateRequest
+// PostNodeCommandExecJSONRequestBody defines body for PostNodeCommandExec for application/json ContentType.
+type PostNodeCommandExecJSONRequestBody = CommandExecRequest
 
-// PostNetworkPingJSONRequestBody defines body for PostNetworkPing for application/json ContentType.
-type PostNetworkPingJSONRequestBody PostNetworkPingJSONBody
+// PostNodeCommandShellJSONRequestBody defines body for PostNodeCommandShell for application/json ContentType.
+type PostNodeCommandShellJSONRequestBody = CommandShellRequest
+
+// PutNodeNetworkDNSJSONRequestBody defines body for PutNodeNetworkDNS for application/json ContentType.
+type PutNodeNetworkDNSJSONRequestBody = DNSConfigUpdateRequest
+
+// PostNodeNetworkPingJSONRequestBody defines body for PostNodeNetworkPing for application/json ContentType.
+type PostNodeNetworkPingJSONRequestBody PostNodeNetworkPingJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -836,16 +892,6 @@ type ClientInterface interface {
 	// GetAuditLogByID request
 	GetAuditLogByID(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostCommandExecWithBody request with any body
-	PostCommandExecWithBody(ctx context.Context, params *PostCommandExecParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PostCommandExec(ctx context.Context, params *PostCommandExecParams, body PostCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// PostCommandShellWithBody request with any body
-	PostCommandShellWithBody(ctx context.Context, params *PostCommandShellParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PostCommandShell(ctx context.Context, params *PostCommandShellParams, body PostCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// GetHealth request
 	GetHealth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -877,24 +923,52 @@ type ClientInterface interface {
 
 	RetryJobByID(ctx context.Context, id openapi_types.UUID, body RetryJobByIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PutNetworkDNSWithBody request with any body
-	PutNetworkDNSWithBody(ctx context.Context, params *PutNetworkDNSParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetNodeStatus request
+	GetNodeStatus(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PutNetworkDNS(ctx context.Context, params *PutNetworkDNSParams, body PutNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostNodeCommandExecWithBody request with any body
+	PostNodeCommandExecWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetNetworkDNSByInterface request
-	GetNetworkDNSByInterface(ctx context.Context, interfaceName string, params *GetNetworkDNSByInterfaceParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostNodeCommandExec(ctx context.Context, hostname Hostname, body PostNodeCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PostNetworkPingWithBody request with any body
-	PostNetworkPingWithBody(ctx context.Context, params *PostNetworkPingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PostNodeCommandShellWithBody request with any body
+	PostNodeCommandShellWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	PostNetworkPing(ctx context.Context, params *PostNetworkPingParams, body PostNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostNodeCommandShell(ctx context.Context, hostname Hostname, body PostNodeCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNodeDisk request
+	GetNodeDisk(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetNodeHostname request
-	GetNodeHostname(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetNodeHostname(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// GetNodeStatus request
-	GetNodeStatus(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// GetNodeLoad request
+	GetNodeLoad(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNodeMemory request
+	GetNodeMemory(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PutNodeNetworkDNSWithBody request with any body
+	PutNodeNetworkDNSWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PutNodeNetworkDNS(ctx context.Context, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNodeNetworkDNSByInterface request
+	GetNodeNetworkDNSByInterface(ctx context.Context, hostname Hostname, interfaceName string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PostNodeNetworkPingWithBody request with any body
+	PostNodeNetworkPingWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PostNodeNetworkPing(ctx context.Context, hostname Hostname, body PostNodeNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNodeOS request
+	GetNodeOS(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetNodeUptime request
+	GetNodeUptime(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetVersion request
+	GetVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetAgent(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -947,54 +1021,6 @@ func (c *Client) GetAuditExport(ctx context.Context, reqEditors ...RequestEditor
 
 func (c *Client) GetAuditLogByID(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAuditLogByIDRequest(c.Server, id)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PostCommandExecWithBody(ctx context.Context, params *PostCommandExecParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostCommandExecRequestWithBody(c.Server, params, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PostCommandExec(ctx context.Context, params *PostCommandExecParams, body PostCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostCommandExecRequest(c.Server, params, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PostCommandShellWithBody(ctx context.Context, params *PostCommandShellParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostCommandShellRequestWithBody(c.Server, params, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PostCommandShell(ctx context.Context, params *PostCommandShellParams, body PostCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostCommandShellRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1137,8 +1163,8 @@ func (c *Client) RetryJobByID(ctx context.Context, id openapi_types.UUID, body R
 	return c.Client.Do(req)
 }
 
-func (c *Client) PutNetworkDNSWithBody(ctx context.Context, params *PutNetworkDNSParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutNetworkDNSRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) GetNodeStatus(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeStatusRequest(c.Server, hostname)
 	if err != nil {
 		return nil, err
 	}
@@ -1149,8 +1175,8 @@ func (c *Client) PutNetworkDNSWithBody(ctx context.Context, params *PutNetworkDN
 	return c.Client.Do(req)
 }
 
-func (c *Client) PutNetworkDNS(ctx context.Context, params *PutNetworkDNSParams, body PutNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPutNetworkDNSRequest(c.Server, params, body)
+func (c *Client) PostNodeCommandExecWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostNodeCommandExecRequestWithBody(c.Server, hostname, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1161,8 +1187,8 @@ func (c *Client) PutNetworkDNS(ctx context.Context, params *PutNetworkDNSParams,
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetNetworkDNSByInterface(ctx context.Context, interfaceName string, params *GetNetworkDNSByInterfaceParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNetworkDNSByInterfaceRequest(c.Server, interfaceName, params)
+func (c *Client) PostNodeCommandExec(ctx context.Context, hostname Hostname, body PostNodeCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostNodeCommandExecRequest(c.Server, hostname, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1173,8 +1199,8 @@ func (c *Client) GetNetworkDNSByInterface(ctx context.Context, interfaceName str
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostNetworkPingWithBody(ctx context.Context, params *PostNetworkPingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostNetworkPingRequestWithBody(c.Server, params, contentType, body)
+func (c *Client) PostNodeCommandShellWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostNodeCommandShellRequestWithBody(c.Server, hostname, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1185,8 +1211,8 @@ func (c *Client) PostNetworkPingWithBody(ctx context.Context, params *PostNetwor
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostNetworkPing(ctx context.Context, params *PostNetworkPingParams, body PostNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostNetworkPingRequest(c.Server, params, body)
+func (c *Client) PostNodeCommandShell(ctx context.Context, hostname Hostname, body PostNodeCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostNodeCommandShellRequest(c.Server, hostname, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1197,8 +1223,8 @@ func (c *Client) PostNetworkPing(ctx context.Context, params *PostNetworkPingPar
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetNodeHostname(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNodeHostnameRequest(c.Server, params)
+func (c *Client) GetNodeDisk(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeDiskRequest(c.Server, hostname)
 	if err != nil {
 		return nil, err
 	}
@@ -1209,8 +1235,128 @@ func (c *Client) GetNodeHostname(ctx context.Context, params *GetNodeHostnamePar
 	return c.Client.Do(req)
 }
 
-func (c *Client) GetNodeStatus(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetNodeStatusRequest(c.Server, params)
+func (c *Client) GetNodeHostname(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeHostnameRequest(c.Server, hostname)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNodeLoad(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeLoadRequest(c.Server, hostname)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNodeMemory(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeMemoryRequest(c.Server, hostname)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutNodeNetworkDNSWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutNodeNetworkDNSRequestWithBody(c.Server, hostname, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PutNodeNetworkDNS(ctx context.Context, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPutNodeNetworkDNSRequest(c.Server, hostname, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNodeNetworkDNSByInterface(ctx context.Context, hostname Hostname, interfaceName string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeNetworkDNSByInterfaceRequest(c.Server, hostname, interfaceName)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostNodeNetworkPingWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostNodeNetworkPingRequestWithBody(c.Server, hostname, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PostNodeNetworkPing(ctx context.Context, hostname Hostname, body PostNodeNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostNodeNetworkPingRequest(c.Server, hostname, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNodeOS(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeOSRequest(c.Server, hostname)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetNodeUptime(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetNodeUptimeRequest(c.Server, hostname)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetVersionRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -1404,130 +1550,6 @@ func NewGetAuditLogByIDRequest(server string, id openapi_types.UUID) (*http.Requ
 	if err != nil {
 		return nil, err
 	}
-
-	return req, nil
-}
-
-// NewPostCommandExecRequest calls the generic PostCommandExec builder with application/json body
-func NewPostCommandExecRequest(server string, params *PostCommandExecParams, body PostCommandExecJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPostCommandExecRequestWithBody(server, params, "application/json", bodyReader)
-}
-
-// NewPostCommandExecRequestWithBody generates requests for PostCommandExec with any type of body
-func NewPostCommandExecRequestWithBody(server string, params *PostCommandExecParams, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/command/exec")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.TargetHostname != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "target_hostname", runtime.ParamLocationQuery, *params.TargetHostname); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewPostCommandShellRequest calls the generic PostCommandShell builder with application/json body
-func NewPostCommandShellRequest(server string, params *PostCommandShellParams, body PostCommandShellJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPostCommandShellRequestWithBody(server, params, "application/json", bodyReader)
-}
-
-// NewPostCommandShellRequestWithBody generates requests for PostCommandShell with any type of body
-func NewPostCommandShellRequestWithBody(server string, params *PostCommandShellParams, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/command/shell")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.TargetHostname != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "target_hostname", runtime.ParamLocationQuery, *params.TargetHostname); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -1876,75 +1898,13 @@ func NewRetryJobByIDRequestWithBody(server string, id openapi_types.UUID, conten
 	return req, nil
 }
 
-// NewPutNetworkDNSRequest calls the generic PutNetworkDNS builder with application/json body
-func NewPutNetworkDNSRequest(server string, params *PutNetworkDNSParams, body PutNetworkDNSJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPutNetworkDNSRequestWithBody(server, params, "application/json", bodyReader)
-}
-
-// NewPutNetworkDNSRequestWithBody generates requests for PutNetworkDNS with any type of body
-func NewPutNetworkDNSRequestWithBody(server string, params *PutNetworkDNSParams, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/network/dns")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.TargetHostname != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "target_hostname", runtime.ParamLocationQuery, *params.TargetHostname); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetNetworkDNSByInterfaceRequest generates requests for GetNetworkDNSByInterface
-func NewGetNetworkDNSByInterfaceRequest(server string, interfaceName string, params *GetNetworkDNSByInterfaceParams) (*http.Request, error) {
+// NewGetNodeStatusRequest generates requests for GetNodeStatus
+func NewGetNodeStatusRequest(server string, hostname Hostname) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
 
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "interfaceName", runtime.ParamLocationPath, interfaceName)
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
 	if err != nil {
 		return nil, err
 	}
@@ -1954,7 +1914,7 @@ func NewGetNetworkDNSByInterfaceRequest(server string, interfaceName string, par
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/network/dns/%s", pathParam0)
+	operationPath := fmt.Sprintf("/node/%s", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1962,28 +1922,6 @@ func NewGetNetworkDNSByInterfaceRequest(server string, interfaceName string, par
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.TargetHostname != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "target_hostname", runtime.ParamLocationQuery, *params.TargetHostname); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -1994,27 +1932,34 @@ func NewGetNetworkDNSByInterfaceRequest(server string, interfaceName string, par
 	return req, nil
 }
 
-// NewPostNetworkPingRequest calls the generic PostNetworkPing builder with application/json body
-func NewPostNetworkPingRequest(server string, params *PostNetworkPingParams, body PostNetworkPingJSONRequestBody) (*http.Request, error) {
+// NewPostNodeCommandExecRequest calls the generic PostNodeCommandExec builder with application/json body
+func NewPostNodeCommandExecRequest(server string, hostname Hostname, body PostNodeCommandExecJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewPostNetworkPingRequestWithBody(server, params, "application/json", bodyReader)
+	return NewPostNodeCommandExecRequestWithBody(server, hostname, "application/json", bodyReader)
 }
 
-// NewPostNetworkPingRequestWithBody generates requests for PostNetworkPing with any type of body
-func NewPostNetworkPingRequestWithBody(server string, params *PostNetworkPingParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewPostNodeCommandExecRequestWithBody generates requests for PostNodeCommandExec with any type of body
+func NewPostNodeCommandExecRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/network/ping")
+	operationPath := fmt.Sprintf("/node/%s/command/exec", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2022,28 +1967,6 @@ func NewPostNetworkPingRequestWithBody(server string, params *PostNetworkPingPar
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.TargetHostname != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "target_hostname", runtime.ParamLocationQuery, *params.TargetHostname); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -2056,16 +1979,34 @@ func NewPostNetworkPingRequestWithBody(server string, params *PostNetworkPingPar
 	return req, nil
 }
 
-// NewGetNodeHostnameRequest generates requests for GetNodeHostname
-func NewGetNodeHostnameRequest(server string, params *GetNodeHostnameParams) (*http.Request, error) {
+// NewPostNodeCommandShellRequest calls the generic PostNodeCommandShell builder with application/json body
+func NewPostNodeCommandShellRequest(server string, hostname Hostname, body PostNodeCommandShellJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostNodeCommandShellRequestWithBody(server, hostname, "application/json", bodyReader)
+}
+
+// NewPostNodeCommandShellRequestWithBody generates requests for PostNodeCommandShell with any type of body
+func NewPostNodeCommandShellRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/node/hostname")
+	operationPath := fmt.Sprintf("/node/%s/command/shell", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2075,26 +2016,40 @@ func NewGetNodeHostnameRequest(server string, params *GetNodeHostnameParams) (*h
 		return nil, err
 	}
 
-	if params != nil {
-		queryValues := queryURL.Query()
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
 
-		if params.TargetHostname != nil {
+	req.Header.Add("Content-Type", contentType)
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "target_hostname", runtime.ParamLocationQuery, *params.TargetHostname); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
+	return req, nil
+}
 
-		}
+// NewGetNodeDiskRequest generates requests for GetNodeDisk
+func NewGetNodeDiskRequest(server string, hostname Hostname) (*http.Request, error) {
+	var err error
 
-		queryURL.RawQuery = queryValues.Encode()
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/disk", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -2105,16 +2060,23 @@ func NewGetNodeHostnameRequest(server string, params *GetNodeHostnameParams) (*h
 	return req, nil
 }
 
-// NewGetNodeStatusRequest generates requests for GetNodeStatus
-func NewGetNodeStatusRequest(server string, params *GetNodeStatusParams) (*http.Request, error) {
+// NewGetNodeHostnameRequest generates requests for GetNodeHostname
+func NewGetNodeHostnameRequest(server string, hostname Hostname) (*http.Request, error) {
 	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
 
 	serverURL, err := url.Parse(server)
 	if err != nil {
 		return nil, err
 	}
 
-	operationPath := fmt.Sprintf("/node/status")
+	operationPath := fmt.Sprintf("/node/%s/hostname", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2124,26 +2086,302 @@ func NewGetNodeStatusRequest(server string, params *GetNodeStatusParams) (*http.
 		return nil, err
 	}
 
-	if params != nil {
-		queryValues := queryURL.Query()
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
-		if params.TargetHostname != nil {
+	return req, nil
+}
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "target_hostname", runtime.ParamLocationQuery, *params.TargetHostname); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
+// NewGetNodeLoadRequest generates requests for GetNodeLoad
+func NewGetNodeLoadRequest(server string, hostname Hostname) (*http.Request, error) {
+	var err error
 
-		}
+	var pathParam0 string
 
-		queryURL.RawQuery = queryValues.Encode()
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/load", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetNodeMemoryRequest generates requests for GetNodeMemory
+func NewGetNodeMemoryRequest(server string, hostname Hostname) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/memory", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPutNodeNetworkDNSRequest calls the generic PutNodeNetworkDNS builder with application/json body
+func NewPutNodeNetworkDNSRequest(server string, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPutNodeNetworkDNSRequestWithBody(server, hostname, "application/json", bodyReader)
+}
+
+// NewPutNodeNetworkDNSRequestWithBody generates requests for PutNodeNetworkDNS with any type of body
+func NewPutNodeNetworkDNSRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/network/dns", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetNodeNetworkDNSByInterfaceRequest generates requests for GetNodeNetworkDNSByInterface
+func NewGetNodeNetworkDNSByInterfaceRequest(server string, hostname Hostname, interfaceName string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "interfaceName", runtime.ParamLocationPath, interfaceName)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/network/dns/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewPostNodeNetworkPingRequest calls the generic PostNodeNetworkPing builder with application/json body
+func NewPostNodeNetworkPingRequest(server string, hostname Hostname, body PostNodeNetworkPingJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPostNodeNetworkPingRequestWithBody(server, hostname, "application/json", bodyReader)
+}
+
+// NewPostNodeNetworkPingRequestWithBody generates requests for PostNodeNetworkPing with any type of body
+func NewPostNodeNetworkPingRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/network/ping", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetNodeOSRequest generates requests for GetNodeOS
+func NewGetNodeOSRequest(server string, hostname Hostname) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/os", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetNodeUptimeRequest generates requests for GetNodeUptime
+func NewGetNodeUptimeRequest(server string, hostname Hostname) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/node/%s/uptime", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetVersionRequest generates requests for GetVersion
+func NewGetVersionRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/version")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -2212,16 +2450,6 @@ type ClientWithResponsesInterface interface {
 	// GetAuditLogByIDWithResponse request
 	GetAuditLogByIDWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAuditLogByIDResponse, error)
 
-	// PostCommandExecWithBodyWithResponse request with any body
-	PostCommandExecWithBodyWithResponse(ctx context.Context, params *PostCommandExecParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostCommandExecResponse, error)
-
-	PostCommandExecWithResponse(ctx context.Context, params *PostCommandExecParams, body PostCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*PostCommandExecResponse, error)
-
-	// PostCommandShellWithBodyWithResponse request with any body
-	PostCommandShellWithBodyWithResponse(ctx context.Context, params *PostCommandShellParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostCommandShellResponse, error)
-
-	PostCommandShellWithResponse(ctx context.Context, params *PostCommandShellParams, body PostCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*PostCommandShellResponse, error)
-
 	// GetHealthWithResponse request
 	GetHealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHealthResponse, error)
 
@@ -2253,24 +2481,52 @@ type ClientWithResponsesInterface interface {
 
 	RetryJobByIDWithResponse(ctx context.Context, id openapi_types.UUID, body RetryJobByIDJSONRequestBody, reqEditors ...RequestEditorFn) (*RetryJobByIDResponse, error)
 
-	// PutNetworkDNSWithBodyWithResponse request with any body
-	PutNetworkDNSWithBodyWithResponse(ctx context.Context, params *PutNetworkDNSParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutNetworkDNSResponse, error)
+	// GetNodeStatusWithResponse request
+	GetNodeStatusWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error)
 
-	PutNetworkDNSWithResponse(ctx context.Context, params *PutNetworkDNSParams, body PutNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*PutNetworkDNSResponse, error)
+	// PostNodeCommandExecWithBodyWithResponse request with any body
+	PostNodeCommandExecWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeCommandExecResponse, error)
 
-	// GetNetworkDNSByInterfaceWithResponse request
-	GetNetworkDNSByInterfaceWithResponse(ctx context.Context, interfaceName string, params *GetNetworkDNSByInterfaceParams, reqEditors ...RequestEditorFn) (*GetNetworkDNSByInterfaceResponse, error)
+	PostNodeCommandExecWithResponse(ctx context.Context, hostname Hostname, body PostNodeCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeCommandExecResponse, error)
 
-	// PostNetworkPingWithBodyWithResponse request with any body
-	PostNetworkPingWithBodyWithResponse(ctx context.Context, params *PostNetworkPingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNetworkPingResponse, error)
+	// PostNodeCommandShellWithBodyWithResponse request with any body
+	PostNodeCommandShellWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeCommandShellResponse, error)
 
-	PostNetworkPingWithResponse(ctx context.Context, params *PostNetworkPingParams, body PostNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNetworkPingResponse, error)
+	PostNodeCommandShellWithResponse(ctx context.Context, hostname Hostname, body PostNodeCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeCommandShellResponse, error)
+
+	// GetNodeDiskWithResponse request
+	GetNodeDiskWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeDiskResponse, error)
 
 	// GetNodeHostnameWithResponse request
-	GetNodeHostnameWithResponse(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*GetNodeHostnameResponse, error)
+	GetNodeHostnameWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeHostnameResponse, error)
 
-	// GetNodeStatusWithResponse request
-	GetNodeStatusWithResponse(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error)
+	// GetNodeLoadWithResponse request
+	GetNodeLoadWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeLoadResponse, error)
+
+	// GetNodeMemoryWithResponse request
+	GetNodeMemoryWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeMemoryResponse, error)
+
+	// PutNodeNetworkDNSWithBodyWithResponse request with any body
+	PutNodeNetworkDNSWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutNodeNetworkDNSResponse, error)
+
+	PutNodeNetworkDNSWithResponse(ctx context.Context, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*PutNodeNetworkDNSResponse, error)
+
+	// GetNodeNetworkDNSByInterfaceWithResponse request
+	GetNodeNetworkDNSByInterfaceWithResponse(ctx context.Context, hostname Hostname, interfaceName string, reqEditors ...RequestEditorFn) (*GetNodeNetworkDNSByInterfaceResponse, error)
+
+	// PostNodeNetworkPingWithBodyWithResponse request with any body
+	PostNodeNetworkPingWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeNetworkPingResponse, error)
+
+	PostNodeNetworkPingWithResponse(ctx context.Context, hostname Hostname, body PostNodeNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeNetworkPingResponse, error)
+
+	// GetNodeOSWithResponse request
+	GetNodeOSWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeOSResponse, error)
+
+	// GetNodeUptimeWithResponse request
+	GetNodeUptimeWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeUptimeResponse, error)
+
+	// GetVersionWithResponse request
+	GetVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetVersionResponse, error)
 }
 
 type GetAgentResponse struct {
@@ -2395,58 +2651,6 @@ func (r GetAuditLogByIDResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetAuditLogByIDResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type PostCommandExecResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON202      *CommandResultCollectionResponse
-	JSON400      *ErrorResponse
-	JSON401      *ErrorResponse
-	JSON403      *ErrorResponse
-	JSON500      *ErrorResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r PostCommandExecResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PostCommandExecResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type PostCommandShellResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON202      *CommandResultCollectionResponse
-	JSON400      *ErrorResponse
-	JSON401      *ErrorResponse
-	JSON403      *ErrorResponse
-	JSON500      *ErrorResponse
-}
-
-// Status returns HTTPResponse.Status
-func (r PostCommandShellResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r PostCommandShellResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2680,10 +2884,10 @@ func (r RetryJobByIDResponse) StatusCode() int {
 	return 0
 }
 
-type PutNetworkDNSResponse struct {
+type GetNodeStatusResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON202      *DNSUpdateCollectionResponse
+	JSON200      *NodeStatusCollectionResponse
 	JSON400      *ErrorResponse
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
@@ -2691,7 +2895,7 @@ type PutNetworkDNSResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r PutNetworkDNSResponse) Status() string {
+func (r GetNodeStatusResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2699,17 +2903,17 @@ func (r PutNetworkDNSResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PutNetworkDNSResponse) StatusCode() int {
+func (r GetNodeStatusResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type GetNetworkDNSByInterfaceResponse struct {
+type PostNodeCommandExecResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *DNSConfigCollectionResponse
+	JSON202      *CommandResultCollectionResponse
 	JSON400      *ErrorResponse
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
@@ -2717,7 +2921,7 @@ type GetNetworkDNSByInterfaceResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetNetworkDNSByInterfaceResponse) Status() string {
+func (r PostNodeCommandExecResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2725,17 +2929,17 @@ func (r GetNetworkDNSByInterfaceResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetNetworkDNSByInterfaceResponse) StatusCode() int {
+func (r PostNodeCommandExecResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
 	return 0
 }
 
-type PostNetworkPingResponse struct {
+type PostNodeCommandShellResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *PingCollectionResponse
+	JSON202      *CommandResultCollectionResponse
 	JSON400      *ErrorResponse
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
@@ -2743,7 +2947,7 @@ type PostNetworkPingResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r PostNetworkPingResponse) Status() string {
+func (r PostNodeCommandShellResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2751,7 +2955,33 @@ func (r PostNetworkPingResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r PostNetworkPingResponse) StatusCode() int {
+func (r PostNodeCommandShellResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNodeDiskResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DiskCollectionResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNodeDiskResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNodeDiskResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2784,10 +3014,10 @@ func (r GetNodeHostnameResponse) StatusCode() int {
 	return 0
 }
 
-type GetNodeStatusResponse struct {
+type GetNodeLoadResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *NodeStatusCollectionResponse
+	JSON200      *LoadCollectionResponse
 	JSON400      *ErrorResponse
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
@@ -2795,7 +3025,7 @@ type GetNodeStatusResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r GetNodeStatusResponse) Status() string {
+func (r GetNodeLoadResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -2803,7 +3033,185 @@ func (r GetNodeStatusResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r GetNodeStatusResponse) StatusCode() int {
+func (r GetNodeLoadResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNodeMemoryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *MemoryCollectionResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNodeMemoryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNodeMemoryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PutNodeNetworkDNSResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON202      *DNSUpdateCollectionResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PutNodeNetworkDNSResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PutNodeNetworkDNSResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNodeNetworkDNSByInterfaceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *DNSConfigCollectionResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNodeNetworkDNSByInterfaceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNodeNetworkDNSByInterfaceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PostNodeNetworkPingResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *PingCollectionResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r PostNodeNetworkPingResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PostNodeNetworkPingResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNodeOSResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OSInfoCollectionResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNodeOSResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNodeOSResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetNodeUptimeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *UptimeCollectionResponse
+	JSON400      *ErrorResponse
+	JSON401      *ErrorResponse
+	JSON403      *ErrorResponse
+	JSON500      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetNodeUptimeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetNodeUptimeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetVersionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r GetVersionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetVersionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2853,40 +3261,6 @@ func (c *ClientWithResponses) GetAuditLogByIDWithResponse(ctx context.Context, i
 		return nil, err
 	}
 	return ParseGetAuditLogByIDResponse(rsp)
-}
-
-// PostCommandExecWithBodyWithResponse request with arbitrary body returning *PostCommandExecResponse
-func (c *ClientWithResponses) PostCommandExecWithBodyWithResponse(ctx context.Context, params *PostCommandExecParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostCommandExecResponse, error) {
-	rsp, err := c.PostCommandExecWithBody(ctx, params, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostCommandExecResponse(rsp)
-}
-
-func (c *ClientWithResponses) PostCommandExecWithResponse(ctx context.Context, params *PostCommandExecParams, body PostCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*PostCommandExecResponse, error) {
-	rsp, err := c.PostCommandExec(ctx, params, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostCommandExecResponse(rsp)
-}
-
-// PostCommandShellWithBodyWithResponse request with arbitrary body returning *PostCommandShellResponse
-func (c *ClientWithResponses) PostCommandShellWithBodyWithResponse(ctx context.Context, params *PostCommandShellParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostCommandShellResponse, error) {
-	rsp, err := c.PostCommandShellWithBody(ctx, params, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostCommandShellResponse(rsp)
-}
-
-func (c *ClientWithResponses) PostCommandShellWithResponse(ctx context.Context, params *PostCommandShellParams, body PostCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*PostCommandShellResponse, error) {
-	rsp, err := c.PostCommandShell(ctx, params, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostCommandShellResponse(rsp)
 }
 
 // GetHealthWithResponse request returning *GetHealthResponse
@@ -2986,65 +3360,153 @@ func (c *ClientWithResponses) RetryJobByIDWithResponse(ctx context.Context, id o
 	return ParseRetryJobByIDResponse(rsp)
 }
 
-// PutNetworkDNSWithBodyWithResponse request with arbitrary body returning *PutNetworkDNSResponse
-func (c *ClientWithResponses) PutNetworkDNSWithBodyWithResponse(ctx context.Context, params *PutNetworkDNSParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutNetworkDNSResponse, error) {
-	rsp, err := c.PutNetworkDNSWithBody(ctx, params, contentType, body, reqEditors...)
+// GetNodeStatusWithResponse request returning *GetNodeStatusResponse
+func (c *ClientWithResponses) GetNodeStatusWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error) {
+	rsp, err := c.GetNodeStatus(ctx, hostname, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePutNetworkDNSResponse(rsp)
+	return ParseGetNodeStatusResponse(rsp)
 }
 
-func (c *ClientWithResponses) PutNetworkDNSWithResponse(ctx context.Context, params *PutNetworkDNSParams, body PutNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*PutNetworkDNSResponse, error) {
-	rsp, err := c.PutNetworkDNS(ctx, params, body, reqEditors...)
+// PostNodeCommandExecWithBodyWithResponse request with arbitrary body returning *PostNodeCommandExecResponse
+func (c *ClientWithResponses) PostNodeCommandExecWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeCommandExecResponse, error) {
+	rsp, err := c.PostNodeCommandExecWithBody(ctx, hostname, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePutNetworkDNSResponse(rsp)
+	return ParsePostNodeCommandExecResponse(rsp)
 }
 
-// GetNetworkDNSByInterfaceWithResponse request returning *GetNetworkDNSByInterfaceResponse
-func (c *ClientWithResponses) GetNetworkDNSByInterfaceWithResponse(ctx context.Context, interfaceName string, params *GetNetworkDNSByInterfaceParams, reqEditors ...RequestEditorFn) (*GetNetworkDNSByInterfaceResponse, error) {
-	rsp, err := c.GetNetworkDNSByInterface(ctx, interfaceName, params, reqEditors...)
+func (c *ClientWithResponses) PostNodeCommandExecWithResponse(ctx context.Context, hostname Hostname, body PostNodeCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeCommandExecResponse, error) {
+	rsp, err := c.PostNodeCommandExec(ctx, hostname, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetNetworkDNSByInterfaceResponse(rsp)
+	return ParsePostNodeCommandExecResponse(rsp)
 }
 
-// PostNetworkPingWithBodyWithResponse request with arbitrary body returning *PostNetworkPingResponse
-func (c *ClientWithResponses) PostNetworkPingWithBodyWithResponse(ctx context.Context, params *PostNetworkPingParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNetworkPingResponse, error) {
-	rsp, err := c.PostNetworkPingWithBody(ctx, params, contentType, body, reqEditors...)
+// PostNodeCommandShellWithBodyWithResponse request with arbitrary body returning *PostNodeCommandShellResponse
+func (c *ClientWithResponses) PostNodeCommandShellWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeCommandShellResponse, error) {
+	rsp, err := c.PostNodeCommandShellWithBody(ctx, hostname, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePostNetworkPingResponse(rsp)
+	return ParsePostNodeCommandShellResponse(rsp)
 }
 
-func (c *ClientWithResponses) PostNetworkPingWithResponse(ctx context.Context, params *PostNetworkPingParams, body PostNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNetworkPingResponse, error) {
-	rsp, err := c.PostNetworkPing(ctx, params, body, reqEditors...)
+func (c *ClientWithResponses) PostNodeCommandShellWithResponse(ctx context.Context, hostname Hostname, body PostNodeCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeCommandShellResponse, error) {
+	rsp, err := c.PostNodeCommandShell(ctx, hostname, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParsePostNetworkPingResponse(rsp)
+	return ParsePostNodeCommandShellResponse(rsp)
+}
+
+// GetNodeDiskWithResponse request returning *GetNodeDiskResponse
+func (c *ClientWithResponses) GetNodeDiskWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeDiskResponse, error) {
+	rsp, err := c.GetNodeDisk(ctx, hostname, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNodeDiskResponse(rsp)
 }
 
 // GetNodeHostnameWithResponse request returning *GetNodeHostnameResponse
-func (c *ClientWithResponses) GetNodeHostnameWithResponse(ctx context.Context, params *GetNodeHostnameParams, reqEditors ...RequestEditorFn) (*GetNodeHostnameResponse, error) {
-	rsp, err := c.GetNodeHostname(ctx, params, reqEditors...)
+func (c *ClientWithResponses) GetNodeHostnameWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeHostnameResponse, error) {
+	rsp, err := c.GetNodeHostname(ctx, hostname, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseGetNodeHostnameResponse(rsp)
 }
 
-// GetNodeStatusWithResponse request returning *GetNodeStatusResponse
-func (c *ClientWithResponses) GetNodeStatusWithResponse(ctx context.Context, params *GetNodeStatusParams, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error) {
-	rsp, err := c.GetNodeStatus(ctx, params, reqEditors...)
+// GetNodeLoadWithResponse request returning *GetNodeLoadResponse
+func (c *ClientWithResponses) GetNodeLoadWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeLoadResponse, error) {
+	rsp, err := c.GetNodeLoad(ctx, hostname, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseGetNodeStatusResponse(rsp)
+	return ParseGetNodeLoadResponse(rsp)
+}
+
+// GetNodeMemoryWithResponse request returning *GetNodeMemoryResponse
+func (c *ClientWithResponses) GetNodeMemoryWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeMemoryResponse, error) {
+	rsp, err := c.GetNodeMemory(ctx, hostname, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNodeMemoryResponse(rsp)
+}
+
+// PutNodeNetworkDNSWithBodyWithResponse request with arbitrary body returning *PutNodeNetworkDNSResponse
+func (c *ClientWithResponses) PutNodeNetworkDNSWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutNodeNetworkDNSResponse, error) {
+	rsp, err := c.PutNodeNetworkDNSWithBody(ctx, hostname, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutNodeNetworkDNSResponse(rsp)
+}
+
+func (c *ClientWithResponses) PutNodeNetworkDNSWithResponse(ctx context.Context, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*PutNodeNetworkDNSResponse, error) {
+	rsp, err := c.PutNodeNetworkDNS(ctx, hostname, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePutNodeNetworkDNSResponse(rsp)
+}
+
+// GetNodeNetworkDNSByInterfaceWithResponse request returning *GetNodeNetworkDNSByInterfaceResponse
+func (c *ClientWithResponses) GetNodeNetworkDNSByInterfaceWithResponse(ctx context.Context, hostname Hostname, interfaceName string, reqEditors ...RequestEditorFn) (*GetNodeNetworkDNSByInterfaceResponse, error) {
+	rsp, err := c.GetNodeNetworkDNSByInterface(ctx, hostname, interfaceName, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNodeNetworkDNSByInterfaceResponse(rsp)
+}
+
+// PostNodeNetworkPingWithBodyWithResponse request with arbitrary body returning *PostNodeNetworkPingResponse
+func (c *ClientWithResponses) PostNodeNetworkPingWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeNetworkPingResponse, error) {
+	rsp, err := c.PostNodeNetworkPingWithBody(ctx, hostname, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostNodeNetworkPingResponse(rsp)
+}
+
+func (c *ClientWithResponses) PostNodeNetworkPingWithResponse(ctx context.Context, hostname Hostname, body PostNodeNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeNetworkPingResponse, error) {
+	rsp, err := c.PostNodeNetworkPing(ctx, hostname, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePostNodeNetworkPingResponse(rsp)
+}
+
+// GetNodeOSWithResponse request returning *GetNodeOSResponse
+func (c *ClientWithResponses) GetNodeOSWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeOSResponse, error) {
+	rsp, err := c.GetNodeOS(ctx, hostname, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNodeOSResponse(rsp)
+}
+
+// GetNodeUptimeWithResponse request returning *GetNodeUptimeResponse
+func (c *ClientWithResponses) GetNodeUptimeWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeUptimeResponse, error) {
+	rsp, err := c.GetNodeUptime(ctx, hostname, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetNodeUptimeResponse(rsp)
+}
+
+// GetVersionWithResponse request returning *GetVersionResponse
+func (c *ClientWithResponses) GetVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetVersionResponse, error) {
+	rsp, err := c.GetVersion(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetVersionResponse(rsp)
 }
 
 // ParseGetAgentResponse parses an HTTP response from a GetAgentWithResponse call
@@ -3290,114 +3752,6 @@ func ParseGetAuditLogByIDResponse(rsp *http.Response) (*GetAuditLogByIDResponse,
 			return nil, err
 		}
 		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePostCommandExecResponse parses an HTTP response from a PostCommandExecWithResponse call
-func ParsePostCommandExecResponse(rsp *http.Response) (*PostCommandExecResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PostCommandExecResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
-		var dest CommandResultCollectionResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON202 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParsePostCommandShellResponse parses an HTTP response from a PostCommandShellWithResponse call
-func ParsePostCommandShellResponse(rsp *http.Response) (*PostCommandShellResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &PostCommandShellResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
-		var dest CommandResultCollectionResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON202 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse
@@ -3848,76 +4202,22 @@ func ParseRetryJobByIDResponse(rsp *http.Response) (*RetryJobByIDResponse, error
 	return response, nil
 }
 
-// ParsePutNetworkDNSResponse parses an HTTP response from a PutNetworkDNSWithResponse call
-func ParsePutNetworkDNSResponse(rsp *http.Response) (*PutNetworkDNSResponse, error) {
+// ParseGetNodeStatusResponse parses an HTTP response from a GetNodeStatusWithResponse call
+func ParseGetNodeStatusResponse(rsp *http.Response) (*GetNodeStatusResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PutNetworkDNSResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
-		var dest DNSUpdateCollectionResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON202 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest ErrorResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetNetworkDNSByInterfaceResponse parses an HTTP response from a GetNetworkDNSByInterfaceWithResponse call
-func ParseGetNetworkDNSByInterfaceResponse(rsp *http.Response) (*GetNetworkDNSByInterfaceResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetNetworkDNSByInterfaceResponse{
+	response := &GetNodeStatusResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest DNSConfigCollectionResponse
+		var dest NodeStatusCollectionResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -3956,22 +4256,130 @@ func ParseGetNetworkDNSByInterfaceResponse(rsp *http.Response) (*GetNetworkDNSBy
 	return response, nil
 }
 
-// ParsePostNetworkPingResponse parses an HTTP response from a PostNetworkPingWithResponse call
-func ParsePostNetworkPingResponse(rsp *http.Response) (*PostNetworkPingResponse, error) {
+// ParsePostNodeCommandExecResponse parses an HTTP response from a PostNodeCommandExecWithResponse call
+func ParsePostNodeCommandExecResponse(rsp *http.Response) (*PostNodeCommandExecResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &PostNetworkPingResponse{
+	response := &PostNodeCommandExecResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest CommandResultCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostNodeCommandShellResponse parses an HTTP response from a PostNodeCommandShellWithResponse call
+func ParsePostNodeCommandShellResponse(rsp *http.Response) (*PostNodeCommandShellResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostNodeCommandShellResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest CommandResultCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNodeDiskResponse parses an HTTP response from a GetNodeDiskWithResponse call
+func ParseGetNodeDiskResponse(rsp *http.Response) (*GetNodeDiskResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNodeDiskResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest PingCollectionResponse
+		var dest DiskCollectionResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -4064,22 +4472,22 @@ func ParseGetNodeHostnameResponse(rsp *http.Response) (*GetNodeHostnameResponse,
 	return response, nil
 }
 
-// ParseGetNodeStatusResponse parses an HTTP response from a GetNodeStatusWithResponse call
-func ParseGetNodeStatusResponse(rsp *http.Response) (*GetNodeStatusResponse, error) {
+// ParseGetNodeLoadResponse parses an HTTP response from a GetNodeLoadWithResponse call
+func ParseGetNodeLoadResponse(rsp *http.Response) (*GetNodeLoadResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &GetNodeStatusResponse{
+	response := &GetNodeLoadResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest NodeStatusCollectionResponse
+		var dest LoadCollectionResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
@@ -4112,6 +4520,356 @@ func ParseGetNodeStatusResponse(rsp *http.Response) (*GetNodeStatusResponse, err
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNodeMemoryResponse parses an HTTP response from a GetNodeMemoryWithResponse call
+func ParseGetNodeMemoryResponse(rsp *http.Response) (*GetNodeMemoryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNodeMemoryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest MemoryCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePutNodeNetworkDNSResponse parses an HTTP response from a PutNodeNetworkDNSWithResponse call
+func ParsePutNodeNetworkDNSResponse(rsp *http.Response) (*PutNodeNetworkDNSResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PutNodeNetworkDNSResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 202:
+		var dest DNSUpdateCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON202 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNodeNetworkDNSByInterfaceResponse parses an HTTP response from a GetNodeNetworkDNSByInterfaceWithResponse call
+func ParseGetNodeNetworkDNSByInterfaceResponse(rsp *http.Response) (*GetNodeNetworkDNSByInterfaceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNodeNetworkDNSByInterfaceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest DNSConfigCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePostNodeNetworkPingResponse parses an HTTP response from a PostNodeNetworkPingWithResponse call
+func ParsePostNodeNetworkPingResponse(rsp *http.Response) (*PostNodeNetworkPingResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PostNodeNetworkPingResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PingCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNodeOSResponse parses an HTTP response from a GetNodeOSWithResponse call
+func ParseGetNodeOSResponse(rsp *http.Response) (*GetNodeOSResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNodeOSResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OSInfoCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetNodeUptimeResponse parses an HTTP response from a GetNodeUptimeWithResponse call
+func ParseGetNodeUptimeResponse(rsp *http.Response) (*GetNodeUptimeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetNodeUptimeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest UptimeCollectionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetVersionResponse parses an HTTP response from a GetVersionWithResponse call
+func ParseGetVersionResponse(rsp *http.Response) (*GetVersionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetVersionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	}
 

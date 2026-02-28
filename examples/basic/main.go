@@ -56,7 +56,7 @@ func main() {
 	fmt.Printf("Hostname response status: %d\n", hostnameResp.StatusCode())
 
 	// Execute a command on any available agent.
-	execResp, err := client.Command.Exec(ctx, osapi.ExecRequest{
+	execResp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 		Command: "uptime",
 		Target:  "_any",
 	})

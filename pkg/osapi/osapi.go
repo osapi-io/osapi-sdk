@@ -32,7 +32,7 @@
 //	resp, err := client.Node.Hostname(ctx, "_any")
 //
 //	// Execute a command
-//	resp, err := client.Command.Exec(ctx, osapi.ExecRequest{
+//	resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 //	    Command: "uptime",
 //	    Target:  "_all",
 //	})
@@ -50,14 +50,9 @@ type Client struct {
 	// Agent provides agent discovery and details operations.
 	Agent *AgentService
 
-	// Node provides node management operations (hostname, status).
+	// Node provides node management operations (hostname, status, disk,
+	// memory, load, OS, uptime, network DNS/ping, command exec/shell).
 	Node *NodeService
-
-	// Network provides network management operations (DNS, ping).
-	Network *NetworkService
-
-	// Command provides command execution operations (exec, shell).
-	Command *CommandService
 
 	// Job provides job queue operations (create, get, list, delete, retry).
 	Job *JobService
@@ -141,8 +136,6 @@ func New(
 	c.httpClient = httpClient
 	c.Agent = &AgentService{client: httpClient}
 	c.Node = &NodeService{client: httpClient}
-	c.Network = &NetworkService{client: httpClient}
-	c.Command = &CommandService{client: httpClient}
 	c.Job = &JobService{client: httpClient}
 	c.Health = &HealthService{client: httpClient}
 	c.Audit = &AuditService{client: httpClient}
