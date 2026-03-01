@@ -75,7 +75,10 @@ func (p *Plan) Tasks() []*Task {
 // Explain returns a human-readable representation of the execution
 // plan showing levels, parallelism, dependencies, and guards.
 func (p *Plan) Explain() string {
-	levels := levelize(p.tasks)
+	levels, err := p.Levels()
+	if err != nil {
+		return fmt.Sprintf("invalid plan: %s", err)
+	}
 
 	var b strings.Builder
 
@@ -123,6 +126,17 @@ func (p *Plan) Explain() string {
 	}
 
 	return b.String()
+}
+
+// Levels returns the levelized DAG -- tasks grouped into execution
+// levels where all tasks in a level can run concurrently.
+// Returns an error if the plan fails validation.
+func (p *Plan) Levels() ([][]*Task, error) {
+	if err := p.Validate(); err != nil {
+		return nil, err
+	}
+
+	return levelize(p.tasks), nil
 }
 
 // Validate checks the plan for errors: duplicate names and cycles.
