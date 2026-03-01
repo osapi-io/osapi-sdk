@@ -9,15 +9,15 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
 )
 
-type ResultSuite struct {
+type ResultPublicTestSuite struct {
 	suite.Suite
 }
 
-func TestResultSuite(t *testing.T) {
-	suite.Run(t, new(ResultSuite))
+func TestResultPublicTestSuite(t *testing.T) {
+	suite.Run(t, new(ResultPublicTestSuite))
 }
 
-func (s *ResultSuite) TestReportSummary() {
+func (s *ResultPublicTestSuite) TestReportSummary() {
 	tests := []struct {
 		name     string
 		tasks    []orchestrator.TaskResult
@@ -76,7 +76,7 @@ func (s *ResultSuite) TestReportSummary() {
 	}
 }
 
-func (s *ResultSuite) TestResultsGet() {
+func (s *ResultPublicTestSuite) TestResultsGet() {
 	tests := []struct {
 		name       string
 		results    orchestrator.Results

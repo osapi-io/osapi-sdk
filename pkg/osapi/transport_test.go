@@ -37,11 +37,11 @@ func (f *failingRoundTripper) RoundTrip(
 	return nil, fmt.Errorf("transport error")
 }
 
-type TransportInternalTestSuite struct {
+type TransportTestSuite struct {
 	suite.Suite
 }
 
-func (s *TransportInternalTestSuite) TestRoundTripError() {
+func (s *TransportTestSuite) TestRoundTripError() {
 	tests := []struct {
 		name         string
 		validateFunc func(*http.Response, error)
@@ -75,6 +75,6 @@ func (s *TransportInternalTestSuite) TestRoundTripError() {
 	}
 }
 
-func TestTransportInternalTestSuite(t *testing.T) {
-	suite.Run(t, new(TransportInternalTestSuite))
+func TestTransportTestSuite(t *testing.T) {
+	suite.Run(t, new(TransportTestSuite))
 }

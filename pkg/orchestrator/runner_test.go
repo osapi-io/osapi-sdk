@@ -6,15 +6,15 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type RunnerSuite struct {
+type RunnerTestSuite struct {
 	suite.Suite
 }
 
-func TestRunnerSuite(t *testing.T) {
-	suite.Run(t, new(RunnerSuite))
+func TestRunnerTestSuite(t *testing.T) {
+	suite.Run(t, new(RunnerTestSuite))
 }
 
-func (s *RunnerSuite) TestLevelize() {
+func (s *RunnerTestSuite) TestLevelize() {
 	tests := []struct {
 		name       string
 		setup      func() []*Task

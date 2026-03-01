@@ -10,15 +10,15 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
 
-type TaskSuite struct {
+type TaskPublicTestSuite struct {
 	suite.Suite
 }
 
-func TestTaskSuite(t *testing.T) {
-	suite.Run(t, new(TaskSuite))
+func TestTaskPublicTestSuite(t *testing.T) {
+	suite.Run(t, new(TaskPublicTestSuite))
 }
 
-func (s *TaskSuite) TestDependsOn() {
+func (s *TaskPublicTestSuite) TestDependsOn() {
 	tests := []struct {
 		name       string
 		setupDeps  func(a, b, c *orchestrator.Task)
@@ -56,7 +56,7 @@ func (s *TaskSuite) TestDependsOn() {
 	}
 }
 
-func (s *TaskSuite) TestOnlyIfChanged() {
+func (s *TaskPublicTestSuite) TestOnlyIfChanged() {
 	task := orchestrator.NewTask("t", &orchestrator.Op{Operation: "noop"})
 	dep := orchestrator.NewTask("dep", &orchestrator.Op{Operation: "noop"})
 	task.DependsOn(dep).OnlyIfChanged()
@@ -64,7 +64,7 @@ func (s *TaskSuite) TestOnlyIfChanged() {
 	s.True(task.RequiresChange())
 }
 
-func (s *TaskSuite) TestWhen() {
+func (s *TaskPublicTestSuite) TestWhen() {
 	task := orchestrator.NewTask("t", &orchestrator.Op{Operation: "noop"})
 	called := false
 	task.When(func(_ orchestrator.Results) bool {
@@ -79,7 +79,7 @@ func (s *TaskSuite) TestWhen() {
 	s.True(called)
 }
 
-func (s *TaskSuite) TestTaskFunc() {
+func (s *TaskPublicTestSuite) TestTaskFunc() {
 	fn := func(
 		_ context.Context,
 		_ *osapi.Client,
@@ -92,7 +92,7 @@ func (s *TaskSuite) TestTaskFunc() {
 	s.True(task.IsFunc())
 }
 
-func (s *TaskSuite) TestOnErrorOverride() {
+func (s *TaskPublicTestSuite) TestOnErrorOverride() {
 	task := orchestrator.NewTask("t", &orchestrator.Op{Operation: "noop"})
 	task.OnError(orchestrator.Continue)
 
@@ -100,7 +100,7 @@ func (s *TaskSuite) TestOnErrorOverride() {
 	s.Equal("continue", task.ErrorStrategy().String())
 }
 
-func (s *TaskSuite) TestOperation() {
+func (s *TaskPublicTestSuite) TestOperation() {
 	op := &orchestrator.Op{Operation: "node.hostname.get", Target: "_any"}
 	task := orchestrator.NewTask("t", op)
 
@@ -115,7 +115,7 @@ func (s *TaskSuite) TestOperation() {
 	s.Nil(fnTask.Operation())
 }
 
-func (s *TaskSuite) TestFn() {
+func (s *TaskPublicTestSuite) TestFn() {
 	task := orchestrator.NewTask("t", &orchestrator.Op{Operation: "noop"})
 	s.Nil(task.Fn())
 

@@ -8,15 +8,15 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
 )
 
-type OptionsSuite struct {
+type OptionsPublicTestSuite struct {
 	suite.Suite
 }
 
-func TestOptionsSuite(t *testing.T) {
-	suite.Run(t, new(OptionsSuite))
+func TestOptionsPublicTestSuite(t *testing.T) {
+	suite.Run(t, new(OptionsPublicTestSuite))
 }
 
-func (s *OptionsSuite) TestErrorStrategy() {
+func (s *OptionsPublicTestSuite) TestErrorStrategy() {
 	tests := []struct {
 		name     string
 		strategy orchestrator.ErrorStrategy
@@ -46,7 +46,7 @@ func (s *OptionsSuite) TestErrorStrategy() {
 	}
 }
 
-func (s *OptionsSuite) TestRetryCount() {
+func (s *OptionsPublicTestSuite) TestRetryCount() {
 	tests := []struct {
 		name     string
 		strategy orchestrator.ErrorStrategy
@@ -76,7 +76,7 @@ func (s *OptionsSuite) TestRetryCount() {
 	}
 }
 
-func (s *OptionsSuite) TestWithHooks() {
+func (s *OptionsPublicTestSuite) TestWithHooks() {
 	called := false
 	hooks := orchestrator.Hooks{
 		BeforeTask: func(_ *orchestrator.Task) {
@@ -100,7 +100,7 @@ func (s *OptionsSuite) TestWithHooks() {
 	s.True(called)
 }
 
-func (s *OptionsSuite) TestHooksDefaults() {
+func (s *OptionsPublicTestSuite) TestHooksDefaults() {
 	h := orchestrator.Hooks{}
 
 	// Nil callbacks should be safe — no panic.
@@ -114,7 +114,7 @@ func (s *OptionsSuite) TestHooksDefaults() {
 	s.Nil(h.OnSkip)
 }
 
-func (s *OptionsSuite) TestPlanOption() {
+func (s *OptionsPublicTestSuite) TestPlanOption() {
 	tests := []struct {
 		name        string
 		option      orchestrator.PlanOption
