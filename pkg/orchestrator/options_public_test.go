@@ -93,6 +93,35 @@ func (s *OptionsSuite) TestWithOutput() {
 	s.Equal(&buf, plan.Config().Output)
 }
 
+func (s *OptionsSuite) TestWithHooks() {
+	called := false
+	hooks := orchestrator.Hooks{
+		BeforeTask: func(_ string) {
+			called = true
+		},
+	}
+
+	cfg := orchestrator.PlanConfig{}
+	opt := orchestrator.WithHooks(hooks)
+	opt(&cfg)
+
+	s.NotNil(cfg.Hooks)
+	s.NotNil(cfg.Hooks.BeforeTask)
+	cfg.Hooks.BeforeTask("test")
+	s.True(called)
+}
+
+func (s *OptionsSuite) TestHooksDefaults() {
+	h := orchestrator.Hooks{}
+
+	// Nil callbacks should be safe — no panic.
+	s.Nil(h.BeforePlan)
+	s.Nil(h.BeforeLevel)
+	s.Nil(h.BeforeTask)
+	s.Nil(h.AfterTask)
+	s.Nil(h.AfterPlan)
+}
+
 func (s *OptionsSuite) TestPlanOption() {
 	tests := []struct {
 		name        string

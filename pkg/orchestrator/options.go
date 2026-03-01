@@ -41,11 +41,22 @@ func (e ErrorStrategy) RetryCount() int {
 	return e.retryCount
 }
 
+// Hooks provides consumer-controlled callbacks for plan execution
+// events. All fields are optional — nil callbacks are skipped.
+type Hooks struct {
+	BeforePlan  func(explain string)
+	BeforeLevel func(level int, names []string, parallel bool)
+	BeforeTask  func(name string)
+	AfterTask   func(result TaskResult)
+	AfterPlan   func(report *Report)
+}
+
 // PlanConfig holds plan-level configuration.
 type PlanConfig struct {
 	OnErrorStrategy ErrorStrategy
 	Verbose         bool
 	Output          io.Writer
+	Hooks           *Hooks
 }
 
 // PlanOption is a functional option for NewPlan.
@@ -78,5 +89,14 @@ func WithOutput(
 ) PlanOption {
 	return func(cfg *PlanConfig) {
 		cfg.Output = w
+	}
+}
+
+// WithHooks attaches lifecycle callbacks to plan execution.
+func WithHooks(
+	hooks Hooks,
+) PlanOption {
+	return func(cfg *PlanConfig) {
+		cfg.Hooks = &hooks
 	}
 }
