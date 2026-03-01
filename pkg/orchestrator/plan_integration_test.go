@@ -1,0 +1,179 @@
+package orchestrator_test
+
+import (
+	"context"
+	"fmt"
+	"sync/atomic"
+	"testing"
+
+	"github.com/stretchr/testify/suite"
+
+	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
+)
+
+type PlanIntegrationSuite struct {
+	suite.Suite
+}
+
+func TestPlanIntegrationSuite(t *testing.T) {
+	suite.Run(t, new(PlanIntegrationSuite))
+}
+
+func (s *PlanIntegrationSuite) TestRunLinearChain() {
+	var order []string
+	plan := orchestrator.NewPlan()
+
+	mkTask := func(name string, changed bool) *orchestrator.Task {
+		return plan.TaskFunc(name, func(
+			_ context.Context,
+		) (*orchestrator.Result, error) {
+			order = append(order, name)
+
+			return &orchestrator.Result{Changed: changed}, nil
+		})
+	}
+
+	a := mkTask("a", true)
+	b := mkTask("b", true)
+	c := mkTask("c", false)
+
+	b.DependsOn(a)
+	c.DependsOn(b)
+
+	report, err := plan.Run(context.Background())
+	s.Require().NoError(err)
+	s.Equal([]string{"a", "b", "c"}, order)
+	s.Len(report.Tasks, 3)
+	s.Contains(report.Summary(), "2 changed")
+	s.Contains(report.Summary(), "1 unchanged")
+}
+
+func (s *PlanIntegrationSuite) TestRunParallelExecution() {
+	var concurrentMax atomic.Int32
+	var concurrent atomic.Int32
+
+	plan := orchestrator.NewPlan()
+
+	mkTask := func(name string) *orchestrator.Task {
+		return plan.TaskFunc(name, func(
+			_ context.Context,
+		) (*orchestrator.Result, error) {
+			cur := concurrent.Add(1)
+
+			for {
+				prev := concurrentMax.Load()
+				if cur > prev {
+					if concurrentMax.CompareAndSwap(prev, cur) {
+						break
+					}
+				} else {
+					break
+				}
+			}
+
+			concurrent.Add(-1)
+
+			return &orchestrator.Result{Changed: false}, nil
+		})
+	}
+
+	mkTask("a")
+	mkTask("b")
+	mkTask("c")
+
+	report, err := plan.Run(context.Background())
+	s.Require().NoError(err)
+	s.Len(report.Tasks, 3)
+	s.GreaterOrEqual(int(concurrentMax.Load()), 1)
+}
+
+func (s *PlanIntegrationSuite) TestRunOnlyIfChanged() {
+	plan := orchestrator.NewPlan()
+	skippedRan := false
+
+	dep := plan.TaskFunc("dep", func(
+		_ context.Context,
+	) (*orchestrator.Result, error) {
+		return &orchestrator.Result{Changed: false}, nil
+	})
+
+	conditional := plan.TaskFunc("conditional", func(
+		_ context.Context,
+	) (*orchestrator.Result, error) {
+		skippedRan = true
+
+		return &orchestrator.Result{Changed: true}, nil
+	})
+
+	conditional.DependsOn(dep).OnlyIfChanged()
+
+	report, err := plan.Run(context.Background())
+	s.Require().NoError(err)
+	s.False(skippedRan)
+	s.Contains(report.Summary(), "skipped")
+}
+
+func (s *PlanIntegrationSuite) TestRunStopAllOnError() {
+	plan := orchestrator.NewPlan()
+
+	fail := plan.TaskFunc("fail", func(
+		_ context.Context,
+	) (*orchestrator.Result, error) {
+		return nil, fmt.Errorf("boom")
+	})
+
+	didRun := false
+
+	next := plan.TaskFunc("next", func(
+		_ context.Context,
+	) (*orchestrator.Result, error) {
+		didRun = true
+
+		return &orchestrator.Result{}, nil
+	})
+
+	next.DependsOn(fail)
+
+	_, err := plan.Run(context.Background())
+	s.Error(err)
+	s.False(didRun)
+}
+
+func (s *PlanIntegrationSuite) TestRunContinueOnError() {
+	plan := orchestrator.NewPlan(
+		orchestrator.OnError(orchestrator.Continue),
+	)
+
+	plan.TaskFunc("fail", func(
+		_ context.Context,
+	) (*orchestrator.Result, error) {
+		return nil, fmt.Errorf("boom")
+	})
+
+	didRun := false
+
+	plan.TaskFunc("independent", func(
+		_ context.Context,
+	) (*orchestrator.Result, error) {
+		didRun = true
+
+		return &orchestrator.Result{Changed: true}, nil
+	})
+
+	report, err := plan.Run(context.Background())
+	s.NoError(err)
+	s.True(didRun)
+	s.Len(report.Tasks, 2)
+}
+
+func (s *PlanIntegrationSuite) TestRunCycleDetection() {
+	plan := orchestrator.NewPlan()
+	a := plan.Task("a", &orchestrator.Op{Operation: "noop"})
+	b := plan.Task("b", &orchestrator.Op{Operation: "noop"})
+	a.DependsOn(b)
+	b.DependsOn(a)
+
+	_, err := plan.Run(context.Background())
+	s.Error(err)
+	s.Contains(err.Error(), "cycle")
+}
