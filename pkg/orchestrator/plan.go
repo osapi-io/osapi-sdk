@@ -3,16 +3,21 @@ package orchestrator
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
 
 // Plan is a DAG of tasks with dependency edges.
 type Plan struct {
+	client *osapi.Client
 	tasks  []*Task
 	config PlanConfig
 }
 
-// NewPlan creates a new plan with optional configuration.
+// NewPlan creates a new plan bound to an OSAPI client.
 func NewPlan(
+	client *osapi.Client,
 	opts ...PlanOption,
 ) *Plan {
 	cfg := PlanConfig{
@@ -24,8 +29,14 @@ func NewPlan(
 	}
 
 	return &Plan{
+		client: client,
 		config: cfg,
 	}
+}
+
+// Client returns the OSAPI client bound to this plan.
+func (p *Plan) Client() *osapi.Client {
+	return p.client
 }
 
 // Config returns the plan configuration.
@@ -59,6 +70,59 @@ func (p *Plan) TaskFunc(
 // Tasks returns all tasks in the plan.
 func (p *Plan) Tasks() []*Task {
 	return p.tasks
+}
+
+// Explain returns a human-readable representation of the execution
+// plan showing levels, parallelism, dependencies, and guards.
+func (p *Plan) Explain() string {
+	levels := levelize(p.tasks)
+
+	var b strings.Builder
+
+	fmt.Fprintf(&b, "Plan: %d tasks, %d levels\n", len(p.tasks), len(levels))
+
+	for i, level := range levels {
+		if len(level) > 1 {
+			fmt.Fprintf(&b, "\nLevel %d (parallel):\n", i)
+		} else {
+			fmt.Fprintf(&b, "\nLevel %d:\n", i)
+		}
+
+		for _, t := range level {
+			kind := "op"
+			if t.fn != nil {
+				kind = "fn"
+			}
+
+			fmt.Fprintf(&b, "  %s [%s]", t.name, kind)
+
+			if len(t.deps) > 0 {
+				names := make([]string, len(t.deps))
+				for j, dep := range t.deps {
+					names[j] = dep.name
+				}
+
+				fmt.Fprintf(&b, " <- %s", strings.Join(names, ", "))
+			}
+
+			var flags []string
+			if t.requiresChange {
+				flags = append(flags, "only-if-changed")
+			}
+
+			if t.guard != nil {
+				flags = append(flags, "when")
+			}
+
+			if len(flags) > 0 {
+				fmt.Fprintf(&b, " (%s)", strings.Join(flags, ", "))
+			}
+
+			fmt.Fprintln(&b)
+		}
+	}
+
+	return b.String()
 }
 
 // Validate checks the plan for errors: duplicate names and cycles.

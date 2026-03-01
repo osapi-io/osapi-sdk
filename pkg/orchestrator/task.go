@@ -1,6 +1,10 @@
 package orchestrator
 
-import "context"
+import (
+	"context"
+
+	"github.com/osapi-io/osapi-sdk/pkg/osapi"
+)
 
 // Op represents a declarative SDK operation.
 type Op struct {
@@ -9,8 +13,12 @@ type Op struct {
 	Params    map[string]any
 }
 
-// TaskFn is the signature for functional tasks.
-type TaskFn func(ctx context.Context) (*Result, error)
+// TaskFn is the signature for functional tasks. The client
+// parameter provides access to the OSAPI SDK for making API calls.
+type TaskFn func(
+	ctx context.Context,
+	client *osapi.Client,
+) (*Result, error)
 
 // GuardFn is a predicate that determines if a task should run.
 type GuardFn func(results Results) bool

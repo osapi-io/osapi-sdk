@@ -1,4 +1,4 @@
-module github.com/osapi-io/osapi-sdk/examples/orchestrator
+module github.com/osapi-io/osapi-sdk/examples/discovery
 
 go 1.25.7
 

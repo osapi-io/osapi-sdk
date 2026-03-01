@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
+	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
 
 type TaskSuite struct {
@@ -81,6 +82,7 @@ func (s *TaskSuite) TestWhen() {
 func (s *TaskSuite) TestTaskFunc() {
 	fn := func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		return &orchestrator.Result{Changed: true}, nil
 	}

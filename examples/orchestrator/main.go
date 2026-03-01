@@ -25,12 +25,29 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
+	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
 
 func main() {
-	plan := orchestrator.NewPlan()
+	url := os.Getenv("OSAPI_URL")
+	if url == "" {
+		url = "http://localhost:8080"
+	}
+
+	token := os.Getenv("OSAPI_TOKEN")
+	if token == "" {
+		log.Fatal("OSAPI_TOKEN environment variable is required")
+	}
+
+	client, err := osapi.New(url, token)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	plan := orchestrator.NewPlan(client)
 
 	createUser := plan.Task("create-user", &orchestrator.Op{
 		Operation: "command.exec",

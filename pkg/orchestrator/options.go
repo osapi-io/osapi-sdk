@@ -1,6 +1,10 @@
 package orchestrator
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+	"os"
+)
 
 // ErrorStrategy defines how the runner handles task failures.
 type ErrorStrategy struct {
@@ -40,6 +44,8 @@ func (e ErrorStrategy) RetryCount() int {
 // PlanConfig holds plan-level configuration.
 type PlanConfig struct {
 	OnErrorStrategy ErrorStrategy
+	Verbose         bool
+	Output          io.Writer
 }
 
 // PlanOption is a functional option for NewPlan.
@@ -51,5 +57,26 @@ func OnError(
 ) PlanOption {
 	return func(cfg *PlanConfig) {
 		cfg.OnErrorStrategy = strategy
+	}
+}
+
+// WithVerbose enables execution logging. Output goes to stdout
+// unless overridden with WithOutput.
+func WithVerbose() PlanOption {
+	return func(cfg *PlanConfig) {
+		cfg.Verbose = true
+
+		if cfg.Output == nil {
+			cfg.Output = os.Stdout
+		}
+	}
+}
+
+// WithOutput sets the writer for verbose output.
+func WithOutput(
+	w io.Writer,
+) PlanOption {
+	return func(cfg *PlanConfig) {
+		cfg.Output = w
 	}
 }

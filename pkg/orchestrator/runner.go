@@ -2,6 +2,9 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -31,9 +34,30 @@ func (r *runner) run(
 	start := time.Now()
 	levels := levelize(r.plan.tasks)
 
+	if r.plan.config.Verbose {
+		r.log("%s", r.plan.Explain())
+	}
+
 	var taskResults []TaskResult
 
-	for _, level := range levels {
+	for i, level := range levels {
+		if r.plan.config.Verbose {
+			names := make([]string, len(level))
+			for j, t := range level {
+				names[j] = t.name
+			}
+
+			if len(level) > 1 {
+				r.log(
+					"--- Level %d: %s (parallel)\n",
+					i,
+					strings.Join(names, ", "),
+				)
+			} else {
+				r.log("--- Level %d: %s\n", i, names[0])
+			}
+		}
+
 		results, err := r.runLevel(ctx, level)
 		taskResults = append(taskResults, results...)
 
@@ -49,6 +73,16 @@ func (r *runner) run(
 		Tasks:    taskResults,
 		Duration: time.Since(start),
 	}, nil
+}
+
+// log writes verbose output if configured.
+func (r *runner) log(
+	format string,
+	args ...any,
+) {
+	if r.plan.config.Output != nil {
+		_, _ = fmt.Fprintf(r.plan.config.Output, format, args...)
+	}
 }
 
 // runLevel executes all tasks in a level concurrently.
@@ -91,6 +125,8 @@ func (r *runner) runTask(
 ) TaskResult {
 	start := time.Now()
 
+	verbose := r.plan.config.Verbose
+
 	if t.requiresChange {
 		anyChanged := false
 
@@ -107,6 +143,10 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !anyChanged {
+			if verbose {
+				r.log("    %-20s skipped (no deps changed)\n", t.name)
+			}
+
 			return TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
@@ -121,6 +161,10 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !shouldRun {
+			if verbose {
+				r.log("    %-20s skipped (guard)\n", t.name)
+			}
+
 			return TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
@@ -129,20 +173,32 @@ func (r *runner) runTask(
 		}
 	}
 
+	if verbose {
+		r.log("    %-20s running...\n", t.name)
+	}
+
 	var result *Result
 	var err error
 
+	client := r.plan.client
+
 	if t.fn != nil {
-		result, err = t.fn(ctx)
+		result, err = t.fn(ctx, client)
 	} else {
-		result = &Result{Changed: false}
+		result, err = r.executeOp(ctx, t.op)
 	}
 
+	elapsed := time.Since(start)
+
 	if err != nil {
+		if verbose {
+			r.log("    %-20s FAILED (%s)\n", t.name, elapsed)
+		}
+
 		return TaskResult{
 			Name:     t.name,
 			Status:   StatusFailed,
-			Duration: time.Since(start),
+			Duration: elapsed,
 			Error:    err,
 		}
 	}
@@ -156,11 +212,109 @@ func (r *runner) runTask(
 		status = StatusChanged
 	}
 
+	if verbose {
+		r.log("    %-20s %s (%s)\n", t.name, status, elapsed)
+	}
+
 	return TaskResult{
 		Name:     t.name,
 		Status:   status,
 		Changed:  result.Changed,
-		Duration: time.Since(start),
+		Duration: elapsed,
+	}
+}
+
+// defaultPollInterval is the default interval between job status polls.
+var defaultPollInterval = 500 * time.Millisecond
+
+// executeOp submits a declarative Op as a job via the SDK and polls
+// for completion.
+func (r *runner) executeOp(
+	ctx context.Context,
+	op *Op,
+) (*Result, error) {
+	client := r.plan.client
+	if client == nil {
+		return nil, fmt.Errorf(
+			"op task %q requires an OSAPI client",
+			op.Operation,
+		)
+	}
+
+	operation := make(map[string]interface{}, len(op.Params)+1)
+	operation["operation"] = op.Operation
+
+	for k, v := range op.Params {
+		operation[k] = v
+	}
+
+	createResp, err := client.Job.Create(ctx, operation, op.Target)
+	if err != nil {
+		return nil, fmt.Errorf("create job: %w", err)
+	}
+
+	if createResp.StatusCode() != http.StatusCreated {
+		return nil, fmt.Errorf(
+			"create job: unexpected status %d",
+			createResp.StatusCode(),
+		)
+	}
+
+	jobID := createResp.JSON201.JobId.String()
+
+	return r.pollJob(ctx, jobID)
+}
+
+// pollJob polls a job until it reaches a terminal state.
+func (r *runner) pollJob(
+	ctx context.Context,
+	jobID string,
+) (*Result, error) {
+	ticker := time.NewTicker(defaultPollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-ticker.C:
+			resp, err := r.plan.client.Job.Get(ctx, jobID)
+			if err != nil {
+				return nil, fmt.Errorf("poll job %s: %w", jobID, err)
+			}
+
+			if resp.StatusCode() != http.StatusOK {
+				return nil, fmt.Errorf(
+					"poll job %s: unexpected status %d",
+					jobID,
+					resp.StatusCode(),
+				)
+			}
+
+			status := ""
+			if resp.JSON200.Status != nil {
+				status = *resp.JSON200.Status
+			}
+
+			switch status {
+			case "completed":
+				data := make(map[string]any)
+				if resp.JSON200.Result != nil {
+					if m, ok := resp.JSON200.Result.(map[string]any); ok {
+						data = m
+					}
+				}
+
+				return &Result{Changed: true, Data: data}, nil
+			case "failed":
+				errMsg := "job failed"
+				if resp.JSON200.Error != nil {
+					errMsg = *resp.JSON200.Error
+				}
+
+				return nil, fmt.Errorf("job %s: %s", jobID, errMsg)
+			}
+		}
 	}
 }
 

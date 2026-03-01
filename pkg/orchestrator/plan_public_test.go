@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
+	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
 
 type PlanSuite struct {
@@ -37,14 +38,19 @@ func (s *PlanSuite) TestNewPlan() {
 
 	for _, tt := range tests {
 		s.Run(tt.name, func() {
-			plan := orchestrator.NewPlan(tt.opts...)
+			plan := orchestrator.NewPlan(nil, tt.opts...)
 			s.Equal(tt.wantErrStrat, plan.Config().OnErrorStrategy.String())
 		})
 	}
 }
 
+func (s *PlanSuite) TestNewPlanClient() {
+	plan := orchestrator.NewPlan(nil)
+	s.Nil(plan.Client())
+}
+
 func (s *PlanSuite) TestPlanTask() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 
 	t1 := plan.Task("install", &orchestrator.Op{Operation: "command.exec"})
 	t2 := plan.Task("configure", &orchestrator.Op{Operation: "network.dns.update"})
@@ -57,10 +63,11 @@ func (s *PlanSuite) TestPlanTask() {
 }
 
 func (s *PlanSuite) TestPlanTaskFunc() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 
 	plan.TaskFunc("verify", func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		return &orchestrator.Result{Changed: false}, nil
 	})
@@ -70,7 +77,7 @@ func (s *PlanSuite) TestPlanTaskFunc() {
 }
 
 func (s *PlanSuite) TestPlanValidateCycleDetection() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 	a := plan.Task("a", &orchestrator.Op{Operation: "noop"})
 	b := plan.Task("b", &orchestrator.Op{Operation: "noop"})
 	a.DependsOn(b)
@@ -82,7 +89,7 @@ func (s *PlanSuite) TestPlanValidateCycleDetection() {
 }
 
 func (s *PlanSuite) TestPlanValidateNoCycle() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 	a := plan.Task("a", &orchestrator.Op{Operation: "noop"})
 	b := plan.Task("b", &orchestrator.Op{Operation: "noop"})
 	b.DependsOn(a)
@@ -91,8 +98,26 @@ func (s *PlanSuite) TestPlanValidateNoCycle() {
 	s.NoError(err)
 }
 
+func (s *PlanSuite) TestPlanExplain() {
+	plan := orchestrator.NewPlan(nil)
+	a := plan.Task("install", &orchestrator.Op{Operation: "command.exec"})
+	b := plan.TaskFunc("verify", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return nil, nil
+	})
+	b.DependsOn(a)
+	b.When(func(_ orchestrator.Results) bool { return true })
+
+	out := plan.Explain()
+	s.Contains(out, "2 tasks, 2 levels")
+	s.Contains(out, "install [op]")
+	s.Contains(out, "verify [fn] <- install (when)")
+}
+
 func (s *PlanSuite) TestPlanValidateDuplicateName() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 	plan.Task("same", &orchestrator.Op{Operation: "noop"})
 	plan.Task("same", &orchestrator.Op{Operation: "noop"})
 

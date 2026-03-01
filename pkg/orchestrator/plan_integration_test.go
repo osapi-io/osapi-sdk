@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
+	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
 
 type PlanIntegrationSuite struct {
@@ -21,11 +22,12 @@ func TestPlanIntegrationSuite(t *testing.T) {
 
 func (s *PlanIntegrationSuite) TestRunLinearChain() {
 	var order []string
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 
 	mkTask := func(name string, changed bool) *orchestrator.Task {
 		return plan.TaskFunc(name, func(
 			_ context.Context,
+			_ *osapi.Client,
 		) (*orchestrator.Result, error) {
 			order = append(order, name)
 
@@ -52,11 +54,12 @@ func (s *PlanIntegrationSuite) TestRunParallelExecution() {
 	var concurrentMax atomic.Int32
 	var concurrent atomic.Int32
 
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 
 	mkTask := func(name string) *orchestrator.Task {
 		return plan.TaskFunc(name, func(
 			_ context.Context,
+			_ *osapi.Client,
 		) (*orchestrator.Result, error) {
 			cur := concurrent.Add(1)
 
@@ -88,17 +91,19 @@ func (s *PlanIntegrationSuite) TestRunParallelExecution() {
 }
 
 func (s *PlanIntegrationSuite) TestRunOnlyIfChanged() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 	skippedRan := false
 
 	dep := plan.TaskFunc("dep", func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		return &orchestrator.Result{Changed: false}, nil
 	})
 
 	conditional := plan.TaskFunc("conditional", func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		skippedRan = true
 
@@ -114,10 +119,11 @@ func (s *PlanIntegrationSuite) TestRunOnlyIfChanged() {
 }
 
 func (s *PlanIntegrationSuite) TestRunStopAllOnError() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 
 	fail := plan.TaskFunc("fail", func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		return nil, fmt.Errorf("boom")
 	})
@@ -126,6 +132,7 @@ func (s *PlanIntegrationSuite) TestRunStopAllOnError() {
 
 	next := plan.TaskFunc("next", func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		didRun = true
 
@@ -141,11 +148,13 @@ func (s *PlanIntegrationSuite) TestRunStopAllOnError() {
 
 func (s *PlanIntegrationSuite) TestRunContinueOnError() {
 	plan := orchestrator.NewPlan(
+		nil,
 		orchestrator.OnError(orchestrator.Continue),
 	)
 
 	plan.TaskFunc("fail", func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		return nil, fmt.Errorf("boom")
 	})
@@ -154,6 +163,7 @@ func (s *PlanIntegrationSuite) TestRunContinueOnError() {
 
 	plan.TaskFunc("independent", func(
 		_ context.Context,
+		_ *osapi.Client,
 	) (*orchestrator.Result, error) {
 		didRun = true
 
@@ -167,7 +177,7 @@ func (s *PlanIntegrationSuite) TestRunContinueOnError() {
 }
 
 func (s *PlanIntegrationSuite) TestRunCycleDetection() {
-	plan := orchestrator.NewPlan()
+	plan := orchestrator.NewPlan(nil)
 	a := plan.Task("a", &orchestrator.Op{Operation: "noop"})
 	b := plan.Task("b", &orchestrator.Op{Operation: "noop"})
 	a.DependsOn(b)
@@ -176,4 +186,18 @@ func (s *PlanIntegrationSuite) TestRunCycleDetection() {
 	_, err := plan.Run(context.Background())
 	s.Error(err)
 	s.Contains(err.Error(), "cycle")
+}
+
+func (s *PlanIntegrationSuite) TestRunOpTaskRequiresClient() {
+	plan := orchestrator.NewPlan(nil)
+	plan.Task("install", &orchestrator.Op{
+		Operation: "command.exec",
+		Target:    "_any",
+		Params:    map[string]any{"command": "uptime"},
+	})
+
+	report, err := plan.Run(context.Background())
+	s.Error(err)
+	s.NotNil(report)
+	s.Contains(report.Tasks[0].Error.Error(), "requires an OSAPI client")
 }

@@ -38,10 +38,11 @@ Each example is a standalone Go program you can read and run.
 | Example | What it shows |
 | ------- | ------------- |
 | [basic](examples/basic/main.go) | Connect to OSAPI, query a hostname, run a command, list audit entries, check health |
-| [orchestrator](examples/orchestrator/main.go) | Define a 4-task deployment DAG with dependencies and conditional execution |
+| [discovery](examples/discovery/main.go) | Runnable DAG that discovers fleet info: health check, agent listing, and status in parallel |
+| [orchestrator](examples/orchestrator/main.go) | Declarative deployment DAG with dependencies and conditional execution |
 
 ```bash
-cd examples/basic
+cd examples/discovery
 OSAPI_TOKEN="<jwt>" go run main.go
 ```
 
