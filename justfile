@@ -21,9 +21,3 @@ deps:
 # Run all tests
 test:
     just go::test
-
-# Generate code
-generate:
-    go tool github.com/retr0h/gilt/v2 overlay
-    redocly join --prefix-tags-with-info-prop title -o pkg/osapi/gen/api.yaml pkg/osapi/gen/*/gen/api.yaml
-    just go::generate
