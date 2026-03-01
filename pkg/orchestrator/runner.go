@@ -361,11 +361,12 @@ func (r *runner) executeOp(
 		)
 	}
 
-	operation := make(map[string]interface{}, len(op.Params)+1)
-	operation["type"] = op.Operation
+	operation := map[string]interface{}{
+		"type": op.Operation,
+	}
 
-	for k, v := range op.Params {
-		operation[k] = v
+	if len(op.Params) > 0 {
+		operation["data"] = op.Params
 	}
 
 	createResp, err := client.Job.Create(ctx, operation, op.Target)
