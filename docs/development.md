@@ -17,15 +17,18 @@ mise install
 
 ### Claude Code
 
-If you use [Claude Code][] for development, install the **commit-commands** plugin
-from the default marketplace:
+If you use [Claude Code][] for development, install these plugins from the
+default marketplace:
 
 ```
 /plugin install commit-commands@claude-plugins-official
+/plugin install superpowers@claude-plugins-official
 ```
 
-This provides `/commit` and `/commit-push-pr` slash commands that follow the
-project's commit conventions automatically.
+- **commit-commands** — provides `/commit` and `/commit-push-pr` slash commands
+  that follow the project's commit conventions automatically.
+- **superpowers** — provides structured workflows for planning, TDD, debugging,
+  code review, and git worktree isolation.
 
 ## Setup
 
