@@ -201,3 +201,60 @@ func (s *PlanIntegrationSuite) TestRunOpTaskRequiresClient() {
 	s.NotNil(report)
 	s.Contains(report.Tasks[0].Error.Error(), "requires an OSAPI client")
 }
+
+func (s *PlanIntegrationSuite) TestHooksCalledDuringRun() {
+	var events []string
+	hooks := orchestrator.Hooks{
+		BeforePlan: func(_ string) {
+			events = append(events, "before-plan")
+		},
+		AfterPlan: func(_ *orchestrator.Report) {
+			events = append(events, "after-plan")
+		},
+		BeforeLevel: func(level int, _ []*orchestrator.Task, _ bool) {
+			events = append(events, fmt.Sprintf("before-level-%d", level))
+		},
+		AfterLevel: func(level int, _ []orchestrator.TaskResult) {
+			events = append(events, fmt.Sprintf("after-level-%d", level))
+		},
+		BeforeTask: func(task *orchestrator.Task) {
+			events = append(events, "before-"+task.Name())
+		},
+		AfterTask: func(_ *orchestrator.Task, r orchestrator.TaskResult) {
+			events = append(events, "after-"+r.Name)
+		},
+	}
+
+	plan := orchestrator.NewPlan(nil, orchestrator.WithHooks(hooks))
+
+	a := plan.TaskFunc("a", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return &orchestrator.Result{Changed: true}, nil
+	})
+
+	plan.TaskFunc("b", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return &orchestrator.Result{Changed: false}, nil
+	}).DependsOn(a)
+
+	report, err := plan.Run(context.Background())
+	s.NoError(err)
+	s.NotNil(report)
+
+	s.Equal([]string{
+		"before-plan",
+		"before-level-0",
+		"before-a",
+		"after-a",
+		"after-level-0",
+		"before-level-1",
+		"before-b",
+		"after-b",
+		"after-level-1",
+		"after-plan",
+	}, events)
+}

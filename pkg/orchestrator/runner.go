@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 )
@@ -34,54 +33,121 @@ func (r *runner) run(
 	start := time.Now()
 	levels := levelize(r.plan.tasks)
 
-	if r.plan.config.Verbose {
-		r.log("%s", r.plan.Explain())
-	}
+	r.callBeforePlan(r.plan.Explain())
 
 	var taskResults []TaskResult
 
 	for i, level := range levels {
-		if r.plan.config.Verbose {
-			names := make([]string, len(level))
-			for j, t := range level {
-				names[j] = t.name
-			}
-
-			if len(level) > 1 {
-				r.log(
-					"--- Level %d: %s (parallel)\n",
-					i,
-					strings.Join(names, ", "),
-				)
-			} else {
-				r.log("--- Level %d: %s\n", i, names[0])
-			}
-		}
+		r.callBeforeLevel(i, level, len(level) > 1)
 
 		results, err := r.runLevel(ctx, level)
 		taskResults = append(taskResults, results...)
 
+		r.callAfterLevel(i, results)
+
 		if err != nil {
-			return &Report{
+			report := &Report{
 				Tasks:    taskResults,
 				Duration: time.Since(start),
-			}, err
+			}
+
+			r.callAfterPlan(report)
+
+			return report, err
 		}
 	}
 
-	return &Report{
+	report := &Report{
 		Tasks:    taskResults,
 		Duration: time.Since(start),
-	}, nil
+	}
+
+	r.callAfterPlan(report)
+
+	return report, nil
 }
 
-// log writes verbose output if configured.
-func (r *runner) log(
-	format string,
-	args ...any,
+// hook returns the plan's hooks or nil.
+func (r *runner) hook() *Hooks {
+	return r.plan.config.Hooks
+}
+
+// callBeforePlan invokes the BeforePlan hook if set.
+func (r *runner) callBeforePlan(
+	explain string,
 ) {
-	if r.plan.config.Output != nil {
-		_, _ = fmt.Fprintf(r.plan.config.Output, format, args...)
+	if h := r.hook(); h != nil && h.BeforePlan != nil {
+		h.BeforePlan(explain)
+	}
+}
+
+// callAfterPlan invokes the AfterPlan hook if set.
+func (r *runner) callAfterPlan(
+	report *Report,
+) {
+	if h := r.hook(); h != nil && h.AfterPlan != nil {
+		h.AfterPlan(report)
+	}
+}
+
+// callBeforeLevel invokes the BeforeLevel hook if set.
+func (r *runner) callBeforeLevel(
+	level int,
+	tasks []*Task,
+	parallel bool,
+) {
+	if h := r.hook(); h != nil && h.BeforeLevel != nil {
+		h.BeforeLevel(level, tasks, parallel)
+	}
+}
+
+// callAfterLevel invokes the AfterLevel hook if set.
+func (r *runner) callAfterLevel(
+	level int,
+	results []TaskResult,
+) {
+	if h := r.hook(); h != nil && h.AfterLevel != nil {
+		h.AfterLevel(level, results)
+	}
+}
+
+// callBeforeTask invokes the BeforeTask hook if set.
+func (r *runner) callBeforeTask(
+	task *Task,
+) {
+	if h := r.hook(); h != nil && h.BeforeTask != nil {
+		h.BeforeTask(task)
+	}
+}
+
+// callAfterTask invokes the AfterTask hook if set.
+func (r *runner) callAfterTask(
+	task *Task,
+	result TaskResult,
+) {
+	if h := r.hook(); h != nil && h.AfterTask != nil {
+		h.AfterTask(task, result)
+	}
+}
+
+// callOnRetry invokes the OnRetry hook if set.
+func (r *runner) callOnRetry(
+	task *Task,
+	attempt int,
+	err error,
+) {
+	if h := r.hook(); h != nil && h.OnRetry != nil {
+		h.OnRetry(task, attempt, err)
+	}
+}
+
+// callOnSkip invokes the OnSkip hook if set.
+func (r *runner) callOnSkip(
+	task *Task,
+	reason string,
+) {
+	if h := r.hook(); h != nil && h.OnSkip != nil {
+		h.OnSkip(task, reason)
 	}
 }
 
@@ -125,8 +191,6 @@ func (r *runner) runTask(
 ) TaskResult {
 	start := time.Now()
 
-	verbose := r.plan.config.Verbose
-
 	if t.requiresChange {
 		anyChanged := false
 
@@ -143,15 +207,16 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !anyChanged {
-			if verbose {
-				r.log("    %-20s skipped (no deps changed)\n", t.name)
-			}
-
-			return TaskResult{
+			tr := TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
 				Duration: time.Since(start),
 			}
+
+			r.callOnSkip(t, "no dependencies changed")
+			r.callAfterTask(t, tr)
+
+			return tr
 		}
 	}
 
@@ -161,21 +226,20 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !shouldRun {
-			if verbose {
-				r.log("    %-20s skipped (guard)\n", t.name)
-			}
-
-			return TaskResult{
+			tr := TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
 				Duration: time.Since(start),
 			}
+
+			r.callOnSkip(t, "guard returned false")
+			r.callAfterTask(t, tr)
+
+			return tr
 		}
 	}
 
-	if verbose {
-		r.log("    %-20s running...\n", t.name)
-	}
+	r.callBeforeTask(t)
 
 	var result *Result
 	var err error
@@ -191,16 +255,16 @@ func (r *runner) runTask(
 	elapsed := time.Since(start)
 
 	if err != nil {
-		if verbose {
-			r.log("    %-20s FAILED (%s)\n", t.name, elapsed)
-		}
-
-		return TaskResult{
+		tr := TaskResult{
 			Name:     t.name,
 			Status:   StatusFailed,
 			Duration: elapsed,
 			Error:    err,
 		}
+
+		r.callAfterTask(t, tr)
+
+		return tr
 	}
 
 	r.mu.Lock()
@@ -212,16 +276,16 @@ func (r *runner) runTask(
 		status = StatusChanged
 	}
 
-	if verbose {
-		r.log("    %-20s %s (%s)\n", t.name, status, elapsed)
-	}
-
-	return TaskResult{
+	tr := TaskResult{
 		Name:     t.name,
 		Status:   status,
 		Changed:  result.Changed,
 		Duration: elapsed,
 	}
+
+	r.callAfterTask(t, tr)
+
+	return tr
 }
 
 // defaultPollInterval is the default interval between job status polls.
