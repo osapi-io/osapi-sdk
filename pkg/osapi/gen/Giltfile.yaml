@@ -1,0 +1,7 @@
+---
+repositories:
+  - git: https://github.com/osapi-io/osapi.git
+    version: main
+    sources:
+      - src: internal/api/gen/api.yaml
+        dstDir: ./
