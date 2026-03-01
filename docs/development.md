@@ -1,7 +1,6 @@
 # Development
 
-This guide covers the tools, setup, and conventions needed to work on
-osapi-sdk.
+This guide covers the tools, setup, and conventions needed to work on osapi-sdk.
 
 ## Prerequisites
 
@@ -18,8 +17,8 @@ mise install
 
 ### Claude Code
 
-If you use [Claude Code][] for development, install the **commit-commands**
-plugin from the default marketplace:
+If you use [Claude Code][] for development, install the **commit-commands** plugin
+from the default marketplace:
 
 ```
 /plugin install commit-commands@claude-plugins-official
@@ -66,9 +65,9 @@ go test -run TestName -v ./pkg/osapi/...  # Run a single test
 
 ## Branching
 
-All changes should be developed on feature branches. Create a branch from
-`main` using the naming convention `type/short-description`, where `type`
-matches the [Conventional Commits][] type:
+All changes should be developed on feature branches. Create a branch from `main`
+using the naming convention `type/short-description`, where `type` matches the
+[Conventional Commits][] type:
 
 - `feat/add-retry-logic`
 - `fix/null-pointer-crash`
@@ -86,8 +85,7 @@ Follow [Conventional Commits][] with the 50/72 rule:
 - **Subject line**: max 50 characters, imperative mood, capitalized, no period
 - **Body**: wrap at 72 characters, separated from subject by a blank line
 - **Format**: `type(scope): description`
-- **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`,
-  `chore`
+- **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 - Summarize the "what" and "why", not the "how"
 
 Try to write meaningful commit messages and avoid having too many commits on a

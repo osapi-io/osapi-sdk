@@ -10,17 +10,46 @@
 
 # OSAPI SDK
 
-A Go client library for the [OSAPI][] REST API.
+Go SDK for [OSAPI][] — client library and orchestration primitives.
 
-## Usage
+## Install
 
-https://github.com/osapi-io/osapi-sdk/blob/fe66750e11c0ca62e5dd342a32fe566d61080ba4/examples/basic/main.go#L21-L81
+```bash
+go get github.com/osapi-io/osapi-sdk
+```
 
-See the [examples][] section for additional use cases.
+## What's Inside
+
+**Client library** (`pkg/osapi`) — typed Go client for every OSAPI
+endpoint: node management, network config, command execution, job
+control, health checks, audit logs, and metrics. Connect, authenticate,
+and call any operation in a few lines.
+
+**Orchestration** (`pkg/orchestrator`) — DAG-based task execution on top
+of the client. Define tasks with dependencies and the library handles
+execution order, parallelism, conditional logic (`OnlyIfChanged`,
+`When`), error strategies (`StopAll`, `Continue`, `Retry`), and
+reporting.
+
+## Examples
+
+Each example is a standalone Go program you can read and run.
+
+| Example | What it shows |
+| ------- | ------------- |
+| [basic](examples/basic/main.go) | Connect to OSAPI, query a hostname, run a command, list audit entries, check health |
+| [discovery](examples/discovery/main.go) | Runnable DAG that discovers fleet info: health check, agent listing, and status in parallel |
+| [orchestrator](examples/orchestrator/main.go) | Declarative deployment DAG with dependencies and conditional execution |
+| [all](examples/all/main.go) | Every feature: hooks, Op tasks, TaskFunc, dependencies, guards, Levels(), error strategies, reporting |
+
+```bash
+cd examples/discovery
+OSAPI_TOKEN="<jwt>" go run main.go
+```
 
 ## Documentation
 
-See the [generated documentation][] for details on available packages and functions.
+See the [generated documentation][] for package-level API details.
 
 ## Contributing
 
@@ -33,6 +62,5 @@ submitting a PR.
 The [MIT][] License.
 
 [OSAPI]: https://github.com/osapi-io/osapi
-[examples]: examples/
 [generated documentation]: docs/gen/
 [MIT]: LICENSE
