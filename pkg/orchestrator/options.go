@@ -41,7 +41,7 @@ func (e ErrorStrategy) RetryCount() int {
 // events. All fields are optional — nil callbacks are skipped.
 // The SDK performs no logging; hooks are the only output mechanism.
 type Hooks struct {
-	BeforePlan  func(explain string)
+	BeforePlan  func(summary PlanSummary)
 	AfterPlan   func(report *Report)
 	BeforeLevel func(level int, tasks []*Task, parallel bool)
 	AfterLevel  func(level int, results []TaskResult)

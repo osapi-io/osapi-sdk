@@ -58,9 +58,9 @@ func main() {
 	client := osapi.New(url, token)
 
 	hooks := orchestrator.Hooks{
-		BeforePlan: func(explain string) {
+		BeforePlan: func(summary orchestrator.PlanSummary) {
 			fmt.Println("=== Execution Plan ===")
-			fmt.Print(explain)
+			fmt.Printf("Plan: %d tasks, %d steps\n", summary.TotalTasks, len(summary.Steps))
 			fmt.Println()
 		},
 		AfterPlan: func(report *orchestrator.Report) {
@@ -86,8 +86,8 @@ func main() {
 			}
 
 			fmt.Printf(
-				"\n>>> Level %d (%s): %s\n",
-				level,
+				"\n>>> Step %d (%s): %s\n",
+				level+1,
 				mode,
 				strings.Join(names, ", "),
 			)
@@ -101,8 +101,8 @@ func main() {
 			}
 
 			fmt.Printf(
-				"<<< Level %d done: %d/%d changed\n",
-				level,
+				"<<< Step %d done: %d/%d changed\n",
+				level+1,
 				changed,
 				len(results),
 			)
