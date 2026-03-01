@@ -29,11 +29,11 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
 
-type ClientInternalTestSuite struct {
+type ClientTestSuite struct {
 	suite.Suite
 }
 
-func (s *ClientInternalTestSuite) TestNewGenClientError() {
+func (s *ClientTestSuite) TestNewGenClientError() {
 	tests := []struct {
 		name         string
 		validateFunc func(*Client, error)
@@ -66,6 +66,6 @@ func (s *ClientInternalTestSuite) TestNewGenClientError() {
 	}
 }
 
-func TestClientInternalTestSuite(t *testing.T) {
-	suite.Run(t, new(ClientInternalTestSuite))
+func TestClientTestSuite(t *testing.T) {
+	suite.Run(t, new(ClientTestSuite))
 }

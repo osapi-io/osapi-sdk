@@ -43,11 +43,11 @@ func (e *errorReader) Close() error {
 	return nil
 }
 
-type MetricsInternalTestSuite struct {
+type MetricsTestSuite struct {
 	suite.Suite
 }
 
-func (s *MetricsInternalTestSuite) TestGetReadBodyError() {
+func (s *MetricsTestSuite) TestGetReadBodyError() {
 	tests := []struct {
 		name         string
 		validateFunc func(string, error)
@@ -98,6 +98,6 @@ func (t *readErrorTransport) RoundTrip(
 	}, nil
 }
 
-func TestMetricsInternalTestSuite(t *testing.T) {
-	suite.Run(t, new(MetricsInternalTestSuite))
+func TestMetricsTestSuite(t *testing.T) {
+	suite.Run(t, new(MetricsTestSuite))
 }
