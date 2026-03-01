@@ -17,8 +17,8 @@ None.
 
 ## Target
 
-Accepts any valid target: `_any`, `_all`, a hostname, or a label
-selector (`key:value`).
+Accepts any valid target: `_any`, `_all`, a hostname, or a label selector
+(`key:value`).
 
 ## Idempotency
 

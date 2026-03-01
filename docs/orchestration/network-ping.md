@@ -16,14 +16,14 @@ task := plan.Task("ping-gateway", &orchestrator.Op{
 
 ## Parameters
 
-| Param | Type | Required | Description |
-| ----- | ---- | -------- | ----------- |
-| `address` | string | Yes | Hostname or IP address to ping |
+| Param     | Type   | Required | Description                    |
+| --------- | ------ | -------- | ------------------------------ |
+| `address` | string | Yes      | Hostname or IP address to ping |
 
 ## Target
 
-Accepts any valid target: `_any`, `_all`, a hostname, or a label
-selector (`key:value`).
+Accepts any valid target: `_any`, `_all`, a hostname, or a label selector
+(`key:value`).
 
 ## Idempotency
 

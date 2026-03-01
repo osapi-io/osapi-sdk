@@ -4,9 +4,9 @@ Agent discovery and details.
 
 ## Methods
 
-| Method | Description |
-| ------ | ----------- |
-| `List(ctx)` | Retrieve all active agents |
+| Method               | Description                         |
+| -------------------- | ----------------------------------- |
+| `List(ctx)`          | Retrieve all active agents          |
 | `Get(ctx, hostname)` | Get detailed agent info by hostname |
 
 ## Usage

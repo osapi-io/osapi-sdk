@@ -7,12 +7,11 @@
 operation documentation, and a comprehensive example to the orchestrator
 package.
 
-**Architecture:** All changes are in `pkg/orchestrator/` inside
-osapi-sdk. Hooks provide consumer-controlled callbacks for logging and
-progress. `Levels()` exposes the levelized DAG for programmatic access.
-Error strategies (`Continue`, `Retry`, per-task `OnError`) get wired
-into the runner. Operation docs catalog available OSAPI operations for
-orchestration authors.
+**Architecture:** All changes are in `pkg/orchestrator/` inside osapi-sdk. Hooks
+provide consumer-controlled callbacks for logging and progress. `Levels()`
+exposes the levelized DAG for programmatic access. Error strategies (`Continue`,
+`Retry`, per-task `OnError`) get wired into the runner. Operation docs catalog
+available OSAPI operations for orchestration authors.
 
 **Tech Stack:** Go 1.25, osapi-sdk, testify/suite
 
@@ -362,8 +361,8 @@ func (r *runner) callAfterPlan(
 
 ### Step 4: Wire hooks into runner.run()
 
-Replace the verbose logging calls in `run()`, `runLevel()`, and
-`runTask()` with hook calls:
+Replace the verbose logging calls in `run()`, `runLevel()`, and `runTask()` with
+hook calls:
 
 **In `run()`:**
 
@@ -415,9 +414,8 @@ func (r *runner) run(
 }
 ```
 
-**In `runTask()`** — add `callBeforeTask` before execution and
-`callAfterTask` before returning each `TaskResult`. Every return path
-must call `callAfterTask`:
+**In `runTask()`** — add `callBeforeTask` before execution and `callAfterTask`
+before returning each `TaskResult`. Every return path must call `callAfterTask`:
 
 ```go
 // Before execution (after guards pass):
@@ -429,8 +427,8 @@ r.callAfterTask(tr)
 return tr
 ```
 
-Note: `callAfterTask` is called for ALL outcomes (changed, unchanged,
-skipped, failed) so consumers can track every task.
+Note: `callAfterTask` is called for ALL outcomes (changed, unchanged, skipped,
+failed) so consumers can track every task.
 
 ### Step 5: Refactor WithVerbose to use hooks internally
 
@@ -487,15 +485,15 @@ func ptr[T any](v T) *T {
 ```
 
 **Precedence rule:** If the consumer sets both `WithVerbose()` and
-`WithHooks()`, the last option wins (standard functional options). The
-consumer should use `WithHooks()` when they want full control.
+`WithHooks()`, the last option wins (standard functional options). The consumer
+should use `WithHooks()` when they want full control.
 
 ### Step 6: Remove old `r.log()` calls from runner
 
-After hooks are wired, remove the inline `if r.plan.config.Verbose`
-blocks and the `r.log()` calls from `run()` and `runTask()`. The
-verbose hooks now produce the same output via callbacks. Keep the
-`log()` method for any future use but remove all call sites.
+After hooks are wired, remove the inline `if r.plan.config.Verbose` blocks and
+the `r.log()` calls from `run()` and `runTask()`. The verbose hooks now produce
+the same output via callbacks. Keep the `log()` method for any future use but
+remove all call sites.
 
 ### Step 7: Run full test suite
 
@@ -503,8 +501,8 @@ verbose hooks now produce the same output via callbacks. Keep the
 go test -v ./pkg/orchestrator/...
 ```
 
-Expected: ALL PASS — existing verbose tests still produce the same
-output via hooks.
+Expected: ALL PASS — existing verbose tests still produce the same output via
+hooks.
 
 ### Step 8: Commit
 
@@ -903,87 +901,80 @@ git commit -m "feat(orchestrator): implement per-task OnError override"
 
 Create `docs/orchestration/README.md`:
 
-```markdown
+````markdown
 # Orchestration
 
-The `orchestrator` package provides DAG-based task orchestration on top
-of the OSAPI SDK client. Define tasks with dependencies and the library
-handles execution order, parallelism, conditional logic, and reporting.
+The `orchestrator` package provides DAG-based task orchestration on top of the
+OSAPI SDK client. Define tasks with dependencies and the library handles
+execution order, parallelism, conditional logic, and reporting.
 
 ## Operations
 
-Operations are the building blocks of orchestration plans. Each
-operation maps to an OSAPI job type that agents execute.
+Operations are the building blocks of orchestration plans. Each operation maps
+to an OSAPI job type that agents execute.
 
-| Operation | Description | Idempotent | Category |
-| --------- | ----------- | ---------- | -------- |
-| [`command.exec.execute`](operations/command-exec.md) | Execute a command directly | No | Command |
-| [`command.shell.execute`](operations/command-shell.md) | Execute a shell command string | No | Command |
-| [`network.dns.get`](operations/network-dns-get.md) | Get DNS configuration | Read-only | Network |
-| [`network.dns.update`](operations/network-dns-update.md) | Update DNS servers | Yes | Network |
-| [`network.ping.do`](operations/network-ping.md) | Ping a host | Read-only | Network |
-| [`node.hostname.get`](operations/node-hostname.md) | Get system hostname | Read-only | Node |
-| [`node.status.get`](operations/node-status.md) | Get comprehensive node status | Read-only | Node |
-| [`node.disk.get`](operations/node-disk.md) | Get disk usage | Read-only | Node |
-| [`node.memory.get`](operations/node-memory.md) | Get memory statistics | Read-only | Node |
-| [`node.load.get`](operations/node-load.md) | Get load averages | Read-only | Node |
+| Operation                                                | Description                    | Idempotent | Category |
+| -------------------------------------------------------- | ------------------------------ | ---------- | -------- |
+| [`command.exec.execute`](operations/command-exec.md)     | Execute a command directly     | No         | Command  |
+| [`command.shell.execute`](operations/command-shell.md)   | Execute a shell command string | No         | Command  |
+| [`network.dns.get`](operations/network-dns-get.md)       | Get DNS configuration          | Read-only  | Network  |
+| [`network.dns.update`](operations/network-dns-update.md) | Update DNS servers             | Yes        | Network  |
+| [`network.ping.do`](operations/network-ping.md)          | Ping a host                    | Read-only  | Network  |
+| [`node.hostname.get`](operations/node-hostname.md)       | Get system hostname            | Read-only  | Node     |
+| [`node.status.get`](operations/node-status.md)           | Get comprehensive node status  | Read-only  | Node     |
+| [`node.disk.get`](operations/node-disk.md)               | Get disk usage                 | Read-only  | Node     |
+| [`node.memory.get`](operations/node-memory.md)           | Get memory statistics          | Read-only  | Node     |
+| [`node.load.get`](operations/node-load.md)               | Get load averages              | Read-only  | Node     |
 
 ### Idempotency
 
 - **Read-only** operations never modify state and always return
   `Changed: false`.
-- **Idempotent** write operations check current state before mutating
-  and return `Changed: true` only if something actually changed.
+- **Idempotent** write operations check current state before mutating and return
+  `Changed: true` only if something actually changed.
 - **Non-idempotent** operations (command exec/shell) always return
-  `Changed: true`. Use guards (`When`, `OnlyIfChanged`) to control
-  when they run.
+  `Changed: true`. Use guards (`When`, `OnlyIfChanged`) to control when they
+  run.
 
 ## Hooks
 
 Register callbacks to control logging and progress reporting:
 
-​```go
-hooks := orchestrator.Hooks{
-    BeforePlan:  func(explain string) { fmt.Print(explain) },
-    BeforeLevel: func(level int, names []string, parallel bool) { ... },
-    BeforeTask:  func(name string) { log.Printf("starting %s", name) },
-    AfterTask:   func(r orchestrator.TaskResult) { log.Printf("%s: %s", r.Name, r.Status) },
-    AfterPlan:   func(report *orchestrator.Report) { fmt.Println(report.Summary()) },
-}
+​```go hooks := orchestrator.Hooks{ BeforePlan: func(explain string) {
+fmt.Print(explain) }, BeforeLevel: func(level int, names []string, parallel
+bool) { ... }, BeforeTask: func(name string) { log.Printf("starting %s", name)
+}, AfterTask: func(r orchestrator.TaskResult) { log.Printf("%s: %s", r.Name,
+r.Status) }, AfterPlan: func(report \*orchestrator.Report) {
+fmt.Println(report.Summary()) }, }
 
-plan := orchestrator.NewPlan(client, orchestrator.WithHooks(hooks))
-​```
+plan := orchestrator.NewPlan(client, orchestrator.WithHooks(hooks)) ​```
 
 ## Error Strategies
 
-| Strategy | Behavior |
-| -------- | -------- |
-| `StopAll` (default) | Fail fast, cancel everything |
-| `Continue` | Skip dependents, keep running independent tasks |
-| `Retry(n)` | Retry n times before failing |
+| Strategy            | Behavior                                        |
+| ------------------- | ----------------------------------------------- |
+| `StopAll` (default) | Fail fast, cancel everything                    |
+| `Continue`          | Skip dependents, keep running independent tasks |
+| `Retry(n)`          | Retry n times before failing                    |
 
 Strategies can be set at plan level or overridden per-task:
 
-​```go
-plan := orchestrator.NewPlan(client, orchestrator.OnError(orchestrator.Continue))
-task.OnError(orchestrator.Retry(3)) // override for this task
-​```
+​`go plan := orchestrator.NewPlan(client, orchestrator.OnError(orchestrator.Continue)) task.OnError(orchestrator.Retry(3)) // override for this task ​`
 
 ## Adding a New Operation
 
 When a new operation is added to OSAPI:
 
-1. Create `docs/orchestration/operations/{name}.md` following the
-   template below
+1. Create `docs/orchestration/operations/{name}.md` following the template below
 2. Add a row to the operations table in this README
 3. Add the operation to `examples/all/main.go`
 4. Update `CLAUDE.md` package structure if new files were added
-```
+````
 
 ### Step 2: Create operation doc template
 
-Each operation doc follows this template. Create all 10 files. Example
-for `docs/orchestration/operations/command-exec.md`:
+Each operation doc follows this template. Create all 10 files. Example for
+`docs/orchestration/operations/command-exec.md`:
 
 ```markdown
 # command.exec.execute
@@ -992,33 +983,24 @@ Execute a command directly on the target node.
 
 ## Usage
 
-​```go
-task := plan.Task("install-nginx", &orchestrator.Op{
-    Operation: "command.exec.execute",
-    Target:    "_all",
-    Params: map[string]any{
-        "command": "apt",
-        "args":    []string{"install", "-y", "nginx"},
-    },
-})
-​```
+​`go task := plan.Task("install-nginx", &orchestrator.Op{     Operation: "command.exec.execute",     Target:    "_all",     Params: map[string]any{         "command": "apt",         "args":    []string{"install", "-y", "nginx"},     }, }) ​`
 
 ## Parameters
 
-| Param | Type | Required | Description |
-| ----- | ---- | -------- | ----------- |
-| `command` | string | Yes | The command to execute |
-| `args` | []string | No | Command arguments |
+| Param     | Type     | Required | Description            |
+| --------- | -------- | -------- | ---------------------- |
+| `command` | string   | Yes      | The command to execute |
+| `args`    | []string | No       | Command arguments      |
 
 ## Target
 
-Accepts any valid target: `_any`, `_all`, a hostname, or a label
-selector (`key:value`).
+Accepts any valid target: `_any`, `_all`, a hostname, or a label selector
+(`key:value`).
 
 ## Idempotency
 
-**Not idempotent.** Always returns `Changed: true`. Use guards
-(`OnlyIfChanged`, `When`) to control execution.
+**Not idempotent.** Always returns `Changed: true`. Use guards (`OnlyIfChanged`,
+`When`) to control execution.
 
 ## Permissions
 
@@ -1049,9 +1031,8 @@ git commit -m "docs(orchestrator): add operation catalog and documentation"
 
 ### Step 1: Create `examples/all/main.go`
 
-This example demonstrates every current feature: Op tasks, TaskFunc
-tasks, dependencies, guards, hooks, error strategies, Levels(),
-Explain(), and Report.
+This example demonstrates every current feature: Op tasks, TaskFunc tasks,
+dependencies, guards, hooks, error strategies, Levels(), Explain(), and Report.
 
 ```go
 package main
@@ -1277,7 +1258,8 @@ Expected: compiles.
 Add the new example to the table in `README.md`:
 
 ```markdown
-| [all](examples/all/main.go) | Every feature: Op tasks, TaskFunc, dependencies, guards, hooks, Levels(), and reporting |
+| [all](examples/all/main.go) | Every feature: Op tasks, TaskFunc, dependencies,
+guards, hooks, Levels(), and reporting |
 ```
 
 ### Step 5: Commit
@@ -1315,11 +1297,11 @@ Add after the package structure:
 ```markdown
 ## Orchestration Docs
 
-Operation documentation lives in `docs/orchestration/`. When adding a
-new OSAPI operation to the orchestrator:
+Operation documentation lives in `docs/orchestration/`. When adding a new OSAPI
+operation to the orchestrator:
 
-1. Create `docs/orchestration/operations/{name}.md` following the
-   existing template (params, target, idempotency, permissions)
+1. Create `docs/orchestration/operations/{name}.md` following the existing
+   template (params, target, idempotency, permissions)
 2. Add a row to the operations table in `docs/orchestration/README.md`
 3. Add the operation to `examples/all/main.go`
 ```

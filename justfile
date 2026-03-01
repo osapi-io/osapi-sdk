@@ -1,5 +1,6 @@
 # Optional modules: mod? allows `just fetch` to work before .just/remote/ exists.
 mod? go '.just/remote/go.mod.just'
+mod? docs '.just/remote/docs.mod.just'
 
 # --- Fetch ---
 
@@ -8,7 +9,8 @@ fetch:
     mkdir -p .just/remote
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/go.mod.just -o .just/remote/go.mod.just
     curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/go.just -o .just/remote/go.just
-
+    curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/docs.mod.just -o .just/remote/docs.mod.just
+    curl -sSfL https://raw.githubusercontent.com/osapi-io/osapi-justfiles/refs/heads/main/docs.just -o .just/remote/docs.just
 # --- Top-level orchestration ---
 
 # Install all dependencies

@@ -16,14 +16,14 @@ task := plan.Task("get-dns", &orchestrator.Op{
 
 ## Parameters
 
-| Param | Type | Required | Description |
-| ----- | ---- | -------- | ----------- |
-| `interface` | string | Yes | Network interface name |
+| Param       | Type   | Required | Description            |
+| ----------- | ------ | -------- | ---------------------- |
+| `interface` | string | Yes      | Network interface name |
 
 ## Target
 
-Accepts any valid target: `_any`, `_all`, a hostname, or a label
-selector (`key:value`).
+Accepts any valid target: `_any`, `_all`, a hostname, or a label selector
+(`key:value`).
 
 ## Idempotency
 

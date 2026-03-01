@@ -4,8 +4,8 @@ Prometheus metrics access.
 
 ## Methods
 
-| Method | Description |
-| ------ | ----------- |
+| Method     | Description                       |
+| ---------- | --------------------------------- |
 | `Get(ctx)` | Fetch raw Prometheus metrics text |
 
 ## Usage

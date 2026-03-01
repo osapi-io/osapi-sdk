@@ -4,11 +4,11 @@ Audit log operations.
 
 ## Methods
 
-| Method | Description |
-| ------ | ----------- |
+| Method                     | Description                      |
+| -------------------------- | -------------------------------- |
 | `List(ctx, limit, offset)` | Retrieve entries with pagination |
-| `Get(ctx, id)` | Retrieve a single entry by UUID |
-| `Export(ctx)` | Retrieve all entries for export |
+| `Get(ctx, id)`             | Retrieve a single entry by UUID  |
+| `Export(ctx)`              | Retrieve all entries for export  |
 
 ## Usage
 

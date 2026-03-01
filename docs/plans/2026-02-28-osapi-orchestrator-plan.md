@@ -3,16 +3,14 @@
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to
 > implement this plan task-by-task.
 
-**Goal:** Add DAG-based task orchestration primitives to osapi-sdk so
-operators can compose SDK calls into dependency-aware, parallel execution
-plans.
+**Goal:** Add DAG-based task orchestration primitives to osapi-sdk so operators
+can compose SDK calls into dependency-aware, parallel execution plans.
 
-**Architecture:** New `pkg/orchestrator/` package inside osapi-sdk.
-Operators write Go programs that define tasks with dependencies, and the
-library handles DAG resolution, parallel execution, conditional logic,
-and reporting. No new server components. See
-`docs/plans/2026-02-28-orchestrator-design.md` in the osapi repo for
-the full design.
+**Architecture:** New `pkg/orchestrator/` package inside osapi-sdk. Operators
+write Go programs that define tasks with dependencies, and the library handles
+DAG resolution, parallel execution, conditional logic, and reporting. No new
+server components. See `docs/plans/2026-02-28-orchestrator-design.md` in the
+osapi repo for the full design.
 
 **Tech Stack:** Go 1.25, osapi-sdk, testify/suite
 
@@ -42,9 +40,9 @@ Add an Orchestration section after Usage:
 ```markdown
 ## Orchestration
 
-The `orchestrator` package provides DAG-based task orchestration on top
-of the client library. Define tasks with dependencies, and the library
-handles execution order, parallelism, conditional logic, and reporting.
+The `orchestrator` package provides DAG-based task orchestration on top of the
+client library. Define tasks with dependencies, and the library handles
+execution order, parallelism, conditional logic, and reporting.
 
 See the [orchestrator example][] for a complete walkthrough.
 
@@ -66,8 +64,7 @@ Add orchestrator to the package structure section:
 
 **Step 3: Update `.coverignore`**
 
-Verify `/examples/` is already in `.coverignore` (it is). No change
-needed.
+Verify `/examples/` is already in `.coverignore` (it is). No change needed.
 
 **Step 4: Commit**
 
@@ -1111,8 +1108,8 @@ git commit -m "feat(orchestrator): add Plan with DAG validation"
 
 **Step 1: Write the failing test**
 
-Create `pkg/orchestrator/runner_test.go` (internal test — needs access
-to `topoSort` and `levelize`):
+Create `pkg/orchestrator/runner_test.go` (internal test — needs access to
+`topoSort` and `levelize`):
 
 ```go
 package orchestrator
@@ -1536,8 +1533,8 @@ func levelize(
 
 **Step 4: Remove the runner stub from `plan.go`**
 
-Delete the `newRunner` stub, `runner` type, and `run` method from the
-bottom of `plan.go`. The real implementations are now in `runner.go`.
+Delete the `newRunner` stub, `runner` type, and `run` method from the bottom of
+`plan.go`. The real implementations are now in `runner.go`.
 
 **Step 5: Run test to verify it passes**
 

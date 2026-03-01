@@ -1,7 +1,7 @@
 # node.status.get
 
-Get comprehensive node status including hostname, OS information,
-uptime, disk usage, memory statistics, and load averages.
+Get comprehensive node status including hostname, OS information, uptime, disk
+usage, memory statistics, and load averages.
 
 ## Usage
 
@@ -18,8 +18,8 @@ None.
 
 ## Target
 
-Accepts any valid target: `_any`, `_all`, a hostname, or a label
-selector (`key:value`).
+Accepts any valid target: `_any`, `_all`, a hostname, or a label selector
+(`key:value`).
 
 ## Idempotency
 

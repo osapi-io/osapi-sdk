@@ -17,20 +17,20 @@ task := plan.Task("install-nginx", &orchestrator.Op{
 
 ## Parameters
 
-| Param | Type | Required | Description |
-| ----- | ---- | -------- | ----------- |
-| `command` | string | Yes | The command to execute |
-| `args` | []string | No | Command arguments |
+| Param     | Type     | Required | Description            |
+| --------- | -------- | -------- | ---------------------- |
+| `command` | string   | Yes      | The command to execute |
+| `args`    | []string | No       | Command arguments      |
 
 ## Target
 
-Accepts any valid target: `_any`, `_all`, a hostname, or a label
-selector (`key:value`).
+Accepts any valid target: `_any`, `_all`, a hostname, or a label selector
+(`key:value`).
 
 ## Idempotency
 
-**Not idempotent.** Always returns `Changed: true`. Use guards
-(`OnlyIfChanged`, `When`) to control execution.
+**Not idempotent.** Always returns `Changed: true`. Use guards (`OnlyIfChanged`,
+`When`) to control execution.
 
 ## Permissions
 

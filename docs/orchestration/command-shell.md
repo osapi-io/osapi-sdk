@@ -1,7 +1,7 @@
 # command.shell.execute
 
-Execute a shell command string on the target node. The command is
-passed to `/bin/sh -c`.
+Execute a shell command string on the target node. The command is passed to
+`/bin/sh -c`.
 
 ## Usage
 
@@ -17,19 +17,19 @@ task := plan.Task("check-disk-space", &orchestrator.Op{
 
 ## Parameters
 
-| Param | Type | Required | Description |
-| ----- | ---- | -------- | ----------- |
-| `command` | string | Yes | The full shell command string |
+| Param     | Type   | Required | Description                   |
+| --------- | ------ | -------- | ----------------------------- |
+| `command` | string | Yes      | The full shell command string |
 
 ## Target
 
-Accepts any valid target: `_any`, `_all`, a hostname, or a label
-selector (`key:value`).
+Accepts any valid target: `_any`, `_all`, a hostname, or a label selector
+(`key:value`).
 
 ## Idempotency
 
-**Not idempotent.** Always returns `Changed: true`. Use guards
-(`OnlyIfChanged`, `When`) to control execution.
+**Not idempotent.** Always returns `Changed: true`. Use guards (`OnlyIfChanged`,
+`When`) to control execution.
 
 ## Permissions
 
