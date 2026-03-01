@@ -12,6 +12,9 @@ type Status string
 
 // Task execution statuses.
 const (
+	// StatusPending and StatusRunning are reserved for future
+	// streaming status support. The runner does not currently
+	// assign these — tasks go directly to a terminal status.
 	StatusPending   Status = "pending"
 	StatusRunning   Status = "running"
 	StatusChanged   Status = "changed"

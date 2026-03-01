@@ -160,3 +160,14 @@ func (s *PlanSuite) TestPlanValidateDuplicateName() {
 	s.Error(err)
 	s.Contains(err.Error(), "duplicate")
 }
+
+func (s *PlanSuite) TestExplainInvalidPlan() {
+	plan := orchestrator.NewPlan(nil)
+	a := plan.Task("a", &orchestrator.Op{Operation: "noop"})
+	b := plan.Task("b", &orchestrator.Op{Operation: "noop"})
+	a.DependsOn(b)
+	b.DependsOn(a)
+
+	out := plan.Explain()
+	s.Contains(out, "invalid plan")
+}

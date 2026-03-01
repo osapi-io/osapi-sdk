@@ -99,3 +99,31 @@ func (s *TaskSuite) TestOnErrorOverride() {
 	s.NotNil(task.ErrorStrategy())
 	s.Equal("continue", task.ErrorStrategy().String())
 }
+
+func (s *TaskSuite) TestOperation() {
+	op := &orchestrator.Op{Operation: "node.hostname.get", Target: "_any"}
+	task := orchestrator.NewTask("t", op)
+
+	s.Equal(op, task.Operation())
+
+	fnTask := orchestrator.NewTaskFunc("fn", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return nil, nil
+	})
+	s.Nil(fnTask.Operation())
+}
+
+func (s *TaskSuite) TestFn() {
+	task := orchestrator.NewTask("t", &orchestrator.Op{Operation: "noop"})
+	s.Nil(task.Fn())
+
+	fnTask := orchestrator.NewTaskFunc("fn", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return nil, nil
+	})
+	s.NotNil(fnTask.Fn())
+}

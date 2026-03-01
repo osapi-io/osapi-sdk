@@ -29,10 +29,10 @@
 // DAG:
 //
 //	check-health
-//	    ├── get-hostname ───┐
-//	    ├── get-disk     ───┤
-//	    ├── get-memory   ───┤
-//	    └── get-load     ───┴── print-summary (when: hostname found)
+//	    ├── get-hostname ────────┐
+//	    ├── get-disk     ────────┤
+//	    ├── get-memory   ────────┤
+//	    └── get-load [retry:2] ──┴── print-summary (only-if-changed, when: hostname found)
 //
 // Run with: OSAPI_TOKEN="<jwt>" go run main.go
 package main
@@ -208,9 +208,9 @@ func main() {
 		Target:    "_any",
 	})
 	getLoad.DependsOn(checkHealth)
-	getLoad.OnError(orchestrator.Continue)
+	getLoad.OnError(orchestrator.Retry(2)) // retry up to 2 times on failure
 
-	// Level 2: summary (depends on all queries, guard condition)
+	// Level 2: summary (depends on all queries, guard + OnlyIfChanged)
 	summary := plan.TaskFunc(
 		"print-summary",
 		func(
@@ -224,6 +224,7 @@ func main() {
 		},
 	)
 	summary.DependsOn(getHostname, getDisk, getMemory, getLoad)
+	summary.OnlyIfChanged() // skip if no dependency reported changes
 	summary.When(func(results orchestrator.Results) bool {
 		return results.Get("get-hostname") != nil
 	})

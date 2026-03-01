@@ -344,8 +344,8 @@ func (r *runner) runTask(
 	return tr
 }
 
-// defaultPollInterval is the default interval between job status polls.
-var defaultPollInterval = 500 * time.Millisecond
+// DefaultPollInterval is the interval between job status polls.
+var DefaultPollInterval = 500 * time.Millisecond
 
 // executeOp submits a declarative Op as a job via the SDK and polls
 // for completion.
@@ -390,7 +390,7 @@ func (r *runner) pollJob(
 	ctx context.Context,
 	jobID string,
 ) (*Result, error) {
-	ticker := time.NewTicker(defaultPollInterval)
+	ticker := time.NewTicker(DefaultPollInterval)
 	defer ticker.Stop()
 
 	for {
@@ -436,58 +436,6 @@ func (r *runner) pollJob(
 			}
 		}
 	}
-}
-
-// topoSort returns tasks in topological order using Kahn's algorithm.
-func topoSort(
-	tasks []*Task,
-) []*Task {
-	inDegree := make(map[string]int, len(tasks))
-	taskMap := make(map[string]*Task, len(tasks))
-
-	for _, t := range tasks {
-		taskMap[t.name] = t
-
-		if _, ok := inDegree[t.name]; !ok {
-			inDegree[t.name] = 0
-		}
-	}
-
-	for _, t := range tasks {
-		for range t.deps {
-			inDegree[t.name]++
-		}
-	}
-
-	var queue []*Task
-
-	for _, t := range tasks {
-		if inDegree[t.name] == 0 {
-			queue = append(queue, t)
-		}
-	}
-
-	var sorted []*Task
-
-	for len(queue) > 0 {
-		current := queue[0]
-		queue = queue[1:]
-		sorted = append(sorted, current)
-
-		for _, t := range tasks {
-			for _, dep := range t.deps {
-				if dep.name == current.name {
-					inDegree[t.name]--
-
-					if inDegree[t.name] == 0 {
-						queue = append(queue, t)
-					}
-				}
-			}
-		}
-	}
-
-	return sorted
 }
 
 // levelize groups tasks into levels where all tasks in a level can

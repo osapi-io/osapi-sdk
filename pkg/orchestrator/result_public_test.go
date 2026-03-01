@@ -49,6 +49,16 @@ func (s *ResultSuite) TestReportSummary() {
 			contains: []string{"4 tasks", "2 changed", "1 unchanged", "1 skipped"},
 		},
 		{
+			name: "all statuses including failed",
+			tasks: []orchestrator.TaskResult{
+				{Name: "a", Status: orchestrator.StatusChanged, Changed: true},
+				{Name: "b", Status: orchestrator.StatusUnchanged},
+				{Name: "c", Status: orchestrator.StatusSkipped},
+				{Name: "d", Status: orchestrator.StatusFailed},
+			},
+			contains: []string{"4 tasks", "1 changed", "1 unchanged", "1 skipped", "1 failed"},
+		},
+		{
 			name:     "empty report",
 			tasks:    nil,
 			contains: []string{"0 tasks"},
