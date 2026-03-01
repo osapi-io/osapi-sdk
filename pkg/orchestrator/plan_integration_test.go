@@ -331,6 +331,59 @@ func (s *PlanIntegrationSuite) TestRunOpTaskRequiresClient() {
 	s.Contains(report.Tasks[0].Error.Error(), "requires an OSAPI client")
 }
 
+func (s *PlanIntegrationSuite) TestPerTaskOnError() {
+	plan := orchestrator.NewPlan(nil) // default StopAll
+
+	a := plan.TaskFunc("a", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return nil, fmt.Errorf("a failed")
+	})
+	a.OnError(orchestrator.Continue) // override: keep going
+
+	plan.TaskFunc("b", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return &orchestrator.Result{Changed: true}, nil
+	})
+
+	report, err := plan.Run(context.Background())
+	s.NoError(err) // Continue on a, so no error returned
+
+	results := make(map[string]orchestrator.Status)
+	for _, r := range report.Tasks {
+		results[r.Name] = r.Status
+	}
+
+	s.Equal(orchestrator.StatusFailed, results["a"])
+	s.Equal(orchestrator.StatusChanged, results["b"])
+}
+
+func (s *PlanIntegrationSuite) TestPerTaskRetry() {
+	attempts := 0
+
+	plan := orchestrator.NewPlan(nil) // default StopAll
+
+	plan.TaskFunc("flaky", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		attempts++
+		if attempts < 2 {
+			return nil, fmt.Errorf("attempt %d failed", attempts)
+		}
+
+		return &orchestrator.Result{Changed: true}, nil
+	}).OnError(orchestrator.Retry(1))
+
+	report, err := plan.Run(context.Background())
+	s.NoError(err)
+	s.Equal(2, attempts)
+	s.Equal(orchestrator.StatusChanged, report.Tasks[0].Status)
+}
+
 func (s *PlanIntegrationSuite) TestHooksCalledDuringRun() {
 	var events []string
 	hooks := orchestrator.Hooks{
