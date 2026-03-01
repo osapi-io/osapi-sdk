@@ -96,7 +96,7 @@ func (s *OptionsSuite) TestWithOutput() {
 func (s *OptionsSuite) TestWithHooks() {
 	called := false
 	hooks := orchestrator.Hooks{
-		BeforeTask: func(_ string) {
+		BeforeTask: func(_ *orchestrator.Task) {
 			called = true
 		},
 	}
@@ -107,7 +107,13 @@ func (s *OptionsSuite) TestWithHooks() {
 
 	s.NotNil(cfg.Hooks)
 	s.NotNil(cfg.Hooks.BeforeTask)
-	cfg.Hooks.BeforeTask("test")
+
+	// Create a task to pass to the callback.
+	t := orchestrator.NewTask(
+		"test",
+		&orchestrator.Op{Operation: "node.hostname.get", Target: "_any"},
+	)
+	cfg.Hooks.BeforeTask(t)
 	s.True(called)
 }
 
@@ -116,10 +122,13 @@ func (s *OptionsSuite) TestHooksDefaults() {
 
 	// Nil callbacks should be safe — no panic.
 	s.Nil(h.BeforePlan)
+	s.Nil(h.AfterPlan)
 	s.Nil(h.BeforeLevel)
+	s.Nil(h.AfterLevel)
 	s.Nil(h.BeforeTask)
 	s.Nil(h.AfterTask)
-	s.Nil(h.AfterPlan)
+	s.Nil(h.OnRetry)
+	s.Nil(h.OnSkip)
 }
 
 func (s *OptionsSuite) TestPlanOption() {

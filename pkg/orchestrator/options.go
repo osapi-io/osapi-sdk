@@ -43,12 +43,16 @@ func (e ErrorStrategy) RetryCount() int {
 
 // Hooks provides consumer-controlled callbacks for plan execution
 // events. All fields are optional — nil callbacks are skipped.
+// The SDK performs no logging; hooks are the only output mechanism.
 type Hooks struct {
 	BeforePlan  func(explain string)
-	BeforeLevel func(level int, names []string, parallel bool)
-	BeforeTask  func(name string)
-	AfterTask   func(result TaskResult)
 	AfterPlan   func(report *Report)
+	BeforeLevel func(level int, tasks []*Task, parallel bool)
+	AfterLevel  func(level int, results []TaskResult)
+	BeforeTask  func(task *Task)
+	AfterTask   func(task *Task, result TaskResult)
+	OnRetry     func(task *Task, attempt int, err error)
+	OnSkip      func(task *Task, reason string)
 }
 
 // PlanConfig holds plan-level configuration.
