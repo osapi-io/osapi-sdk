@@ -11,16 +11,16 @@ operation maps to an OSAPI job type that agents execute.
 
 | Operation | Description | Idempotent | Category |
 | --------- | ----------- | ---------- | -------- |
-| [`command.exec.execute`](operations/command-exec.md) | Execute a command | No | Command |
-| [`command.shell.execute`](operations/command-shell.md) | Execute a shell string | No | Command |
-| [`network.dns.get`](operations/network-dns-get.md) | Get DNS configuration | Read-only | Network |
-| [`network.dns.update`](operations/network-dns-update.md) | Update DNS servers | Yes | Network |
-| [`network.ping.do`](operations/network-ping.md) | Ping a host | Read-only | Network |
-| [`node.hostname.get`](operations/node-hostname.md) | Get system hostname | Read-only | Node |
-| [`node.status.get`](operations/node-status.md) | Get node status | Read-only | Node |
-| [`node.disk.get`](operations/node-disk.md) | Get disk usage | Read-only | Node |
-| [`node.memory.get`](operations/node-memory.md) | Get memory stats | Read-only | Node |
-| [`node.load.get`](operations/node-load.md) | Get load averages | Read-only | Node |
+| [`command.exec.execute`](command-exec.md) | Execute a command | No | Command |
+| [`command.shell.execute`](command-shell.md) | Execute a shell string | No | Command |
+| [`network.dns.get`](network-dns-get.md) | Get DNS configuration | Read-only | Network |
+| [`network.dns.update`](network-dns-update.md) | Update DNS servers | Yes | Network |
+| [`network.ping.do`](network-ping.md) | Ping a host | Read-only | Network |
+| [`node.hostname.get`](node-hostname.md) | Get system hostname | Read-only | Node |
+| [`node.status.get`](node-status.md) | Get node status | Read-only | Node |
+| [`node.disk.get`](node-disk.md) | Get disk usage | Read-only | Node |
+| [`node.memory.get`](node-memory.md) | Get memory stats | Read-only | Node |
+| [`node.load.get`](node-load.md) | Get load averages | Read-only | Node |
 
 ### Idempotency
 
@@ -73,7 +73,7 @@ task.OnError(orchestrator.Retry(3)) // override for this task
 
 When a new operation is added to OSAPI:
 
-1. Create `docs/orchestration/operations/{name}.md` following the
+1. Create `docs/orchestration/{name}.md` following the
    template of existing operation docs
 2. Add a row to the operations table in this README
 3. Add the operation to `examples/all/main.go`

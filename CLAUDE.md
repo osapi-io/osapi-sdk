@@ -15,10 +15,9 @@ For setup, prerequisites, and contributing guidelines:
 
 ## Documentation
 
-- @docs/osapi/README.md - SDK client API reference (generated)
+- @docs/osapi/README.md - SDK client overview, services, targeting
 - @docs/orchestration/README.md - Orchestration overview, operations, hooks, error strategies
-- @docs/orchestration/operations/ - Per-operation reference (10 operations)
-- @docs/gen/gen.md - Generated OpenAPI client internals
+- @docs/gen/ - Auto-generated API reference (gomarkdoc)
 
 ## Quick Reference
 
