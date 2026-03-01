@@ -12,6 +12,7 @@ import (
 type runner struct {
 	plan    *Plan
 	results Results
+	failed  map[string]bool
 	mu      sync.Mutex
 }
 
@@ -22,6 +23,7 @@ func newRunner(
 	return &runner{
 		plan:    plan,
 		results: make(Results),
+		failed:  make(map[string]bool),
 	}
 }
 
@@ -191,6 +193,25 @@ func (r *runner) runTask(
 ) TaskResult {
 	start := time.Now()
 
+	// Skip if any dependency failed (Continue strategy).
+	r.mu.Lock()
+	for _, dep := range t.deps {
+		if r.failed[dep.name] {
+			r.mu.Unlock()
+
+			tr := TaskResult{
+				Name:     t.name,
+				Status:   StatusSkipped,
+				Duration: time.Since(start),
+			}
+			r.callOnSkip(t, "dependency failed")
+			r.callAfterTask(t, tr)
+
+			return tr
+		}
+	}
+	r.mu.Unlock()
+
 	if t.requiresChange {
 		anyChanged := false
 
@@ -255,6 +276,10 @@ func (r *runner) runTask(
 	elapsed := time.Since(start)
 
 	if err != nil {
+		r.mu.Lock()
+		r.failed[t.name] = true
+		r.mu.Unlock()
+
 		tr := TaskResult{
 			Name:     t.name,
 			Status:   StatusFailed,
