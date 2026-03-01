@@ -133,19 +133,3 @@ func (p *Plan) detectCycle() error {
 
 	return nil
 }
-
-// --- Temporary runner stub (replaced by runner.go in next task) ---
-
-type runner struct{}
-
-func newRunner(
-	_ *Plan,
-) *runner {
-	return &runner{}
-}
-
-func (r *runner) run(
-	_ context.Context,
-) (*Report, error) {
-	return &Report{}, nil
-}
