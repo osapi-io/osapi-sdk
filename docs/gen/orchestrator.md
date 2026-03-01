@@ -66,6 +66,12 @@ Package orchestrator provides DAG\-based task orchestration primitives.
 var Continue = ErrorStrategy{/* contains filtered or unexported fields */}
 ```
 
+<a name="DefaultPollInterval"></a>DefaultPollInterval is the interval between job status polls.
+
+```go
+var DefaultPollInterval = 500 * time.Millisecond
+```
+
 <a name="StopAll"></a>StopAll cancels all remaining tasks on first failure.
 
 ```go
@@ -354,6 +360,9 @@ type Status string
 
 ```go
 const (
+    // StatusPending and StatusRunning are reserved for future
+    // streaming status support. The runner does not currently
+    // assign these — tasks go directly to a terminal status.
     StatusPending   Status = "pending"
     StatusRunning   Status = "running"
     StatusChanged   Status = "changed"

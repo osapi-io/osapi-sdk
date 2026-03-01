@@ -17,8 +17,8 @@ mise install
 
 ### Claude Code
 
-If you use [Claude Code][] for development, install these plugins from the
-default marketplace:
+If you use [Claude Code][] for development, install these plugins from the default
+marketplace:
 
 ```
 /plugin install commit-commands@claude-plugins-official

@@ -184,7 +184,7 @@ func main() {
 		},
 	)
 
-	// Level 1: parallel queries (all depend on health)
+	// Level 4: parallel queries (all depend on health)
 	getHostname := plan.Task("get-hostname", &orchestrator.Op{
 		Operation: "node.hostname.get",
 		Target:    "_any",
