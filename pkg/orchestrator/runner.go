@@ -362,7 +362,7 @@ func (r *runner) executeOp(
 	}
 
 	operation := make(map[string]interface{}, len(op.Params)+1)
-	operation["operation"] = op.Operation
+	operation["type"] = op.Operation
 
 	for k, v := range op.Params {
 		operation[k] = v

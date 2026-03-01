@@ -60,39 +60,89 @@ func main() {
 		log.Fatal(err)
 	}
 
-	plan := orchestrator.NewPlan(
-		client,
-		orchestrator.WithHooks(orchestrator.Hooks{
-			BeforePlan: func(explain string) {
-				fmt.Print(explain)
-			},
-			BeforeLevel: func(level int, tasks []*orchestrator.Task, parallel bool) {
-				names := make([]string, len(tasks))
-				for i, t := range tasks {
-					names[i] = t.Name()
-				}
+	hooks := orchestrator.Hooks{
+		BeforePlan: func(explain string) {
+			fmt.Println("=== Execution Plan ===")
+			fmt.Print(explain)
+			fmt.Println()
+		},
+		AfterPlan: func(report *orchestrator.Report) {
+			fmt.Printf(
+				"\n=== Complete: %s in %s ===\n",
+				report.Summary(),
+				report.Duration,
+			)
+		},
+		BeforeLevel: func(
+			level int,
+			tasks []*orchestrator.Task,
+			parallel bool,
+		) {
+			names := make([]string, len(tasks))
+			for i, t := range tasks {
+				names[i] = t.Name()
+			}
 
-				if parallel {
-					fmt.Printf("--- Level %d: %s (parallel)\n", level, strings.Join(names, ", "))
-				} else {
-					fmt.Printf("--- Level %d: %s\n", level, names[0])
+			mode := "sequential"
+			if parallel {
+				mode = "parallel"
+			}
+
+			fmt.Printf(
+				"\n>>> Level %d (%s): %s\n",
+				level,
+				mode,
+				strings.Join(names, ", "),
+			)
+		},
+		AfterLevel: func(level int, results []orchestrator.TaskResult) {
+			changed := 0
+			for _, r := range results {
+				if r.Changed {
+					changed++
 				}
-			},
-			BeforeTask: func(task *orchestrator.Task) {
-				fmt.Printf("    %-20s running...\n", task.Name())
-			},
-			AfterTask: func(_ *orchestrator.Task, result orchestrator.TaskResult) {
-				if result.Status == orchestrator.StatusFailed {
-					fmt.Printf("    %-20s FAILED (%s)\n", result.Name, result.Duration)
-				} else if result.Status != orchestrator.StatusSkipped {
-					fmt.Printf("    %-20s %s (%s)\n", result.Name, result.Status, result.Duration)
-				}
-			},
-			OnSkip: func(task *orchestrator.Task, reason string) {
-				fmt.Printf("    %-20s skipped (%s)\n", task.Name(), reason)
-			},
-		}),
-	)
+			}
+
+			fmt.Printf(
+				"<<< Level %d done: %d/%d changed\n",
+				level,
+				changed,
+				len(results),
+			)
+		},
+		BeforeTask: func(task *orchestrator.Task) {
+			fmt.Printf("  [start] %s  (custom function)\n", task.Name())
+		},
+		AfterTask: func(
+			_ *orchestrator.Task,
+			result orchestrator.TaskResult,
+		) {
+			fmt.Printf(
+				"  [%s] %s  changed=%v duration=%s\n",
+				result.Status,
+				result.Name,
+				result.Changed,
+				result.Duration,
+			)
+		},
+		OnRetry: func(
+			task *orchestrator.Task,
+			attempt int,
+			err error,
+		) {
+			fmt.Printf(
+				"  [retry] %s  attempt=%d error=%q\n",
+				task.Name(),
+				attempt,
+				err,
+			)
+		},
+		OnSkip: func(task *orchestrator.Task, reason string) {
+			fmt.Printf("  [skip] %s  reason=%q\n", task.Name(), reason)
+		},
+	}
+
+	plan := orchestrator.NewPlan(client, orchestrator.WithHooks(hooks))
 
 	// Level 0: verify OSAPI is healthy before doing anything.
 	checkHealth := plan.TaskFunc("check-health", func(
@@ -239,10 +289,8 @@ func main() {
 	})
 
 	// Run the plan.
-	report, err := plan.Run(context.Background())
+	_, err = plan.Run(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("\n%s in %s\n", report.Summary(), report.Duration)
 }
