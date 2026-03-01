@@ -72,7 +72,7 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 
 
 <a name="AgentService"></a>
-## type AgentService
+## type [AgentService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L30-L32>)
 
 AgentService provides agent discovery and details operations.
 
@@ -83,7 +83,7 @@ type AgentService struct {
 ```
 
 <a name="AgentService.Get"></a>
-### func \(\*AgentService\) Get
+### func \(\*AgentService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L42-L45>)
 
 ```go
 func (s *AgentService) Get(ctx context.Context, hostname string) (*gen.GetAgentDetailsResponse, error)
@@ -92,7 +92,7 @@ func (s *AgentService) Get(ctx context.Context, hostname string) (*gen.GetAgentD
 Get retrieves detailed information about a specific agent by hostname.
 
 <a name="AgentService.List"></a>
-### func \(\*AgentService\) List
+### func \(\*AgentService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L35-L37>)
 
 ```go
 func (s *AgentService) List(ctx context.Context) (*gen.GetAgentResponse, error)
@@ -101,7 +101,7 @@ func (s *AgentService) List(ctx context.Context) (*gen.GetAgentResponse, error)
 List retrieves all active agents.
 
 <a name="AuditService"></a>
-## type AuditService
+## type [AuditService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/audit.go#L32-L34>)
 
 AuditService provides audit log operations.
 
@@ -112,7 +112,7 @@ type AuditService struct {
 ```
 
 <a name="AuditService.Export"></a>
-### func \(\*AuditService\) Export
+### func \(\*AuditService\) [Export](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/audit.go#L64-L66>)
 
 ```go
 func (s *AuditService) Export(ctx context.Context) (*gen.GetAuditExportResponse, error)
@@ -121,7 +121,7 @@ func (s *AuditService) Export(ctx context.Context) (*gen.GetAuditExportResponse,
 Export retrieves all audit log entries for export.
 
 <a name="AuditService.Get"></a>
-### func \(\*AuditService\) Get
+### func \(\*AuditService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/audit.go#L51-L54>)
 
 ```go
 func (s *AuditService) Get(ctx context.Context, id string) (*gen.GetAuditLogByIDResponse, error)
@@ -130,7 +130,7 @@ func (s *AuditService) Get(ctx context.Context, id string) (*gen.GetAuditLogByID
 Get retrieves a single audit log entry by ID.
 
 <a name="AuditService.List"></a>
-### func \(\*AuditService\) List
+### func \(\*AuditService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/audit.go#L37-L41>)
 
 ```go
 func (s *AuditService) List(ctx context.Context, limit int, offset int) (*gen.GetAuditLogsResponse, error)
@@ -139,7 +139,7 @@ func (s *AuditService) List(ctx context.Context, limit int, offset int) (*gen.Ge
 List retrieves audit log entries with pagination.
 
 <a name="Client"></a>
-## type Client
+## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L49-L73>)
 
 Client is the top\-level OSAPI SDK client. Use New\(\) to create one.
 
@@ -168,7 +168,7 @@ type Client struct {
 ```
 
 <a name="New"></a>
-### func New
+### func [New](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L106-L110>)
 
 ```go
 func New(baseURL string, bearerToken string, opts ...Option) (*Client, error)
@@ -177,7 +177,7 @@ func New(baseURL string, bearerToken string, opts ...Option) (*Client, error)
 New creates an OSAPI SDK client.
 
 <a name="ExecRequest"></a>
-## type ExecRequest
+## type [ExecRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L35-L51>)
 
 ExecRequest contains parameters for direct command execution.
 
@@ -202,7 +202,7 @@ type ExecRequest struct {
 ```
 
 <a name="HealthService"></a>
-## type HealthService
+## type [HealthService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health.go#L30-L32>)
 
 HealthService provides health check operations.
 
@@ -213,7 +213,7 @@ type HealthService struct {
 ```
 
 <a name="HealthService.Liveness"></a>
-### func \(\*HealthService\) Liveness
+### func \(\*HealthService\) [Liveness](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health.go#L35-L37>)
 
 ```go
 func (s *HealthService) Liveness(ctx context.Context) (*gen.GetHealthResponse, error)
@@ -222,7 +222,7 @@ func (s *HealthService) Liveness(ctx context.Context) (*gen.GetHealthResponse, e
 Liveness checks if the API server process is alive.
 
 <a name="HealthService.Ready"></a>
-### func \(\*HealthService\) Ready
+### func \(\*HealthService\) [Ready](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health.go#L43-L45>)
 
 ```go
 func (s *HealthService) Ready(ctx context.Context) (*gen.GetHealthReadyResponse, error)
@@ -231,7 +231,7 @@ func (s *HealthService) Ready(ctx context.Context) (*gen.GetHealthReadyResponse,
 Ready checks if the API server and its dependencies are ready to serve traffic.
 
 <a name="HealthService.Status"></a>
-### func \(\*HealthService\) Status
+### func \(\*HealthService\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health.go#L51-L53>)
 
 ```go
 func (s *HealthService) Status(ctx context.Context) (*gen.GetHealthStatusResponse, error)
@@ -240,7 +240,7 @@ func (s *HealthService) Status(ctx context.Context) (*gen.GetHealthStatusRespons
 Status returns detailed system status including component health, NATS info, stream stats, and job queue counts. Requires authentication.
 
 <a name="JobService"></a>
-## type JobService
+## type [JobService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L33-L35>)
 
 JobService provides job queue operations.
 
@@ -251,7 +251,7 @@ type JobService struct {
 ```
 
 <a name="JobService.Create"></a>
-### func \(\*JobService\) Create
+### func \(\*JobService\) [Create](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L38-L42>)
 
 ```go
 func (s *JobService) Create(ctx context.Context, operation map[string]interface{}, target string) (*gen.PostJobResponse, error)
@@ -260,7 +260,7 @@ func (s *JobService) Create(ctx context.Context, operation map[string]interface{
 Create creates a new job with the given operation and target.
 
 <a name="JobService.Delete"></a>
-### func \(\*JobService\) Delete
+### func \(\*JobService\) [Delete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L65-L68>)
 
 ```go
 func (s *JobService) Delete(ctx context.Context, id string) (*gen.DeleteJobByIDResponse, error)
@@ -269,7 +269,7 @@ func (s *JobService) Delete(ctx context.Context, id string) (*gen.DeleteJobByIDR
 Delete deletes a job by ID.
 
 <a name="JobService.Get"></a>
-### func \(\*JobService\) Get
+### func \(\*JobService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L52-L55>)
 
 ```go
 func (s *JobService) Get(ctx context.Context, id string) (*gen.GetJobByIDResponse, error)
@@ -278,7 +278,7 @@ func (s *JobService) Get(ctx context.Context, id string) (*gen.GetJobByIDRespons
 Get retrieves a job by ID.
 
 <a name="JobService.List"></a>
-### func \(\*JobService\) List
+### func \(\*JobService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L91-L94>)
 
 ```go
 func (s *JobService) List(ctx context.Context, params ListParams) (*gen.GetJobResponse, error)
@@ -287,7 +287,7 @@ func (s *JobService) List(ctx context.Context, params ListParams) (*gen.GetJobRe
 List retrieves jobs, optionally filtered by status.
 
 <a name="JobService.QueueStats"></a>
-### func \(\*JobService\) QueueStats
+### func \(\*JobService\) [QueueStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L114-L116>)
 
 ```go
 func (s *JobService) QueueStats(ctx context.Context) (*gen.GetJobStatusResponse, error)
@@ -296,7 +296,7 @@ func (s *JobService) QueueStats(ctx context.Context) (*gen.GetJobStatusResponse,
 QueueStats retrieves job queue statistics.
 
 <a name="JobService.Retry"></a>
-### func \(\*JobService\) Retry
+### func \(\*JobService\) [Retry](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L121-L125>)
 
 ```go
 func (s *JobService) Retry(ctx context.Context, id string, target string) (*gen.RetryJobByIDResponse, error)
@@ -305,7 +305,7 @@ func (s *JobService) Retry(ctx context.Context, id string, target string) (*gen.
 Retry retries a failed job by ID, optionally on a different target.
 
 <a name="ListParams"></a>
-## type ListParams
+## type [ListParams](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job.go#L78-L88>)
 
 ListParams contains optional filters for listing jobs.
 
@@ -324,7 +324,7 @@ type ListParams struct {
 ```
 
 <a name="MetricsService"></a>
-## type MetricsService
+## type [MetricsService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/metrics.go#L34-L37>)
 
 MetricsService provides Prometheus metrics access.
 
@@ -335,7 +335,7 @@ type MetricsService struct {
 ```
 
 <a name="MetricsService.Get"></a>
-### func \(\*MetricsService\) Get
+### func \(\*MetricsService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/metrics.go#L40-L42>)
 
 ```go
 func (s *MetricsService) Get(ctx context.Context) (string, error)
@@ -344,7 +344,7 @@ func (s *MetricsService) Get(ctx context.Context) (string, error)
 Get fetches the raw Prometheus metrics text from the /metrics endpoint.
 
 <a name="NodeService"></a>
-## type NodeService
+## type [NodeService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L30-L32>)
 
 NodeService provides node management operations.
 
@@ -355,7 +355,7 @@ type NodeService struct {
 ```
 
 <a name="NodeService.Disk"></a>
-### func \(\*NodeService\) Disk
+### func \(\*NodeService\) [Disk](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L87-L90>)
 
 ```go
 func (s *NodeService) Disk(ctx context.Context, target string) (*gen.GetNodeDiskResponse, error)
@@ -364,7 +364,7 @@ func (s *NodeService) Disk(ctx context.Context, target string) (*gen.GetNodeDisk
 Disk retrieves disk usage information from the target host.
 
 <a name="NodeService.Exec"></a>
-### func \(\*NodeService\) Exec
+### func \(\*NodeService\) [Exec](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L174-L177>)
 
 ```go
 func (s *NodeService) Exec(ctx context.Context, req ExecRequest) (*gen.PostNodeCommandExecResponse, error)
@@ -373,7 +373,7 @@ func (s *NodeService) Exec(ctx context.Context, req ExecRequest) (*gen.PostNodeC
 Exec executes a command directly without a shell interpreter.
 
 <a name="NodeService.GetDNS"></a>
-### func \(\*NodeService\) GetDNS
+### func \(\*NodeService\) [GetDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L128-L132>)
 
 ```go
 func (s *NodeService) GetDNS(ctx context.Context, target string, interfaceName string) (*gen.GetNodeNetworkDNSByInterfaceResponse, error)
@@ -382,7 +382,7 @@ func (s *NodeService) GetDNS(ctx context.Context, target string, interfaceName s
 GetDNS retrieves DNS configuration for a network interface on the target host.
 
 <a name="NodeService.Hostname"></a>
-### func \(\*NodeService\) Hostname
+### func \(\*NodeService\) [Hostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L79-L82>)
 
 ```go
 func (s *NodeService) Hostname(ctx context.Context, target string) (*gen.GetNodeHostnameResponse, error)
@@ -391,7 +391,7 @@ func (s *NodeService) Hostname(ctx context.Context, target string) (*gen.GetNode
 Hostname retrieves the hostname from the target host.
 
 <a name="NodeService.Load"></a>
-### func \(\*NodeService\) Load
+### func \(\*NodeService\) [Load](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L103-L106>)
 
 ```go
 func (s *NodeService) Load(ctx context.Context, target string) (*gen.GetNodeLoadResponse, error)
@@ -400,7 +400,7 @@ func (s *NodeService) Load(ctx context.Context, target string) (*gen.GetNodeLoad
 Load retrieves load average information from the target host.
 
 <a name="NodeService.Memory"></a>
-### func \(\*NodeService\) Memory
+### func \(\*NodeService\) [Memory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L95-L98>)
 
 ```go
 func (s *NodeService) Memory(ctx context.Context, target string) (*gen.GetNodeMemoryResponse, error)
@@ -409,7 +409,7 @@ func (s *NodeService) Memory(ctx context.Context, target string) (*gen.GetNodeMe
 Memory retrieves memory usage information from the target host.
 
 <a name="NodeService.OS"></a>
-### func \(\*NodeService\) OS
+### func \(\*NodeService\) [OS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L111-L114>)
 
 ```go
 func (s *NodeService) OS(ctx context.Context, target string) (*gen.GetNodeOSResponse, error)
@@ -418,7 +418,7 @@ func (s *NodeService) OS(ctx context.Context, target string) (*gen.GetNodeOSResp
 OS retrieves operating system information from the target host.
 
 <a name="NodeService.Ping"></a>
-### func \(\*NodeService\) Ping
+### func \(\*NodeService\) [Ping](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L161-L165>)
 
 ```go
 func (s *NodeService) Ping(ctx context.Context, target string, address string) (*gen.PostNodeNetworkPingResponse, error)
@@ -427,7 +427,7 @@ func (s *NodeService) Ping(ctx context.Context, target string, address string) (
 Ping sends an ICMP ping to the specified address from the target host.
 
 <a name="NodeService.Shell"></a>
-### func \(\*NodeService\) Shell
+### func \(\*NodeService\) [Shell](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L199-L202>)
 
 ```go
 func (s *NodeService) Shell(ctx context.Context, req ShellRequest) (*gen.PostNodeCommandShellResponse, error)
@@ -436,7 +436,7 @@ func (s *NodeService) Shell(ctx context.Context, req ShellRequest) (*gen.PostNod
 Shell executes a command through /bin/sh \-c with shell features \(pipes, redirects, variable expansion\).
 
 <a name="NodeService.Status"></a>
-### func \(\*NodeService\) Status
+### func \(\*NodeService\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L71-L74>)
 
 ```go
 func (s *NodeService) Status(ctx context.Context, target string) (*gen.GetNodeStatusResponse, error)
@@ -445,7 +445,7 @@ func (s *NodeService) Status(ctx context.Context, target string) (*gen.GetNodeSt
 Status retrieves node status \(OS info, disk, memory, load\) from the target host.
 
 <a name="NodeService.UpdateDNS"></a>
-### func \(\*NodeService\) UpdateDNS
+### func \(\*NodeService\) [UpdateDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L138-L144>)
 
 ```go
 func (s *NodeService) UpdateDNS(ctx context.Context, target string, interfaceName string, servers []string, searchDomains []string) (*gen.PutNodeNetworkDNSResponse, error)
@@ -454,7 +454,7 @@ func (s *NodeService) UpdateDNS(ctx context.Context, target string, interfaceNam
 UpdateDNS updates DNS configuration for a network interface on the target host.
 
 <a name="NodeService.Uptime"></a>
-### func \(\*NodeService\) Uptime
+### func \(\*NodeService\) [Uptime](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L119-L122>)
 
 ```go
 func (s *NodeService) Uptime(ctx context.Context, target string) (*gen.GetNodeUptimeResponse, error)
@@ -463,7 +463,7 @@ func (s *NodeService) Uptime(ctx context.Context, target string) (*gen.GetNodeUp
 Uptime retrieves uptime information from the target host.
 
 <a name="Option"></a>
-## type Option
+## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L76>)
 
 Option configures the Client.
 
@@ -472,7 +472,7 @@ type Option func(*Client)
 ```
 
 <a name="WithHTTPTransport"></a>
-### func WithHTTPTransport
+### func [WithHTTPTransport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L88-L90>)
 
 ```go
 func WithHTTPTransport(transport http.RoundTripper) Option
@@ -481,7 +481,7 @@ func WithHTTPTransport(transport http.RoundTripper) Option
 WithHTTPTransport sets a custom base HTTP transport.
 
 <a name="WithLogger"></a>
-### func WithLogger
+### func [WithLogger](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L79-L81>)
 
 ```go
 func WithLogger(logger *slog.Logger) Option
@@ -490,7 +490,7 @@ func WithLogger(logger *slog.Logger) Option
 WithLogger sets a custom logger. Defaults to slog.Default\(\).
 
 <a name="ShellRequest"></a>
-## type ShellRequest
+## type [ShellRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L54-L67>)
 
 ShellRequest contains parameters for shell command execution.
 

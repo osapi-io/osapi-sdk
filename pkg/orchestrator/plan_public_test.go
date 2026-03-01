@@ -664,7 +664,10 @@ func (s *PlanPublicTestSuite) TestRunOpTaskParams() {
 	op, ok := receivedBody["operation"].(map[string]any)
 	s.Require().True(ok)
 	s.Equal("command.exec.execute", op["type"])
-	s.Equal("uptime", op["command"])
+
+	data, ok := op["data"].(map[string]any)
+	s.Require().True(ok)
+	s.Equal("uptime", data["command"])
 }
 
 func (s *PlanPublicTestSuite) TestRunOpTaskErrors() {
