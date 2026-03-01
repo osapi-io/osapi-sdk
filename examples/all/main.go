@@ -62,10 +62,7 @@ func main() {
 		url = "http://localhost:8080"
 	}
 
-	client, err := osapi.New(url, token)
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := osapi.New(url, token)
 
 	// --- Hooks: consumer-controlled logging at every stage ---
 

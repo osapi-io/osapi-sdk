@@ -6,10 +6,7 @@ client with `New()` and use domain-specific services to interact with the API.
 ## Quick Start
 
 ```go
-client, err := osapi.New("http://localhost:8080", "your-jwt-token")
-if err != nil {
-    log.Fatal(err)
-}
+client := osapi.New("http://localhost:8080", "your-jwt-token")
 
 resp, err := client.Node.Hostname(ctx, "_any")
 ```

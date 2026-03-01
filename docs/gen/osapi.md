@@ -11,10 +11,7 @@ Package osapi provides a Go SDK for the OSAPI REST API.
 Create a client with New\(\) and use the domain\-specific services to interact with the API:
 
 ```
-client, err := osapi.New("http://localhost:8080", "your-jwt-token")
-if err != nil {
-    log.Fatal(err)
-}
+client := osapi.New("http://localhost:8080", "your-jwt-token")
 
 // Get hostname
 resp, err := client.Node.Hostname(ctx, "_any")
@@ -36,7 +33,7 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
   - [func \(s \*AuditService\) Get\(ctx context.Context, id string\) \(\*gen.GetAuditLogByIDResponse, error\)](<#AuditService.Get>)
   - [func \(s \*AuditService\) List\(ctx context.Context, limit int, offset int\) \(\*gen.GetAuditLogsResponse, error\)](<#AuditService.List>)
 - [type Client](<#Client>)
-  - [func New\(baseURL string, bearerToken string, opts ...Option\) \(\*Client, error\)](<#New>)
+  - [func New\(baseURL string, bearerToken string, opts ...Option\) \*Client](<#New>)
 - [type ExecRequest](<#ExecRequest>)
 - [type HealthService](<#HealthService>)
   - [func \(s \*HealthService\) Liveness\(ctx context.Context\) \(\*gen.GetHealthResponse, error\)](<#HealthService.Liveness>)
@@ -139,7 +136,7 @@ func (s *AuditService) List(ctx context.Context, limit int, offset int) (*gen.Ge
 List retrieves audit log entries with pagination.
 
 <a name="Client"></a>
-## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L49-L73>)
+## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L46-L70>)
 
 Client is the top\-level OSAPI SDK client. Use New\(\) to create one.
 
@@ -168,10 +165,10 @@ type Client struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L106-L110>)
+### func [New](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L94-L98>)
 
 ```go
-func New(baseURL string, bearerToken string, opts ...Option) (*Client, error)
+func New(baseURL string, bearerToken string, opts ...Option) *Client
 ```
 
 New creates an OSAPI SDK client.
@@ -463,7 +460,7 @@ func (s *NodeService) Uptime(ctx context.Context, target string) (*gen.GetNodeUp
 Uptime retrieves uptime information from the target host.
 
 <a name="Option"></a>
-## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L76>)
+## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L73>)
 
 Option configures the Client.
 
@@ -472,7 +469,7 @@ type Option func(*Client)
 ```
 
 <a name="WithHTTPTransport"></a>
-### func [WithHTTPTransport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L88-L90>)
+### func [WithHTTPTransport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L85-L87>)
 
 ```go
 func WithHTTPTransport(transport http.RoundTripper) Option
@@ -481,7 +478,7 @@ func WithHTTPTransport(transport http.RoundTripper) Option
 WithHTTPTransport sets a custom base HTTP transport.
 
 <a name="WithLogger"></a>
-### func [WithLogger](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L79-L81>)
+### func [WithLogger](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L76-L78>)
 
 ```go
 func WithLogger(logger *slog.Logger) Option
