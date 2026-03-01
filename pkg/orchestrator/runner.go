@@ -197,6 +197,7 @@ func (r *runner) runTask(
 	r.mu.Lock()
 	for _, dep := range t.deps {
 		if r.failed[dep.name] {
+			r.failed[t.name] = true
 			r.mu.Unlock()
 
 			tr := TaskResult{

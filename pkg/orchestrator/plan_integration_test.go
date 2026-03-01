@@ -219,6 +219,48 @@ func (s *PlanIntegrationSuite) TestContinueStrategy() {
 	s.Equal(orchestrator.StatusChanged, results["c"]) // independent, should run
 }
 
+func (s *PlanIntegrationSuite) TestContinueStrategyTransitive() {
+	plan := orchestrator.NewPlan(
+		nil,
+		orchestrator.OnError(orchestrator.Continue),
+	)
+
+	a := plan.TaskFunc("a", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return nil, fmt.Errorf("a failed")
+	})
+
+	b := plan.TaskFunc("b", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return &orchestrator.Result{Changed: true}, nil
+	})
+	b.DependsOn(a)
+
+	c := plan.TaskFunc("c", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return &orchestrator.Result{Changed: true}, nil
+	})
+	c.DependsOn(b)
+
+	report, err := plan.Run(context.Background())
+	s.NoError(err)
+
+	results := make(map[string]orchestrator.Status)
+	for _, r := range report.Tasks {
+		results[r.Name] = r.Status
+	}
+
+	s.Equal(orchestrator.StatusFailed, results["a"])
+	s.Equal(orchestrator.StatusSkipped, results["b"])
+	s.Equal(orchestrator.StatusSkipped, results["c"]) // transitive skip
+}
+
 func (s *PlanIntegrationSuite) TestRunCycleDetection() {
 	plan := orchestrator.NewPlan(nil)
 	a := plan.Task("a", &orchestrator.Op{Operation: "noop"})
