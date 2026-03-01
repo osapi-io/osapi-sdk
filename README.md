@@ -10,13 +10,21 @@
 
 # OSAPI SDK
 
-A Go client library for the [OSAPI][] REST API.
+Go SDK for [OSAPI][] — client library and orchestration primitives.
 
 ## Usage
 
 https://github.com/osapi-io/osapi-sdk/blob/fe66750e11c0ca62e5dd342a32fe566d61080ba4/examples/basic/main.go#L21-L81
 
 See the [examples][] section for additional use cases.
+
+## Orchestration
+
+The `orchestrator` package provides DAG-based task orchestration on top
+of the client library. Define tasks with dependencies, and the library
+handles execution order, parallelism, conditional logic, and reporting.
+
+See the [orchestrator example][] for a complete walkthrough.
 
 ## Documentation
 
@@ -35,4 +43,5 @@ The [MIT][] License.
 [OSAPI]: https://github.com/osapi-io/osapi
 [examples]: examples/
 [generated documentation]: docs/gen/
+[orchestrator example]: examples/orchestrator/main.go
 [MIT]: LICENSE

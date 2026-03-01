@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Go client library for the OSAPI REST API providing a typed, domain-grouped interface for programmatic system management. Used by osapi-io projects (linked via `replace` in consuming project's `go.mod`).
+Go SDK for OSAPI — client library and orchestration primitives. Used by osapi-io projects (linked via `replace` in consuming project's `go.mod`).
 
 ## Development Reference
 
@@ -32,6 +32,12 @@ just fetch / just deps / just test / just go::unit / just go::vet / just go::fmt
   - `audit.go` - AuditService (list, get, export)
   - `metrics.go` - MetricsService (Prometheus text)
   - `gen/` - Generated OpenAPI client (`*.gen.go`)
+- **`pkg/orchestrator/`** - DAG-based task orchestration
+  - `plan.go` - Plan, NewPlan
+  - `task.go` - Task, TaskFunc, DependsOn, When
+  - `runner.go` - DAG resolution, parallel execution
+  - `result.go` - Result, Report, Summary
+  - `options.go` - OnError, Retry, OnlyIfChanged
 
 ## Code Standards (MANDATORY)
 
