@@ -35,7 +35,7 @@ func (r *runner) run(
 	start := time.Now()
 	levels := levelize(r.plan.tasks)
 
-	r.callBeforePlan(r.plan.Explain())
+	r.callBeforePlan(buildPlanSummary(r.plan.tasks, levels))
 
 	var taskResults []TaskResult
 
@@ -76,10 +76,34 @@ func (r *runner) hook() *Hooks {
 
 // callBeforePlan invokes the BeforePlan hook if set.
 func (r *runner) callBeforePlan(
-	explain string,
+	summary PlanSummary,
 ) {
 	if h := r.hook(); h != nil && h.BeforePlan != nil {
-		h.BeforePlan(explain)
+		h.BeforePlan(summary)
+	}
+}
+
+// buildPlanSummary creates a PlanSummary from tasks and levels.
+func buildPlanSummary(
+	tasks []*Task,
+	levels [][]*Task,
+) PlanSummary {
+	steps := make([]StepSummary, len(levels))
+	for i, level := range levels {
+		names := make([]string, len(level))
+		for j, t := range level {
+			names[j] = t.name
+		}
+
+		steps[i] = StepSummary{
+			Tasks:    names,
+			Parallel: len(level) > 1,
+		}
+	}
+
+	return PlanSummary{
+		TotalTasks: len(tasks),
+		Steps:      steps,
 	}
 }
 

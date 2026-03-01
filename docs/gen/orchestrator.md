@@ -33,12 +33,14 @@ Package orchestrator provides DAG\-based task orchestration primitives.
 - [type PlanOption](<#PlanOption>)
   - [func OnError\(strategy ErrorStrategy\) PlanOption](<#OnError>)
   - [func WithHooks\(hooks Hooks\) PlanOption](<#WithHooks>)
+- [type PlanSummary](<#PlanSummary>)
 - [type Report](<#Report>)
   - [func \(r \*Report\) Summary\(\) string](<#Report.Summary>)
 - [type Result](<#Result>)
 - [type Results](<#Results>)
   - [func \(r Results\) Get\(name string\) \*Result](<#Results.Get>)
 - [type Status](<#Status>)
+- [type StepSummary](<#StepSummary>)
 - [type Task](<#Task>)
   - [func NewTask\(name string, op \*Op\) \*Task](<#NewTask>)
   - [func NewTaskFunc\(name string, fn TaskFn\) \*Task](<#NewTaskFunc>)
@@ -132,7 +134,7 @@ Hooks provides consumer\-controlled callbacks for plan execution events. All fie
 
 ```go
 type Hooks struct {
-    BeforePlan  func(explain string)
+    BeforePlan  func(summary PlanSummary)
     AfterPlan   func(report *Report)
     BeforeLevel func(level int, tasks []*Task, parallel bool)
     AfterLevel  func(level int, results []TaskResult)
@@ -296,8 +298,20 @@ func WithHooks(hooks Hooks) PlanOption
 
 WithHooks attaches lifecycle callbacks to plan execution.
 
+<a name="PlanSummary"></a>
+## type [PlanSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L58-L61>)
+
+PlanSummary describes the execution plan before it runs.
+
+```go
+type PlanSummary struct {
+    TotalTasks int
+    Steps      []StepSummary
+}
+```
+
 <a name="Report"></a>
-## type [Report](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L52-L55>)
+## type [Report](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L64-L67>)
 
 Report is the aggregate output of a plan execution.
 
@@ -309,7 +323,7 @@ type Report struct {
 ```
 
 <a name="Report.Summary"></a>
-### func \(\*Report\) [Summary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L58>)
+### func \(\*Report\) [Summary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L70>)
 
 ```go
 func (r *Report) Summary() string
@@ -370,6 +384,18 @@ const (
     StatusSkipped   Status = "skipped"
     StatusFailed    Status = "failed"
 )
+```
+
+<a name="StepSummary"></a>
+## type [StepSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L52-L55>)
+
+StepSummary describes a single execution step \(DAG level\).
+
+```go
+type StepSummary struct {
+    Tasks    []string
+    Parallel bool
+}
 ```
 
 <a name="Task"></a>

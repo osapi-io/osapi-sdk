@@ -48,6 +48,18 @@ func (r Results) Get(
 	return r[name]
 }
 
+// StepSummary describes a single execution step (DAG level).
+type StepSummary struct {
+	Tasks    []string
+	Parallel bool
+}
+
+// PlanSummary describes the execution plan before it runs.
+type PlanSummary struct {
+	TotalTasks int
+	Steps      []StepSummary
+}
+
 // Report is the aggregate output of a plan execution.
 type Report struct {
 	Tasks    []TaskResult

@@ -38,7 +38,7 @@ Register callbacks to control logging and progress at every stage:
 
 ```go
 hooks := orchestrator.Hooks{
-    BeforePlan:  func(explain string) { fmt.Print(explain) },
+    BeforePlan:  func(summary orchestrator.PlanSummary) { fmt.Printf("Plan: %d tasks\n", summary.TotalTasks) },
     AfterPlan:   func(report *orchestrator.Report) { fmt.Println(report.Summary()) },
     BeforeLevel: func(level int, tasks []*orchestrator.Task, parallel bool) { ... },
     AfterLevel:  func(level int, results []orchestrator.TaskResult) { ... },

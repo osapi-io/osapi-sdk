@@ -1206,7 +1206,7 @@ func (s *PlanPublicTestSuite) TestExplain() {
 // slice, covering every hook type.
 func allHooks(events *[]string) orchestrator.Hooks {
 	return orchestrator.Hooks{
-		BeforePlan: func(_ string) {
+		BeforePlan: func(_ orchestrator.PlanSummary) {
 			*events = append(*events, "before-plan")
 		},
 		AfterPlan: func(_ *orchestrator.Report) {
