@@ -40,6 +40,7 @@ Each example is a standalone Go program you can read and run.
 | [basic](examples/basic/main.go) | Connect to OSAPI, query a hostname, run a command, list audit entries, check health |
 | [discovery](examples/discovery/main.go) | Runnable DAG that discovers fleet info: health check, agent listing, and status in parallel |
 | [orchestrator](examples/orchestrator/main.go) | Declarative deployment DAG with dependencies and conditional execution |
+| [all](examples/all/main.go) | Every feature: hooks, Op tasks, TaskFunc, dependencies, guards, Levels(), error strategies, reporting |
 
 ```bash
 cd examples/discovery
