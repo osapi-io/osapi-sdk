@@ -12,23 +12,42 @@
 
 Go SDK for [OSAPI][] — client library and orchestration primitives.
 
-## Usage
+## Install
 
-https://github.com/osapi-io/osapi-sdk/blob/fe66750e11c0ca62e5dd342a32fe566d61080ba4/examples/basic/main.go#L21-L81
+```bash
+go get github.com/osapi-io/osapi-sdk
+```
 
-See the [examples][] section for additional use cases.
+## What's Inside
 
-## Orchestration
+**Client library** (`pkg/osapi`) — typed Go client for every OSAPI
+endpoint: node management, network config, command execution, job
+control, health checks, audit logs, and metrics. Connect, authenticate,
+and call any operation in a few lines.
 
-The `orchestrator` package provides DAG-based task orchestration on top
-of the client library. Define tasks with dependencies, and the library
-handles execution order, parallelism, conditional logic, and reporting.
+**Orchestration** (`pkg/orchestrator`) — DAG-based task execution on top
+of the client. Define tasks with dependencies and the library handles
+execution order, parallelism, conditional logic (`OnlyIfChanged`,
+`When`), error strategies (`StopAll`, `Continue`, `Retry`), and
+reporting.
 
-See the [orchestrator example][] for a complete walkthrough.
+## Examples
+
+Each example is a standalone Go program you can read and run.
+
+| Example | What it shows |
+| ------- | ------------- |
+| [basic](examples/basic/main.go) | Connect to OSAPI, query a hostname, run a command, list audit entries, check health |
+| [orchestrator](examples/orchestrator/main.go) | Define a 4-task deployment DAG with dependencies and conditional execution |
+
+```bash
+cd examples/basic
+OSAPI_TOKEN="<jwt>" go run main.go
+```
 
 ## Documentation
 
-See the [generated documentation][] for details on available packages and functions.
+See the [generated documentation][] for package-level API details.
 
 ## Contributing
 
@@ -41,7 +60,5 @@ submitting a PR.
 The [MIT][] License.
 
 [OSAPI]: https://github.com/osapi-io/osapi
-[examples]: examples/
 [generated documentation]: docs/gen/
-[orchestrator example]: examples/orchestrator/main.go
 [MIT]: LICENSE
