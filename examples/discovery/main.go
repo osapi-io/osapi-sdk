@@ -161,7 +161,7 @@ func main() {
 			)
 		}
 
-		return &orchestrator.Result{Changed: true}, nil
+		return &orchestrator.Result{Changed: false}, nil
 	})
 
 	// Level 1: discover agents (parallel with others).
@@ -189,7 +189,7 @@ func main() {
 		}
 
 		return &orchestrator.Result{
-			Changed: agents.Total > 0,
+			Changed: false,
 			Data: map[string]any{
 				"total":     agents.Total,
 				"hostnames": hostnames,
@@ -217,7 +217,7 @@ func main() {
 		s := resp.JSON200
 
 		return &orchestrator.Result{
-			Changed: true,
+			Changed: false,
 			Data: map[string]any{
 				"status":  s.Status,
 				"version": s.Version,
@@ -243,7 +243,7 @@ func main() {
 			)
 		}
 
-		return &orchestrator.Result{Changed: true}, nil
+		return &orchestrator.Result{Changed: false}, nil
 	})
 
 	// Level 1: get memory info (parallel with list-agents).
@@ -263,7 +263,7 @@ func main() {
 			)
 		}
 
-		return &orchestrator.Result{Changed: true}, nil
+		return &orchestrator.Result{Changed: false}, nil
 	})
 
 	// Level 2: print summary — only if agents were found.
@@ -284,8 +284,13 @@ func main() {
 	// Only print summary if at least one agent was found.
 	summary.When(func(results orchestrator.Results) bool {
 		r := results.Get("list-agents")
+		if r == nil {
+			return false
+		}
 
-		return r != nil && r.Changed
+		total, _ := r.Data["total"].(int)
+
+		return total > 0
 	})
 
 	// Run the plan.

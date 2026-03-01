@@ -462,11 +462,36 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 		validateFunc  func(report *orchestrator.Report, err error)
 	}{
 		{
-			name:       "creates job and polls until completed",
+			name:       "completed with changed true in result data",
 			createCode: http.StatusCreated,
 			pollResponses: []pollResponse{
 				{status: "pending"},
-				{status: "completed", result: map[string]any{"hostname": "web-01"}},
+				{status: "completed", result: map[string]any{
+					"changed": true,
+					"success": true,
+					"message": "DNS updated",
+				}},
+			},
+			op: &orchestrator.Op{
+				Operation: "network.dns.update",
+				Target:    "_any",
+			},
+			validateFunc: func(report *orchestrator.Report, err error) {
+				s.Require().NoError(err)
+				s.Len(report.Tasks, 1)
+				s.Equal(orchestrator.StatusChanged, report.Tasks[0].Status)
+				s.True(report.Tasks[0].Changed)
+			},
+		},
+		{
+			name:       "completed with changed false in result data",
+			createCode: http.StatusCreated,
+			pollResponses: []pollResponse{
+				{status: "pending"},
+				{status: "completed", result: map[string]any{
+					"hostname": "web-01",
+					"changed":  false,
+				}},
 			},
 			op: &orchestrator.Op{
 				Operation: "node.hostname.get",
@@ -475,11 +500,28 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 			validateFunc: func(report *orchestrator.Report, err error) {
 				s.Require().NoError(err)
 				s.Len(report.Tasks, 1)
-				s.Equal(orchestrator.StatusChanged, report.Tasks[0].Status)
+				s.Equal(orchestrator.StatusUnchanged, report.Tasks[0].Status)
+				s.False(report.Tasks[0].Changed)
 			},
 		},
 		{
-			name:       "completed with no result data",
+			name:       "completed with no changed field defaults to false",
+			createCode: http.StatusCreated,
+			pollResponses: []pollResponse{
+				{status: "completed", result: map[string]any{"hostname": "web-01"}},
+			},
+			op: &orchestrator.Op{
+				Operation: "node.hostname.get",
+				Target:    "_any",
+			},
+			validateFunc: func(report *orchestrator.Report, err error) {
+				s.Require().NoError(err)
+				s.Equal(orchestrator.StatusUnchanged, report.Tasks[0].Status)
+				s.False(report.Tasks[0].Changed)
+			},
+		},
+		{
+			name:       "completed with no result data defaults to unchanged",
 			createCode: http.StatusCreated,
 			pollResponses: []pollResponse{
 				{status: "completed"},
@@ -490,11 +532,12 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 			},
 			validateFunc: func(report *orchestrator.Report, err error) {
 				s.Require().NoError(err)
-				s.Equal(orchestrator.StatusChanged, report.Tasks[0].Status)
+				s.Equal(orchestrator.StatusUnchanged, report.Tasks[0].Status)
+				s.False(report.Tasks[0].Changed)
 			},
 		},
 		{
-			name:       "completed with non-map result",
+			name:       "completed with non-map result defaults to unchanged",
 			createCode: http.StatusCreated,
 			pollResponses: []pollResponse{
 				{status: "completed", result: "just a string"},
@@ -505,7 +548,8 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 			},
 			validateFunc: func(report *orchestrator.Report, err error) {
 				s.Require().NoError(err)
-				s.Equal(orchestrator.StatusChanged, report.Tasks[0].Status)
+				s.Equal(orchestrator.StatusUnchanged, report.Tasks[0].Status)
+				s.False(report.Tasks[0].Changed)
 			},
 		},
 		{
@@ -513,7 +557,7 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 			createCode: http.StatusCreated,
 			pollResponses: []pollResponse{
 				{status: ""},
-				{status: "completed"},
+				{status: "completed", result: map[string]any{"changed": true}},
 			},
 			op: &orchestrator.Op{
 				Operation: "node.hostname.get",
@@ -615,7 +659,7 @@ func (s *PlanPublicTestSuite) TestRunOpTaskParams() {
 
 	report, err := plan.Run(context.Background())
 	s.Require().NoError(err)
-	s.Equal(orchestrator.StatusChanged, report.Tasks[0].Status)
+	s.Equal(orchestrator.StatusUnchanged, report.Tasks[0].Status)
 
 	op, ok := receivedBody["operation"].(map[string]any)
 	s.Require().True(ok)

@@ -425,7 +425,9 @@ func (r *runner) pollJob(
 					}
 				}
 
-				return &Result{Changed: true, Data: data}, nil
+				changed, _ := data["changed"].(bool)
+
+				return &Result{Changed: changed, Data: data}, nil
 			case "failed":
 				errMsg := "job failed"
 				if resp.JSON200.Error != nil {

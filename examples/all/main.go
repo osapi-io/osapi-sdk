@@ -20,8 +20,9 @@
 
 // Package main demonstrates every orchestrator feature: hooks for consumer-
 // controlled logging at every lifecycle point, Op and TaskFunc tasks,
-// dependencies, guards, Levels() for DAG inspection, error strategies,
-// and detailed result reporting.
+// dependencies, guards, Levels() for DAG inspection, error strategies
+// (plan-level Continue + per-task Retry), parameterized operations,
+// result data access, and detailed result reporting.
 //
 // This example serves as a reference for building tools like Terraform
 // or Ansible that consume the SDK.
@@ -29,10 +30,12 @@
 // DAG:
 //
 //	check-health
-//	    ├── get-hostname ────────┐
-//	    ├── get-disk     ────────┤
-//	    ├── get-memory   ────────┤
-//	    └── get-load [retry:2] ──┴── print-summary (only-if-changed, when: hostname found)
+//	    ├── get-hostname ────────────┐
+//	    ├── get-disk                 │
+//	    ├── get-memory               ├── print-summary (only-if-changed, when)
+//	    ├── get-load [retry:2] ──────┘
+//	    └── run-uptime [params] ─────┘
+//	optional-fail [continue] (independent, no deps on summary)
 //
 // Run with: OSAPI_TOKEN="<jwt>" go run main.go
 package main
@@ -157,7 +160,12 @@ func main() {
 		},
 	}
 
-	plan := orchestrator.NewPlan(client, orchestrator.WithHooks(hooks))
+	// Plan-level Continue: independent tasks keep running when one fails.
+	plan := orchestrator.NewPlan(
+		client,
+		orchestrator.WithHooks(hooks),
+		orchestrator.OnError(orchestrator.Continue),
+	)
 
 	// --- Task definitions ---
 
@@ -184,7 +192,7 @@ func main() {
 		},
 	)
 
-	// Level 4: parallel queries (all depend on health)
+	// Level 1: parallel queries (all depend on health)
 	getHostname := plan.Task("get-hostname", &orchestrator.Op{
 		Operation: "node.hostname.get",
 		Target:    "_any",
@@ -210,7 +218,32 @@ func main() {
 	getLoad.DependsOn(checkHealth)
 	getLoad.OnError(orchestrator.Retry(2)) // retry up to 2 times on failure
 
-	// Level 2: summary (depends on all queries, guard + OnlyIfChanged)
+	// Level 1: Op with params — run uptime command via command.exec
+	runUptime := plan.Task("run-uptime", &orchestrator.Op{
+		Operation: "command.exec.execute",
+		Target:    "_any",
+		Params: map[string]any{
+			"command": "uptime",
+			"args":    []string{"-s"},
+		},
+	})
+	runUptime.DependsOn(checkHealth)
+
+	// Level 1: independent task that intentionally fails — demonstrates
+	// Continue strategy allowing other tasks to proceed.
+	optionalFail := plan.TaskFunc(
+		"optional-fail",
+		func(
+			_ context.Context,
+			_ *osapi.Client,
+		) (*orchestrator.Result, error) {
+			return nil, fmt.Errorf("intentional failure to demonstrate Continue strategy")
+		},
+	)
+	optionalFail.OnError(orchestrator.Continue)
+
+	// Level 2: summary (depends on all queries, guard + OnlyIfChanged).
+	// Uses Results.Get() to read data from previous tasks.
 	summary := plan.TaskFunc(
 		"print-summary",
 		func(
@@ -223,10 +256,12 @@ func main() {
 			return &orchestrator.Result{Changed: false}, nil
 		},
 	)
-	summary.DependsOn(getHostname, getDisk, getMemory, getLoad)
+	summary.DependsOn(getHostname, getDisk, getMemory, getLoad, runUptime)
 	summary.OnlyIfChanged() // skip if no dependency reported changes
 	summary.When(func(results orchestrator.Results) bool {
-		return results.Get("get-hostname") != nil
+		r := results.Get("get-hostname")
+
+		return r != nil && r.Data["hostname"] != nil
 	})
 
 	// --- Structured DAG access ---
