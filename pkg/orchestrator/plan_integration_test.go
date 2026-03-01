@@ -261,6 +261,50 @@ func (s *PlanIntegrationSuite) TestContinueStrategyTransitive() {
 	s.Equal(orchestrator.StatusSkipped, results["c"]) // transitive skip
 }
 
+func (s *PlanIntegrationSuite) TestRetryStrategy() {
+	attempts := 0
+
+	plan := orchestrator.NewPlan(
+		nil,
+		orchestrator.OnError(orchestrator.Retry(2)),
+	)
+
+	plan.TaskFunc("flaky", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		attempts++
+		if attempts < 3 {
+			return nil, fmt.Errorf("attempt %d failed", attempts)
+		}
+
+		return &orchestrator.Result{Changed: true}, nil
+	})
+
+	report, err := plan.Run(context.Background())
+	s.NoError(err)
+	s.Equal(3, attempts) // 1 initial + 2 retries
+	s.Equal(orchestrator.StatusChanged, report.Tasks[0].Status)
+}
+
+func (s *PlanIntegrationSuite) TestRetryExhausted() {
+	plan := orchestrator.NewPlan(
+		nil,
+		orchestrator.OnError(orchestrator.Retry(1)),
+	)
+
+	plan.TaskFunc("always-fail", func(
+		_ context.Context,
+		_ *osapi.Client,
+	) (*orchestrator.Result, error) {
+		return nil, fmt.Errorf("permanent failure")
+	})
+
+	report, err := plan.Run(context.Background())
+	s.Error(err)
+	s.Equal(orchestrator.StatusFailed, report.Tasks[0].Status)
+}
+
 func (s *PlanIntegrationSuite) TestRunCycleDetection() {
 	plan := orchestrator.NewPlan(nil)
 	a := plan.Task("a", &orchestrator.Op{Operation: "noop"})

@@ -153,6 +153,19 @@ func (r *runner) callOnSkip(
 	}
 }
 
+// effectiveStrategy returns the error strategy for a task,
+// checking the per-task override before falling back to the
+// plan-level default.
+func (r *runner) effectiveStrategy(
+	t *Task,
+) ErrorStrategy {
+	if t.errorStrategy != nil {
+		return *t.errorStrategy
+	}
+
+	return r.plan.config.OnErrorStrategy
+}
+
 // runLevel executes all tasks in a level concurrently.
 func (r *runner) runLevel(
 	ctx context.Context,
@@ -174,10 +187,10 @@ func (r *runner) runLevel(
 
 	wg.Wait()
 
-	for _, tr := range results {
+	for i, tr := range results {
 		if tr.Status == StatusFailed {
-			strategy := r.plan.config.OnErrorStrategy
-			if strategy.kind == "stop_all" {
+			strategy := r.effectiveStrategy(tasks[i])
+			if strategy.kind != "continue" {
 				return results, tr.Error
 			}
 		}
@@ -263,15 +276,32 @@ func (r *runner) runTask(
 
 	r.callBeforeTask(t)
 
+	strategy := r.effectiveStrategy(t)
+	maxAttempts := 1
+
+	if strategy.kind == "retry" {
+		maxAttempts = strategy.retryCount + 1
+	}
+
 	var result *Result
 	var err error
 
 	client := r.plan.client
 
-	if t.fn != nil {
-		result, err = t.fn(ctx, client)
-	} else {
-		result, err = r.executeOp(ctx, t.op)
+	for attempt := range maxAttempts {
+		if t.fn != nil {
+			result, err = t.fn(ctx, client)
+		} else {
+			result, err = r.executeOp(ctx, t.op)
+		}
+
+		if err == nil {
+			break
+		}
+
+		if attempt < maxAttempts-1 {
+			r.callOnRetry(t, attempt+1, err)
+		}
 	}
 
 	elapsed := time.Since(start)
