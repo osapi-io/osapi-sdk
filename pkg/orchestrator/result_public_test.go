@@ -26,10 +26,25 @@ func (s *ResultSuite) TestReportSummary() {
 		{
 			name: "mixed results",
 			tasks: []orchestrator.TaskResult{
-				{Name: "a", Status: orchestrator.StatusChanged, Changed: true, Duration: time.Second},
-				{Name: "b", Status: orchestrator.StatusUnchanged, Changed: false, Duration: 2 * time.Second},
+				{
+					Name:     "a",
+					Status:   orchestrator.StatusChanged,
+					Changed:  true,
+					Duration: time.Second,
+				},
+				{
+					Name:     "b",
+					Status:   orchestrator.StatusUnchanged,
+					Changed:  false,
+					Duration: 2 * time.Second,
+				},
 				{Name: "c", Status: orchestrator.StatusSkipped, Changed: false, Duration: 0},
-				{Name: "d", Status: orchestrator.StatusChanged, Changed: true, Duration: 500 * time.Millisecond},
+				{
+					Name:     "d",
+					Status:   orchestrator.StatusChanged,
+					Changed:  true,
+					Duration: 500 * time.Millisecond,
+				},
 			},
 			contains: []string{"4 tasks", "2 changed", "1 unchanged", "1 skipped"},
 		},
