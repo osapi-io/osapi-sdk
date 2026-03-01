@@ -51,13 +51,11 @@ func (suite *JobPublicTestSuite) SetupTest() {
 		}),
 	)
 
-	var err error
-	suite.sut, err = osapi.New(
+	suite.sut = osapi.New(
 		suite.server.URL,
 		"test-token",
 		osapi.WithLogger(slog.Default()),
 	)
-	suite.Require().NoError(err)
 }
 
 func (suite *JobPublicTestSuite) TearDownTest() {

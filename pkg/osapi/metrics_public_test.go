@@ -67,12 +67,11 @@ func (suite *MetricsPublicTestSuite) TestGet() {
 			)
 			defer server.Close()
 
-			sut, err := osapi.New(
+			sut := osapi.New(
 				server.URL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
-			suite.Require().NoError(err)
 
 			body, err := sut.Metrics.Get(suite.ctx)
 			tc.validateFunc(body, err)
@@ -104,12 +103,11 @@ func (suite *MetricsPublicTestSuite) TestGetErrorStatus() {
 			)
 			defer server.Close()
 
-			sut, err := osapi.New(
+			sut := osapi.New(
 				server.URL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
-			suite.Require().NoError(err)
 
 			body, err := sut.Metrics.Get(suite.ctx)
 			tc.validateFunc(body, err)
@@ -142,12 +140,11 @@ func (suite *MetricsPublicTestSuite) TestGetRequestError() {
 			closedURL := server.URL
 			server.Close()
 
-			sut, err := osapi.New(
+			sut := osapi.New(
 				closedURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
-			suite.Require().NoError(err)
 
 			body, err := sut.Metrics.Get(suite.ctx)
 			tc.validateFunc(body, err)
@@ -179,12 +176,11 @@ func (suite *MetricsPublicTestSuite) TestGetCreateRequestError() {
 			)
 			defer server.Close()
 
-			sut, err := osapi.New(
+			sut := osapi.New(
 				server.URL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
-			suite.Require().NoError(err)
 
 			//nolint:staticcheck // nil context intentionally triggers NewRequestWithContext error
 			body, err := sut.Metrics.Get(nil)

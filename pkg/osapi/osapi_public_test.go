@@ -54,12 +54,11 @@ func (suite *ClientPublicTestSuite) TearDownTest() {
 func (suite *ClientPublicTestSuite) TestNew() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Client, error)
+		validateFunc func(*osapi.Client)
 	}{
 		{
 			name: "when creating client returns all services",
-			validateFunc: func(c *osapi.Client, err error) {
-				suite.NoError(err)
+			validateFunc: func(c *osapi.Client) {
 				suite.NotNil(c)
 				suite.NotNil(c.Node)
 				suite.NotNil(c.Job)
@@ -72,8 +71,8 @@ func (suite *ClientPublicTestSuite) TestNew() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			c, err := osapi.New(suite.server.URL, "test-token")
-			tc.validateFunc(c, err)
+			c := osapi.New(suite.server.URL, "test-token")
+			tc.validateFunc(c)
 		})
 	}
 }
@@ -81,12 +80,11 @@ func (suite *ClientPublicTestSuite) TestNew() {
 func (suite *ClientPublicTestSuite) TestNewWithHTTPTransport() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Client, error)
+		validateFunc func(*osapi.Client)
 	}{
 		{
 			name: "when custom transport provided creates client",
-			validateFunc: func(c *osapi.Client, err error) {
-				suite.NoError(err)
+			validateFunc: func(c *osapi.Client) {
 				suite.NotNil(c)
 			},
 		},
@@ -95,13 +93,13 @@ func (suite *ClientPublicTestSuite) TestNewWithHTTPTransport() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			customTransport := &http.Transport{}
-			c, err := osapi.New(
+			c := osapi.New(
 				suite.server.URL,
 				"test-token",
 				osapi.WithHTTPTransport(customTransport),
 				osapi.WithLogger(slog.Default()),
 			)
-			tc.validateFunc(c, err)
+			tc.validateFunc(c)
 		})
 	}
 }

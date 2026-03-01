@@ -602,8 +602,7 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 			srv := opServer(s, tt.createCode, tt.pollResponses)
 			defer srv.Close()
 
-			client, err := osapi.New(srv.URL, "test-token")
-			s.Require().NoError(err)
+			client := osapi.New(srv.URL, "test-token")
 
 			plan := orchestrator.NewPlan(client)
 			plan.Task("op-task", tt.op)
@@ -644,8 +643,7 @@ func (s *PlanPublicTestSuite) TestRunOpTaskParams() {
 	restore := withShortPoll()
 	defer restore()
 
-	client, err := osapi.New(srv.URL, "test-token")
-	s.Require().NoError(err)
+	client := osapi.New(srv.URL, "test-token")
 
 	plan := orchestrator.NewPlan(client)
 	plan.Task("exec", &orchestrator.Op{
@@ -838,8 +836,7 @@ func (s *PlanPublicTestSuite) TestRunOpTaskErrors() {
 
 			defer srv.Close()
 
-			client, err := osapi.New(srv.URL, "test-token")
-			s.Require().NoError(err)
+			client := osapi.New(srv.URL, "test-token")
 
 			plan := orchestrator.NewPlan(client)
 			plan.Task("op-task", &orchestrator.Op{
@@ -1020,8 +1017,7 @@ func (s *PlanPublicTestSuite) TestRunHooks() {
 }
 
 func (s *PlanPublicTestSuite) TestClient() {
-	client, err := osapi.New("http://localhost", "token")
-	s.Require().NoError(err)
+	client := osapi.New("http://localhost", "token")
 
 	plan := orchestrator.NewPlan(client)
 	s.Equal(client, plan.Client())

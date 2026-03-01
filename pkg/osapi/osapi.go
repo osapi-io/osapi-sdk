@@ -23,10 +23,7 @@
 // Create a client with New() and use the domain-specific services
 // to interact with the API:
 //
-//	client, err := osapi.New("http://localhost:8080", "your-jwt-token")
-//	if err != nil {
-//	    log.Fatal(err)
-//	}
+//	client := osapi.New("http://localhost:8080", "your-jwt-token")
 //
 //	// Get hostname
 //	resp, err := client.Node.Hostname(ctx, "_any")
@@ -93,21 +90,12 @@ func WithHTTPTransport(
 	}
 }
 
-// newGenClient creates the generated OpenAPI client. It is a package-level
-// variable so internal tests can replace it to simulate construction errors.
-var newGenClient = func(
-	baseURL string,
-	opts ...gen.ClientOption,
-) (*gen.ClientWithResponses, error) {
-	return gen.NewClientWithResponses(baseURL, opts...)
-}
-
 // New creates an OSAPI SDK client.
 func New(
 	baseURL string,
 	bearerToken string,
 	opts ...Option,
-) (*Client, error) {
+) *Client {
 	c := &Client{
 		baseURL:       baseURL,
 		logger:        slog.Default(),
@@ -128,10 +116,10 @@ func New(
 		Transport: transport,
 	}
 
-	httpClient, err := newGenClient(baseURL, gen.WithHTTPClient(hc))
-	if err != nil {
-		return nil, err
-	}
+	// Error is unreachable: the only ClientOption passed (WithHTTPClient) cannot
+	// fail, and NewClientWithResponses only errors when a ClientOption does.
+	// Invalid URLs are caught later at HTTP call time with a clear parse error.
+	httpClient, _ := gen.NewClientWithResponses(baseURL, gen.WithHTTPClient(hc))
 
 	c.httpClient = httpClient
 	c.Agent = &AgentService{client: httpClient}
@@ -144,5 +132,5 @@ func New(
 		baseURL: baseURL,
 	}
 
-	return c, nil
+	return c
 }

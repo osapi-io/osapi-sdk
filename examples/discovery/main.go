@@ -55,10 +55,7 @@ func main() {
 		log.Fatal("OSAPI_TOKEN environment variable is required")
 	}
 
-	client, err := osapi.New(url, token)
-	if err != nil {
-		log.Fatal(err)
-	}
+	client := osapi.New(url, token)
 
 	hooks := orchestrator.Hooks{
 		BeforePlan: func(explain string) {
@@ -294,7 +291,7 @@ func main() {
 	})
 
 	// Run the plan.
-	_, err = plan.Run(context.Background())
+	_, err := plan.Run(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
