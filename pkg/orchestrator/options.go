@@ -1,11 +1,6 @@
 package orchestrator
 
-import (
-	"fmt"
-	"io"
-	"os"
-	"strings"
-)
+import "fmt"
 
 // ErrorStrategy defines how the runner handles task failures.
 type ErrorStrategy struct {
@@ -59,8 +54,6 @@ type Hooks struct {
 // PlanConfig holds plan-level configuration.
 type PlanConfig struct {
 	OnErrorStrategy ErrorStrategy
-	Verbose         bool
-	Output          io.Writer
 	Hooks           *Hooks
 }
 
@@ -73,72 +66,6 @@ func OnError(
 ) PlanOption {
 	return func(cfg *PlanConfig) {
 		cfg.OnErrorStrategy = strategy
-	}
-}
-
-// WithVerbose enables execution logging. Output goes to stdout
-// unless overridden with WithOutput. Verbose sets default hooks
-// that produce human-readable output; explicit WithHooks
-// overrides them.
-func WithVerbose() PlanOption {
-	return func(cfg *PlanConfig) {
-		cfg.Verbose = true
-
-		if cfg.Output == nil {
-			cfg.Output = os.Stdout
-		}
-
-		h := defaultVerboseHooks(cfg.Output)
-		cfg.Hooks = &h
-	}
-}
-
-// defaultVerboseHooks returns hooks that produce the standard
-// verbose output format.
-func defaultVerboseHooks(
-	w io.Writer,
-) Hooks {
-	return Hooks{
-		BeforePlan: func(explain string) {
-			fmt.Fprint(w, explain)
-		},
-		BeforeLevel: func(level int, tasks []*Task, parallel bool) {
-			names := make([]string, len(tasks))
-			for i, t := range tasks {
-				names[i] = t.Name()
-			}
-
-			if parallel {
-				fmt.Fprintf(w, "--- Level %d: %s (parallel)\n", level, strings.Join(names, ", "))
-			} else {
-				fmt.Fprintf(w, "--- Level %d: %s\n", level, names[0])
-			}
-		},
-		BeforeTask: func(task *Task) {
-			fmt.Fprintf(w, "    %-20s running...\n", task.Name())
-		},
-		AfterTask: func(_ *Task, result TaskResult) {
-			switch result.Status {
-			case StatusSkipped:
-				// OnSkip already printed the skip reason.
-			case StatusFailed:
-				fmt.Fprintf(w, "    %-20s FAILED (%s)\n", result.Name, result.Duration)
-			default:
-				fmt.Fprintf(w, "    %-20s %s (%s)\n", result.Name, result.Status, result.Duration)
-			}
-		},
-		OnSkip: func(task *Task, reason string) {
-			fmt.Fprintf(w, "    %-20s skipped (%s)\n", task.Name(), reason)
-		},
-	}
-}
-
-// WithOutput sets the writer for verbose output.
-func WithOutput(
-	w io.Writer,
-) PlanOption {
-	return func(cfg *PlanConfig) {
-		cfg.Output = w
 	}
 }
 

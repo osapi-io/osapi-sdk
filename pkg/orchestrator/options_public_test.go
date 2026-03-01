@@ -1,7 +1,6 @@
 package orchestrator_test
 
 import (
-	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -75,22 +74,6 @@ func (s *OptionsSuite) TestRetryCount() {
 			s.Equal(tt.want, tt.strategy.RetryCount())
 		})
 	}
-}
-
-func (s *OptionsSuite) TestWithVerbose() {
-	plan := orchestrator.NewPlan(nil, orchestrator.WithVerbose())
-	s.True(plan.Config().Verbose)
-	s.NotNil(plan.Config().Output)
-}
-
-func (s *OptionsSuite) TestWithOutput() {
-	var buf bytes.Buffer
-	plan := orchestrator.NewPlan(
-		nil,
-		orchestrator.WithOutput(&buf),
-		orchestrator.WithVerbose(),
-	)
-	s.Equal(&buf, plan.Config().Output)
 }
 
 func (s *OptionsSuite) TestWithHooks() {

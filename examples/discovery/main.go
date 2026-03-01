@@ -38,6 +38,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/osapi-io/osapi-sdk/pkg/orchestrator"
 	"github.com/osapi-io/osapi-sdk/pkg/osapi"
@@ -61,7 +62,36 @@ func main() {
 
 	plan := orchestrator.NewPlan(
 		client,
-		orchestrator.WithVerbose(),
+		orchestrator.WithHooks(orchestrator.Hooks{
+			BeforePlan: func(explain string) {
+				fmt.Print(explain)
+			},
+			BeforeLevel: func(level int, tasks []*orchestrator.Task, parallel bool) {
+				names := make([]string, len(tasks))
+				for i, t := range tasks {
+					names[i] = t.Name()
+				}
+
+				if parallel {
+					fmt.Printf("--- Level %d: %s (parallel)\n", level, strings.Join(names, ", "))
+				} else {
+					fmt.Printf("--- Level %d: %s\n", level, names[0])
+				}
+			},
+			BeforeTask: func(task *orchestrator.Task) {
+				fmt.Printf("    %-20s running...\n", task.Name())
+			},
+			AfterTask: func(_ *orchestrator.Task, result orchestrator.TaskResult) {
+				if result.Status == orchestrator.StatusFailed {
+					fmt.Printf("    %-20s FAILED (%s)\n", result.Name, result.Duration)
+				} else if result.Status != orchestrator.StatusSkipped {
+					fmt.Printf("    %-20s %s (%s)\n", result.Name, result.Status, result.Duration)
+				}
+			},
+			OnSkip: func(task *orchestrator.Task, reason string) {
+				fmt.Printf("    %-20s skipped (%s)\n", task.Name(), reason)
+			},
+		}),
 	)
 
 	// Level 0: verify OSAPI is healthy before doing anything.
