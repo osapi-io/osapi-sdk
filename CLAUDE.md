@@ -13,6 +13,13 @@ For setup, prerequisites, and contributing guidelines:
 - @docs/development.md - Prerequisites, setup, code style, testing, commits
 - @docs/contributing.md - PR workflow and contribution guidelines
 
+## Documentation
+
+- @docs/osapi/README.md - SDK client API reference (generated)
+- @docs/orchestration/README.md - Orchestration overview, operations, hooks, error strategies
+- @docs/orchestration/operations/ - Per-operation reference (10 operations)
+- @docs/gen/gen.md - Generated OpenAPI client internals
+
 ## Quick Reference
 
 ```bash
@@ -33,11 +40,11 @@ just fetch / just deps / just test / just go::unit / just go::vet / just go::fmt
   - `metrics.go` - MetricsService (Prometheus text)
   - `gen/` - Generated OpenAPI client (`*.gen.go`)
 - **`pkg/orchestrator/`** - DAG-based task orchestration
-  - `plan.go` - Plan, NewPlan
-  - `task.go` - Task, TaskFunc, DependsOn, When
-  - `runner.go` - DAG resolution, parallel execution
-  - `result.go` - Result, Report, Summary
-  - `options.go` - OnError, Retry, OnlyIfChanged
+  - `plan.go` - Plan, NewPlan, Validate, Run, Explain, Levels
+  - `task.go` - Task, Op, TaskFn, DependsOn, When, OnError
+  - `runner.go` - DAG resolution, parallel execution, job polling
+  - `result.go` - Result, TaskResult, Report, Summary
+  - `options.go` - ErrorStrategy, Hooks, PlanOption, OnError, WithHooks
 
 ## Code Standards (MANDATORY)
 
