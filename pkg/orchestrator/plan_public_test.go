@@ -39,6 +39,7 @@ type pollResponse struct {
 func opServer(
 	s *PlanPublicTestSuite,
 	createCode int,
+	createErrMsg string,
 	pollResponses []pollResponse,
 ) *httptest.Server {
 	s.T().Helper()
@@ -54,10 +55,16 @@ func opServer(
 		case r.Method == "POST" && r.URL.Path == "/job":
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(createCode)
-			_ = json.NewEncoder(w).Encode(map[string]any{
-				"job_id": jobID,
-				"status": "pending",
-			})
+			if createCode == http.StatusCreated {
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"job_id": jobID,
+					"status": "pending",
+				})
+			} else {
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"error": createErrMsg,
+				})
+			}
 		case r.Method == "GET" && r.URL.Path == "/job/"+jobID:
 			idx := int(pollIdx.Add(1)) - 1
 			if idx >= len(pollResponses) {
@@ -456,6 +463,7 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 	tests := []struct {
 		name          string
 		createCode    int
+		createErrMsg  string
 		pollResponses []pollResponse
 		op            *orchestrator.Op
 		noServer      bool
@@ -599,7 +607,7 @@ func (s *PlanPublicTestSuite) TestRunOpTask() {
 			restore := withShortPoll()
 			defer restore()
 
-			srv := opServer(s, tt.createCode, tt.pollResponses)
+			srv := opServer(s, tt.createCode, tt.createErrMsg, tt.pollResponses)
 			defer srv.Close()
 
 			client := osapi.New(srv.URL, "test-token")
@@ -672,6 +680,7 @@ func (s *PlanPublicTestSuite) TestRunOpTaskErrors() {
 	tests := []struct {
 		name          string
 		createCode    int
+		createErrMsg  string
 		pollResponses []pollResponse
 		useServer     bool
 		networkError  string // "create" or "poll"
@@ -680,13 +689,27 @@ func (s *PlanPublicTestSuite) TestRunOpTaskErrors() {
 		validateFunc  func(report *orchestrator.Report, err error)
 	}{
 		{
-			name:       "create returns server error",
-			createCode: http.StatusInternalServerError,
-			useServer:  true,
+			name:         "create returns server error",
+			createCode:   http.StatusInternalServerError,
+			createErrMsg: "internal server error",
+			useServer:    true,
 			validateFunc: func(report *orchestrator.Report, err error) {
 				s.Error(err)
 				s.NotNil(report)
 				s.Equal(orchestrator.StatusFailed, report.Tasks[0].Status)
+				s.Contains(err.Error(), "internal server error")
+			},
+		},
+		{
+			name:         "create returns validation error",
+			createCode:   http.StatusBadRequest,
+			createErrMsg: "validation failed on 'target_hostname' for 'valid_target'",
+			useServer:    true,
+			validateFunc: func(report *orchestrator.Report, err error) {
+				s.Error(err)
+				s.NotNil(report)
+				s.Equal(orchestrator.StatusFailed, report.Tasks[0].Status)
+				s.Contains(err.Error(), "valid_target")
 			},
 		},
 		{
@@ -698,7 +721,7 @@ func (s *PlanPublicTestSuite) TestRunOpTaskErrors() {
 			useServer: true,
 			validateFunc: func(_ *orchestrator.Report, err error) {
 				s.Error(err)
-				s.Contains(err.Error(), "unexpected status")
+				s.Contains(err.Error(), "poll job")
 			},
 		},
 		{
@@ -831,7 +854,7 @@ func (s *PlanPublicTestSuite) TestRunOpTaskErrors() {
 					}
 				}))
 			case tt.useServer:
-				srv = opServer(s, tt.createCode, tt.pollResponses)
+				srv = opServer(s, tt.createCode, tt.createErrMsg, tt.pollResponses)
 			}
 
 			defer srv.Close()

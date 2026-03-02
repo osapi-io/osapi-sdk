@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
 
 // runner executes a validated plan.
@@ -400,8 +402,14 @@ func (r *runner) executeOp(
 
 	if createResp.StatusCode() != http.StatusCreated {
 		return nil, fmt.Errorf(
-			"create job: unexpected status %d",
-			createResp.StatusCode(),
+			"create job: %s",
+			messageFromResponse(
+				createResp.StatusCode(),
+				createResp.JSON400,
+				createResp.JSON401,
+				createResp.JSON403,
+				createResp.JSON500,
+			),
 		)
 	}
 
@@ -430,9 +438,16 @@ func (r *runner) pollJob(
 
 			if resp.StatusCode() != http.StatusOK {
 				return nil, fmt.Errorf(
-					"poll job %s: unexpected status %d",
+					"poll job %s: %s",
 					jobID,
-					resp.StatusCode(),
+					messageFromResponse(
+						resp.StatusCode(),
+						resp.JSON400,
+						resp.JSON401,
+						resp.JSON403,
+						resp.JSON404,
+						resp.JSON500,
+					),
 				)
 			}
 
@@ -463,6 +478,22 @@ func (r *runner) pollJob(
 			}
 		}
 	}
+}
+
+// messageFromResponse extracts a human-readable error message from
+// generated ErrorResponse pointers. It returns the first non-nil
+// error message found, or falls back to the HTTP status code.
+func messageFromResponse(
+	statusCode int,
+	responses ...*gen.ErrorResponse,
+) string {
+	for _, r := range responses {
+		if r != nil && r.Error != nil {
+			return *r.Error
+		}
+	}
+
+	return fmt.Sprintf("unexpected status %d", statusCode)
 }
 
 // levelize groups tasks into levels where all tasks in a level can
