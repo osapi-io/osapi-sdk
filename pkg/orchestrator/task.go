@@ -21,6 +21,14 @@ type TaskFn func(
 	client *osapi.Client,
 ) (*Result, error)
 
+// TaskFnWithResults is like TaskFn but receives completed task results
+// for inter-task data access.
+type TaskFnWithResults func(
+	ctx context.Context,
+	client *osapi.Client,
+	results Results,
+) (*Result, error)
+
 // GuardFn is a predicate that determines if a task should run.
 type GuardFn func(results Results) bool
 
@@ -29,6 +37,7 @@ type Task struct {
 	name           string
 	op             *Op
 	fn             TaskFn
+	fnr            TaskFnWithResults
 	deps           []*Task
 	guard          GuardFn
 	requiresChange bool
@@ -57,6 +66,18 @@ func NewTaskFunc(
 	}
 }
 
+// NewTaskFuncWithResults creates a functional task that receives
+// completed results from prior tasks.
+func NewTaskFuncWithResults(
+	name string,
+	fn TaskFnWithResults,
+) *Task {
+	return &Task{
+		name: name,
+		fnr:  fn,
+	}
+}
+
 // Name returns the task name.
 func (t *Task) Name() string {
 	return t.name
@@ -64,7 +85,7 @@ func (t *Task) Name() string {
 
 // IsFunc returns true if this is a functional task.
 func (t *Task) IsFunc() bool {
-	return t.fn != nil
+	return t.fn != nil || t.fnr != nil
 }
 
 // Operation returns the declarative operation, or nil for functional

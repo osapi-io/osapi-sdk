@@ -47,6 +47,7 @@ type TaskResult struct {
 	Changed  bool
 	Duration time.Duration
 	Error    error
+	Data     map[string]any
 }
 
 // Results is a map of task name to Result, used for conditional logic.

@@ -67,6 +67,19 @@ func (p *Plan) TaskFunc(
 	return t
 }
 
+// TaskFuncWithResults creates a functional task that receives
+// completed results from prior tasks, adds it to the plan, and
+// returns it.
+func (p *Plan) TaskFuncWithResults(
+	name string,
+	fn TaskFnWithResults,
+) *Task {
+	t := NewTaskFuncWithResults(name, fn)
+	p.tasks = append(p.tasks, t)
+
+	return t
+}
+
 // Tasks returns all tasks in the plan.
 func (p *Plan) Tasks() []*Task {
 	return p.tasks
@@ -93,7 +106,7 @@ func (p *Plan) Explain() string {
 
 		for _, t := range level {
 			kind := "op"
-			if t.fn != nil {
+			if t.IsFunc() {
 				kind = "fn"
 			}
 

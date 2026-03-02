@@ -312,3 +312,111 @@ func (s *RunnerTestSuite) TestDownstreamGuardInspectsSkippedStatus() {
 		})
 	}
 }
+
+func (s *RunnerTestSuite) TestTaskFuncWithResultsReceivesResults() {
+	tests := []struct {
+		name        string
+		setup       func() (*Plan, *string)
+		wantCapture string
+	}{
+		{
+			name: "receives upstream result data",
+			setup: func() (*Plan, *string) {
+				plan := NewPlan(nil, OnError(StopAll))
+				var captured string
+
+				a := plan.TaskFunc("a", func(
+					_ context.Context,
+					_ *osapi.Client,
+				) (*Result, error) {
+					return &Result{
+						Changed: true,
+						Data:    map[string]any{"hostname": "web-01"},
+					}, nil
+				})
+
+				b := plan.TaskFuncWithResults("b", func(
+					_ context.Context,
+					_ *osapi.Client,
+					results Results,
+				) (*Result, error) {
+					r := results.Get("a")
+					if r != nil {
+						if h, ok := r.Data["hostname"].(string); ok {
+							captured = h
+						}
+					}
+
+					return &Result{Changed: false}, nil
+				})
+				b.DependsOn(a)
+
+				return plan, &captured
+			},
+			wantCapture: "web-01",
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			plan, captured := tt.setup()
+
+			_, err := plan.Run(context.Background())
+
+			s.Require().NoError(err)
+			s.Equal(tt.wantCapture, *captured)
+		})
+	}
+}
+
+func (s *RunnerTestSuite) TestTaskResultCarriesData() {
+	tests := []struct {
+		name     string
+		setup    func() *Plan
+		taskName string
+		wantKey  string
+		wantVal  any
+	}{
+		{
+			name: "success result includes data",
+			setup: func() *Plan {
+				plan := NewPlan(nil, OnError(StopAll))
+
+				plan.TaskFunc("a", func(
+					_ context.Context,
+					_ *osapi.Client,
+				) (*Result, error) {
+					return &Result{
+						Changed: true,
+						Data:    map[string]any{"stdout": "hello"},
+					}, nil
+				})
+
+				return plan
+			},
+			taskName: "a",
+			wantKey:  "stdout",
+			wantVal:  "hello",
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			plan := tt.setup()
+
+			report, err := plan.Run(context.Background())
+
+			s.Require().NoError(err)
+
+			var found bool
+			for _, tr := range report.Tasks {
+				if tr.Name == tt.taskName {
+					found = true
+					s.Equal(tt.wantVal, tr.Data[tt.wantKey])
+				}
+			}
+
+			s.True(found, "task %q should be in report", tt.taskName)
+		})
+	}
+}

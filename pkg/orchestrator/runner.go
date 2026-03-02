@@ -324,7 +324,13 @@ func (r *runner) runTask(
 	client := r.plan.client
 
 	for attempt := range maxAttempts {
-		if t.fn != nil {
+		if t.fnr != nil {
+			r.mu.Lock()
+			results := r.results
+			r.mu.Unlock()
+
+			result, err = t.fnr(ctx, client, results)
+		} else if t.fn != nil {
 			result, err = t.fn(ctx, client)
 		} else {
 			result, err = r.executeOp(ctx, t.op)
@@ -375,6 +381,7 @@ func (r *runner) runTask(
 		Status:   status,
 		Changed:  result.Changed,
 		Duration: elapsed,
+		Data:     result.Data,
 	}
 
 	r.callAfterTask(t, tr)
