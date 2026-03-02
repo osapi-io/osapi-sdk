@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"strings"
 
 	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
@@ -127,4 +128,12 @@ func (t *Task) OnError(
 // use the plan default.
 func (t *Task) ErrorStrategy() *ErrorStrategy {
 	return t.errorStrategy
+}
+
+// IsBroadcastTarget returns true if the target addresses multiple
+// agents (broadcast or label selector).
+func IsBroadcastTarget(
+	target string,
+) bool {
+	return target == "_all" || strings.Contains(target, ":")
 }
