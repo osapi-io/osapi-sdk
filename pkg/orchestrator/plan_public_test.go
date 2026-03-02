@@ -311,6 +311,60 @@ func (s *PlanPublicTestSuite) TestRunGuard() {
 	}
 }
 
+func (s *PlanPublicTestSuite) TestRunGuardWithFailedDependency() {
+	tests := []struct {
+		name         string
+		guard        func(orchestrator.Results) bool
+		expectRan    bool
+		expectStatus orchestrator.Status
+	}{
+		{
+			name: "guard runs and returns true when dependency failed",
+			guard: func(r orchestrator.Results) bool {
+				res := r.Get("fail")
+
+				return res != nil && res.Status == orchestrator.StatusFailed
+			},
+			expectRan:    true,
+			expectStatus: orchestrator.StatusChanged,
+		},
+		{
+			name: "guard runs and returns false when dependency failed",
+			guard: func(r orchestrator.Results) bool {
+				res := r.Get("fail")
+
+				return res != nil && res.Status == orchestrator.StatusChanged
+			},
+			expectRan:    false,
+			expectStatus: orchestrator.StatusSkipped,
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			plan := orchestrator.NewPlan(
+				nil,
+				orchestrator.OnError(orchestrator.Continue),
+			)
+			ran := false
+
+			fail := plan.TaskFunc("fail", failFunc("boom"))
+			alert := plan.TaskFunc("alert", taskFunc(true, func() {
+				ran = true
+			}))
+			alert.DependsOn(fail)
+			alert.When(tt.guard)
+
+			report, err := plan.Run(context.Background())
+			s.Require().NoError(err)
+			s.Equal(tt.expectRan, ran)
+
+			sm := statusMap(report)
+			s.Equal(tt.expectStatus, sm["alert"])
+		})
+	}
+}
+
 func (s *PlanPublicTestSuite) TestRunErrorStrategy() {
 	s.Run("stop all on error", func() {
 		plan := orchestrator.NewPlan(nil)

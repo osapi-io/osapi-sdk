@@ -232,26 +232,31 @@ func (r *runner) runTask(
 ) TaskResult {
 	start := time.Now()
 
-	// Skip if any dependency failed (Continue strategy).
-	r.mu.Lock()
-	for _, dep := range t.deps {
-		if r.failed[dep.name] {
-			r.failed[t.name] = true
-			r.results[t.name] = &Result{Status: StatusSkipped}
-			r.mu.Unlock()
+	// Skip if any dependency failed — unless the task has a When guard,
+	// which may intentionally inspect failure status (e.g. alert-on-failure).
+	if t.guard == nil {
+		r.mu.Lock()
 
-			tr := TaskResult{
-				Name:     t.name,
-				Status:   StatusSkipped,
-				Duration: time.Since(start),
+		for _, dep := range t.deps {
+			if r.failed[dep.name] {
+				r.failed[t.name] = true
+				r.results[t.name] = &Result{Status: StatusSkipped}
+				r.mu.Unlock()
+
+				tr := TaskResult{
+					Name:     t.name,
+					Status:   StatusSkipped,
+					Duration: time.Since(start),
+				}
+				r.callOnSkip(t, "dependency failed")
+				r.callAfterTask(t, tr)
+
+				return tr
 			}
-			r.callOnSkip(t, "dependency failed")
-			r.callAfterTask(t, tr)
-
-			return tr
 		}
+
+		r.mu.Unlock()
 	}
-	r.mu.Unlock()
 
 	if t.requiresChange {
 		anyChanged := false

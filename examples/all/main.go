@@ -372,14 +372,8 @@ func main() {
 			r.Duration,
 		)
 
-		if r.Data != nil {
-			if stdout, ok := r.Data["stdout"].(string); ok && stdout != "" {
-				fmt.Printf("  %-20s stdout=%q\n", "", stdout)
-			}
-
-			if hostname, ok := r.Data["hostname"].(string); ok {
-				fmt.Printf("  %-20s hostname=%q\n", "", hostname)
-			}
+		for k, v := range r.Data {
+			fmt.Printf("  %-20s %s=%v\n", "", k, v)
 		}
 	}
 }
