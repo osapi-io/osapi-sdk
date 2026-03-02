@@ -40,6 +40,7 @@ type Task struct {
 	fnr            TaskFnWithResults
 	deps           []*Task
 	guard          GuardFn
+	guardReason    string
 	requiresChange bool
 	errorStrategy  *ErrorStrategy
 }
@@ -138,6 +139,16 @@ func (t *Task) When(
 	fn GuardFn,
 ) {
 	t.guard = fn
+}
+
+// WhenWithReason sets a guard with a custom skip reason shown when
+// the guard returns false.
+func (t *Task) WhenWithReason(
+	fn GuardFn,
+	reason string,
+) {
+	t.guard = fn
+	t.guardReason = reason
 }
 
 // Guard returns the guard function, or nil if none is set.

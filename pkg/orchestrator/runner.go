@@ -307,7 +307,11 @@ func (r *runner) runTask(
 				Duration: time.Since(start),
 			}
 
-			r.callOnSkip(t, "guard returned false")
+			reason := "guard returned false"
+			if t.guardReason != "" {
+				reason = t.guardReason
+			}
+			r.callOnSkip(t, reason)
 			r.callAfterTask(t, tr)
 
 			return tr
