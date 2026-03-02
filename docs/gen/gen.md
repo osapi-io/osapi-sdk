@@ -1780,7 +1780,7 @@ type CreateJobRequest struct {
     Operation map[string]interface{} `json:"operation" validate:"required"`
 
     // TargetHostname The target hostname for routing (_any, _all, or specific hostname).
-    TargetHostname string `json:"target_hostname" validate:"required,min=1"`
+    TargetHostname string `json:"target_hostname" validate:"required,min=1,valid_target"`
 }
 ```
 
@@ -3798,7 +3798,7 @@ RetryJobRequest defines model for RetryJobRequest.
 ```go
 type RetryJobRequest struct {
     // TargetHostname Override target hostname for the retried job. Defaults to _any if not specified.
-    TargetHostname *string `json:"target_hostname,omitempty" validate:"omitempty,min=1"`
+    TargetHostname *string `json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
 }
 ```
 
