@@ -27,6 +27,7 @@ const (
 type Result struct {
 	Changed bool
 	Data    map[string]any
+	Status  Status
 }
 
 // TaskResult records the full execution details of a task.

@@ -76,6 +76,66 @@ func (s *ResultPublicTestSuite) TestReportSummary() {
 	}
 }
 
+func (s *ResultPublicTestSuite) TestResultStatusField() {
+	tests := []struct {
+		name       string
+		result     *orchestrator.Result
+		wantStatus orchestrator.Status
+		wantChange bool
+	}{
+		{
+			name: "changed result carries status",
+			result: &orchestrator.Result{
+				Changed: true,
+				Data:    map[string]any{"hostname": "web-01"},
+				Status:  orchestrator.StatusChanged,
+			},
+			wantStatus: orchestrator.StatusChanged,
+			wantChange: true,
+		},
+		{
+			name: "unchanged result carries status",
+			result: &orchestrator.Result{
+				Changed: false,
+				Status:  orchestrator.StatusUnchanged,
+			},
+			wantStatus: orchestrator.StatusUnchanged,
+			wantChange: false,
+		},
+		{
+			name: "failed result carries status",
+			result: &orchestrator.Result{
+				Changed: false,
+				Status:  orchestrator.StatusFailed,
+			},
+			wantStatus: orchestrator.StatusFailed,
+			wantChange: false,
+		},
+		{
+			name: "skipped result carries status",
+			result: &orchestrator.Result{
+				Changed: false,
+				Status:  orchestrator.StatusSkipped,
+			},
+			wantStatus: orchestrator.StatusSkipped,
+			wantChange: false,
+		},
+		{
+			name:       "zero value has empty status",
+			result:     &orchestrator.Result{},
+			wantStatus: "",
+			wantChange: false,
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			s.Equal(tt.wantStatus, tt.result.Status)
+			s.Equal(tt.wantChange, tt.result.Changed)
+		})
+	}
+}
+
 func (s *ResultPublicTestSuite) TestResultsGet() {
 	tests := []struct {
 		name       string
