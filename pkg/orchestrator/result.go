@@ -42,12 +42,13 @@ type Result struct {
 
 // TaskResult records the full execution details of a task.
 type TaskResult struct {
-	Name     string
-	Status   Status
-	Changed  bool
-	Duration time.Duration
-	Error    error
-	Data     map[string]any
+	Name        string
+	Status      Status
+	Changed     bool
+	Duration    time.Duration
+	Error       error
+	Data        map[string]any
+	HostResults []HostResult
 }
 
 // Results is a map of task name to Result, used for conditional logic.

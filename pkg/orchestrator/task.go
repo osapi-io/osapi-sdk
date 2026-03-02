@@ -83,6 +83,13 @@ func (t *Task) Name() string {
 	return t.name
 }
 
+// SetName changes the task name.
+func (t *Task) SetName(
+	name string,
+) {
+	t.name = name
+}
+
 // IsFunc returns true if this is a functional task.
 func (t *Task) IsFunc() bool {
 	return t.fn != nil || t.fnr != nil

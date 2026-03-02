@@ -382,11 +382,12 @@ func (r *runner) runTask(
 	r.mu.Unlock()
 
 	tr := TaskResult{
-		Name:     t.name,
-		Status:   status,
-		Changed:  result.Changed,
-		Duration: elapsed,
-		Data:     result.Data,
+		Name:        t.name,
+		Status:      status,
+		Changed:     result.Changed,
+		Duration:    elapsed,
+		Data:        result.Data,
+		HostResults: result.HostResults,
 	}
 
 	r.callAfterTask(t, tr)
