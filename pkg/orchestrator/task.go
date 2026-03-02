@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"strings"
 
 	"github.com/osapi-io/osapi-sdk/pkg/osapi"
 )
@@ -20,6 +21,14 @@ type TaskFn func(
 	client *osapi.Client,
 ) (*Result, error)
 
+// TaskFnWithResults is like TaskFn but receives completed task results
+// for inter-task data access.
+type TaskFnWithResults func(
+	ctx context.Context,
+	client *osapi.Client,
+	results Results,
+) (*Result, error)
+
 // GuardFn is a predicate that determines if a task should run.
 type GuardFn func(results Results) bool
 
@@ -28,8 +37,10 @@ type Task struct {
 	name           string
 	op             *Op
 	fn             TaskFn
+	fnr            TaskFnWithResults
 	deps           []*Task
 	guard          GuardFn
+	guardReason    string
 	requiresChange bool
 	errorStrategy  *ErrorStrategy
 }
@@ -56,14 +67,33 @@ func NewTaskFunc(
 	}
 }
 
+// NewTaskFuncWithResults creates a functional task that receives
+// completed results from prior tasks.
+func NewTaskFuncWithResults(
+	name string,
+	fn TaskFnWithResults,
+) *Task {
+	return &Task{
+		name: name,
+		fnr:  fn,
+	}
+}
+
 // Name returns the task name.
 func (t *Task) Name() string {
 	return t.name
 }
 
+// SetName changes the task name.
+func (t *Task) SetName(
+	name string,
+) {
+	t.name = name
+}
+
 // IsFunc returns true if this is a functional task.
 func (t *Task) IsFunc() bool {
-	return t.fn != nil
+	return t.fn != nil || t.fnr != nil
 }
 
 // Operation returns the declarative operation, or nil for functional
@@ -111,6 +141,16 @@ func (t *Task) When(
 	t.guard = fn
 }
 
+// WhenWithReason sets a guard with a custom skip reason shown when
+// the guard returns false.
+func (t *Task) WhenWithReason(
+	fn GuardFn,
+	reason string,
+) {
+	t.guard = fn
+	t.guardReason = reason
+}
+
 // Guard returns the guard function, or nil if none is set.
 func (t *Task) Guard() GuardFn {
 	return t.guard
@@ -127,4 +167,12 @@ func (t *Task) OnError(
 // use the plan default.
 func (t *Task) ErrorStrategy() *ErrorStrategy {
 	return t.errorStrategy
+}
+
+// IsBroadcastTarget returns true if the target addresses multiple
+// agents (broadcast or label selector).
+func IsBroadcastTarget(
+	target string,
+) bool {
+	return target == "_all" || strings.Contains(target, ":")
 }

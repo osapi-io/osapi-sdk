@@ -11,12 +11,14 @@ Package orchestrator provides DAG\-based task orchestration primitives.
 ## Index
 
 - [Variables](<#variables>)
+- [func IsBroadcastTarget\(target string\) bool](<#IsBroadcastTarget>)
 - [type ErrorStrategy](<#ErrorStrategy>)
   - [func Retry\(n int\) ErrorStrategy](<#Retry>)
   - [func \(e ErrorStrategy\) RetryCount\(\) int](<#ErrorStrategy.RetryCount>)
   - [func \(e ErrorStrategy\) String\(\) string](<#ErrorStrategy.String>)
 - [type GuardFn](<#GuardFn>)
 - [type Hooks](<#Hooks>)
+- [type HostResult](<#HostResult>)
 - [type Op](<#Op>)
 - [type Plan](<#Plan>)
   - [func NewPlan\(client \*osapi.Client, opts ...PlanOption\) \*Plan](<#NewPlan>)
@@ -27,6 +29,7 @@ Package orchestrator provides DAG\-based task orchestration primitives.
   - [func \(p \*Plan\) Run\(ctx context.Context\) \(\*Report, error\)](<#Plan.Run>)
   - [func \(p \*Plan\) Task\(name string, op \*Op\) \*Task](<#Plan.Task>)
   - [func \(p \*Plan\) TaskFunc\(name string, fn TaskFn\) \*Task](<#Plan.TaskFunc>)
+  - [func \(p \*Plan\) TaskFuncWithResults\(name string, fn TaskFnWithResults\) \*Task](<#Plan.TaskFuncWithResults>)
   - [func \(p \*Plan\) Tasks\(\) \[\]\*Task](<#Plan.Tasks>)
   - [func \(p \*Plan\) Validate\(\) error](<#Plan.Validate>)
 - [type PlanConfig](<#PlanConfig>)
@@ -44,6 +47,7 @@ Package orchestrator provides DAG\-based task orchestration primitives.
 - [type Task](<#Task>)
   - [func NewTask\(name string, op \*Op\) \*Task](<#NewTask>)
   - [func NewTaskFunc\(name string, fn TaskFn\) \*Task](<#NewTaskFunc>)
+  - [func NewTaskFuncWithResults\(name string, fn TaskFnWithResults\) \*Task](<#NewTaskFuncWithResults>)
   - [func \(t \*Task\) Dependencies\(\) \[\]\*Task](<#Task.Dependencies>)
   - [func \(t \*Task\) DependsOn\(deps ...\*Task\) \*Task](<#Task.DependsOn>)
   - [func \(t \*Task\) ErrorStrategy\(\) \*ErrorStrategy](<#Task.ErrorStrategy>)
@@ -55,8 +59,11 @@ Package orchestrator provides DAG\-based task orchestration primitives.
   - [func \(t \*Task\) OnlyIfChanged\(\)](<#Task.OnlyIfChanged>)
   - [func \(t \*Task\) Operation\(\) \*Op](<#Task.Operation>)
   - [func \(t \*Task\) RequiresChange\(\) bool](<#Task.RequiresChange>)
+  - [func \(t \*Task\) SetName\(name string\)](<#Task.SetName>)
   - [func \(t \*Task\) When\(fn GuardFn\)](<#Task.When>)
+  - [func \(t \*Task\) WhenWithReason\(fn GuardFn, reason string\)](<#Task.WhenWithReason>)
 - [type TaskFn](<#TaskFn>)
+- [type TaskFnWithResults](<#TaskFnWithResults>)
 - [type TaskResult](<#TaskResult>)
 
 
@@ -79,6 +86,15 @@ var DefaultPollInterval = 500 * time.Millisecond
 ```go
 var StopAll = ErrorStrategy{/* contains filtered or unexported fields */}
 ```
+
+<a name="IsBroadcastTarget"></a>
+## func [IsBroadcastTarget](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L174-L176>)
+
+```go
+func IsBroadcastTarget(target string) bool
+```
+
+IsBroadcastTarget returns true if the target addresses multiple agents \(broadcast or label selector\).
 
 <a name="ErrorStrategy"></a>
 ## type [ErrorStrategy](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/options.go#L6-L9>)
@@ -119,7 +135,7 @@ func (e ErrorStrategy) String() string
 String returns a human\-readable representation of the strategy.
 
 <a name="GuardFn"></a>
-## type [GuardFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L24>)
+## type [GuardFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L33>)
 
 GuardFn is a predicate that determines if a task should run.
 
@@ -145,8 +161,22 @@ type Hooks struct {
 }
 ```
 
+<a name="HostResult"></a>
+## type [HostResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L28-L33>)
+
+HostResult represents a single host's response within a broadcast operation.
+
+```go
+type HostResult struct {
+    Hostname string
+    Changed  bool
+    Error    string
+    Data     map[string]any
+}
+```
+
 <a name="Op"></a>
-## type [Op](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L10-L14>)
+## type [Op](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L11-L15>)
 
 Op represents a declarative SDK operation.
 
@@ -197,7 +227,7 @@ func (p *Plan) Config() PlanConfig
 Config returns the plan configuration.
 
 <a name="Plan.Explain"></a>
-### func \(\*Plan\) [Explain](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L77>)
+### func \(\*Plan\) [Explain](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L90>)
 
 ```go
 func (p *Plan) Explain() string
@@ -206,7 +236,7 @@ func (p *Plan) Explain() string
 Explain returns a human\-readable representation of the execution plan showing levels, parallelism, dependencies, and guards.
 
 <a name="Plan.Levels"></a>
-### func \(\*Plan\) [Levels](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L134>)
+### func \(\*Plan\) [Levels](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L147>)
 
 ```go
 func (p *Plan) Levels() ([][]*Task, error)
@@ -215,7 +245,7 @@ func (p *Plan) Levels() ([][]*Task, error)
 Levels returns the levelized DAG \-\- tasks grouped into execution levels where all tasks in a level can run concurrently. Returns an error if the plan fails validation.
 
 <a name="Plan.Run"></a>
-### func \(\*Plan\) [Run](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L158-L160>)
+### func \(\*Plan\) [Run](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L171-L173>)
 
 ```go
 func (p *Plan) Run(ctx context.Context) (*Report, error)
@@ -241,8 +271,17 @@ func (p *Plan) TaskFunc(name string, fn TaskFn) *Task
 
 TaskFunc creates a functional task, adds it to the plan, and returns it.
 
+<a name="Plan.TaskFuncWithResults"></a>
+### func \(\*Plan\) [TaskFuncWithResults](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L73-L76>)
+
+```go
+func (p *Plan) TaskFuncWithResults(name string, fn TaskFnWithResults) *Task
+```
+
+TaskFuncWithResults creates a functional task that receives completed results from prior tasks, adds it to the plan, and returns it.
+
 <a name="Plan.Tasks"></a>
-### func \(\*Plan\) [Tasks](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L71>)
+### func \(\*Plan\) [Tasks](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L84>)
 
 ```go
 func (p *Plan) Tasks() []*Task
@@ -251,7 +290,7 @@ func (p *Plan) Tasks() []*Task
 Tasks returns all tasks in the plan.
 
 <a name="Plan.Validate"></a>
-### func \(\*Plan\) [Validate](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L143>)
+### func \(\*Plan\) [Validate](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/plan.go#L156>)
 
 ```go
 func (p *Plan) Validate() error
@@ -299,7 +338,7 @@ func WithHooks(hooks Hooks) PlanOption
 WithHooks attaches lifecycle callbacks to plan execution.
 
 <a name="PlanSummary"></a>
-## type [PlanSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L58-L61>)
+## type [PlanSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L71-L74>)
 
 PlanSummary describes the execution plan before it runs.
 
@@ -311,7 +350,7 @@ type PlanSummary struct {
 ```
 
 <a name="Report"></a>
-## type [Report](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L64-L67>)
+## type [Report](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L77-L80>)
 
 Report is the aggregate output of a plan execution.
 
@@ -323,7 +362,7 @@ type Report struct {
 ```
 
 <a name="Report.Summary"></a>
-### func \(\*Report\) [Summary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L70>)
+### func \(\*Report\) [Summary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L83>)
 
 ```go
 func (r *Report) Summary() string
@@ -332,19 +371,21 @@ func (r *Report) Summary() string
 Summary returns a human\-readable summary of the report.
 
 <a name="Result"></a>
-## type [Result](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L27-L30>)
+## type [Result](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L36-L41>)
 
 Result is the outcome of a single task execution.
 
 ```go
 type Result struct {
-    Changed bool
-    Data    map[string]any
+    Changed     bool
+    Data        map[string]any
+    Status      Status
+    HostResults []HostResult
 }
 ```
 
 <a name="Results"></a>
-## type [Results](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L42>)
+## type [Results](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L55>)
 
 Results is a map of task name to Result, used for conditional logic.
 
@@ -353,7 +394,7 @@ type Results map[string]*Result
 ```
 
 <a name="Results.Get"></a>
-### func \(Results\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L45-L47>)
+### func \(Results\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L58-L60>)
 
 ```go
 func (r Results) Get(name string) *Result
@@ -387,7 +428,7 @@ const (
 ```
 
 <a name="StepSummary"></a>
-## type [StepSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L52-L55>)
+## type [StepSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L65-L68>)
 
 StepSummary describes a single execution step \(DAG level\).
 
@@ -399,7 +440,7 @@ type StepSummary struct {
 ```
 
 <a name="Task"></a>
-## type [Task](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L27-L35>)
+## type [Task](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L36-L46>)
 
 Task is a unit of work in an orchestration plan.
 
@@ -410,7 +451,7 @@ type Task struct {
 ```
 
 <a name="NewTask"></a>
-### func [NewTask](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L38-L41>)
+### func [NewTask](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L49-L52>)
 
 ```go
 func NewTask(name string, op *Op) *Task
@@ -419,7 +460,7 @@ func NewTask(name string, op *Op) *Task
 NewTask creates a declarative task wrapping an SDK operation.
 
 <a name="NewTaskFunc"></a>
-### func [NewTaskFunc](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L49-L52>)
+### func [NewTaskFunc](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L60-L63>)
 
 ```go
 func NewTaskFunc(name string, fn TaskFn) *Task
@@ -427,8 +468,17 @@ func NewTaskFunc(name string, fn TaskFn) *Task
 
 NewTaskFunc creates a functional task with custom logic.
 
+<a name="NewTaskFuncWithResults"></a>
+### func [NewTaskFuncWithResults](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L72-L75>)
+
+```go
+func NewTaskFuncWithResults(name string, fn TaskFnWithResults) *Task
+```
+
+NewTaskFuncWithResults creates a functional task that receives completed results from prior tasks.
+
 <a name="Task.Dependencies"></a>
-### func \(\*Task\) [Dependencies](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L91>)
+### func \(\*Task\) [Dependencies](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L121>)
 
 ```go
 func (t *Task) Dependencies() []*Task
@@ -437,7 +487,7 @@ func (t *Task) Dependencies() []*Task
 Dependencies returns the task's dependencies.
 
 <a name="Task.DependsOn"></a>
-### func \(\*Task\) [DependsOn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L82-L84>)
+### func \(\*Task\) [DependsOn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L112-L114>)
 
 ```go
 func (t *Task) DependsOn(deps ...*Task) *Task
@@ -446,7 +496,7 @@ func (t *Task) DependsOn(deps ...*Task) *Task
 DependsOn sets this task's dependencies. Returns the task for chaining.
 
 <a name="Task.ErrorStrategy"></a>
-### func \(\*Task\) [ErrorStrategy](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L128>)
+### func \(\*Task\) [ErrorStrategy](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L168>)
 
 ```go
 func (t *Task) ErrorStrategy() *ErrorStrategy
@@ -455,7 +505,7 @@ func (t *Task) ErrorStrategy() *ErrorStrategy
 ErrorStrategy returns the per\-task error strategy, or nil to use the plan default.
 
 <a name="Task.Fn"></a>
-### func \(\*Task\) [Fn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L76>)
+### func \(\*Task\) [Fn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L106>)
 
 ```go
 func (t *Task) Fn() TaskFn
@@ -464,7 +514,7 @@ func (t *Task) Fn() TaskFn
 Fn returns the task function, or nil for declarative tasks.
 
 <a name="Task.Guard"></a>
-### func \(\*Task\) [Guard](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L115>)
+### func \(\*Task\) [Guard](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L155>)
 
 ```go
 func (t *Task) Guard() GuardFn
@@ -473,7 +523,7 @@ func (t *Task) Guard() GuardFn
 Guard returns the guard function, or nil if none is set.
 
 <a name="Task.IsFunc"></a>
-### func \(\*Task\) [IsFunc](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L65>)
+### func \(\*Task\) [IsFunc](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L95>)
 
 ```go
 func (t *Task) IsFunc() bool
@@ -482,7 +532,7 @@ func (t *Task) IsFunc() bool
 IsFunc returns true if this is a functional task.
 
 <a name="Task.Name"></a>
-### func \(\*Task\) [Name](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L60>)
+### func \(\*Task\) [Name](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L83>)
 
 ```go
 func (t *Task) Name() string
@@ -491,7 +541,7 @@ func (t *Task) Name() string
 Name returns the task name.
 
 <a name="Task.OnError"></a>
-### func \(\*Task\) [OnError](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L120-L122>)
+### func \(\*Task\) [OnError](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L160-L162>)
 
 ```go
 func (t *Task) OnError(strategy ErrorStrategy)
@@ -500,7 +550,7 @@ func (t *Task) OnError(strategy ErrorStrategy)
 OnError sets a per\-task error strategy override.
 
 <a name="Task.OnlyIfChanged"></a>
-### func \(\*Task\) [OnlyIfChanged](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L97>)
+### func \(\*Task\) [OnlyIfChanged](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L127>)
 
 ```go
 func (t *Task) OnlyIfChanged()
@@ -509,7 +559,7 @@ func (t *Task) OnlyIfChanged()
 OnlyIfChanged marks this task to only run if at least one dependency reported Changed=true.
 
 <a name="Task.Operation"></a>
-### func \(\*Task\) [Operation](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L71>)
+### func \(\*Task\) [Operation](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L101>)
 
 ```go
 func (t *Task) Operation() *Op
@@ -518,7 +568,7 @@ func (t *Task) Operation() *Op
 Operation returns the declarative operation, or nil for functional tasks.
 
 <a name="Task.RequiresChange"></a>
-### func \(\*Task\) [RequiresChange](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L102>)
+### func \(\*Task\) [RequiresChange](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L132>)
 
 ```go
 func (t *Task) RequiresChange() bool
@@ -526,8 +576,17 @@ func (t *Task) RequiresChange() bool
 
 RequiresChange returns true if OnlyIfChanged was set.
 
+<a name="Task.SetName"></a>
+### func \(\*Task\) [SetName](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L88-L90>)
+
+```go
+func (t *Task) SetName(name string)
+```
+
+SetName changes the task name.
+
 <a name="Task.When"></a>
-### func \(\*Task\) [When](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L108-L110>)
+### func \(\*Task\) [When](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L138-L140>)
 
 ```go
 func (t *Task) When(fn GuardFn)
@@ -535,8 +594,17 @@ func (t *Task) When(fn GuardFn)
 
 When sets a custom guard function that determines whether this task should execute.
 
+<a name="Task.WhenWithReason"></a>
+### func \(\*Task\) [WhenWithReason](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L146-L149>)
+
+```go
+func (t *Task) WhenWithReason(fn GuardFn, reason string)
+```
+
+WhenWithReason sets a guard with a custom skip reason shown when the guard returns false.
+
 <a name="TaskFn"></a>
-## type [TaskFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L18-L21>)
+## type [TaskFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L19-L22>)
 
 TaskFn is the signature for functional tasks. The client parameter provides access to the OSAPI SDK for making API calls.
 
@@ -547,18 +615,33 @@ type TaskFn func(
 ) (*Result, error)
 ```
 
+<a name="TaskFnWithResults"></a>
+## type [TaskFnWithResults](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/task.go#L26-L30>)
+
+TaskFnWithResults is like TaskFn but receives completed task results for inter\-task data access.
+
+```go
+type TaskFnWithResults func(
+    ctx context.Context,
+    client *osapi.Client,
+    results Results,
+) (*Result, error)
+```
+
 <a name="TaskResult"></a>
-## type [TaskResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L33-L39>)
+## type [TaskResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/orchestrator/result.go#L44-L52>)
 
 TaskResult records the full execution details of a task.
 
 ```go
 type TaskResult struct {
-    Name     string
-    Status   Status
-    Changed  bool
-    Duration time.Duration
-    Error    error
+    Name        string
+    Status      Status
+    Changed     bool
+    Duration    time.Duration
+    Error       error
+    Data        map[string]any
+    HostResults []HostResult
 }
 ```
 

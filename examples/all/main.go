@@ -20,9 +20,10 @@
 
 // Package main demonstrates every orchestrator feature: hooks for consumer-
 // controlled logging at every lifecycle point, Op and TaskFunc tasks,
-// dependencies, guards, Levels() for DAG inspection, error strategies
+// TaskFuncWithResults for inter-task data passing, dependencies, guards
+// with Status inspection, Levels() for DAG inspection, error strategies
 // (plan-level Continue + per-task Retry), parameterized operations,
-// result data access, and detailed result reporting.
+// result data access, and detailed result reporting with Data.
 //
 // This example serves as a reference for building tools like Terraform
 // or Ansible that consume the SDK.
@@ -32,16 +33,18 @@
 //	check-health
 //	    ├── get-hostname ────────────┐
 //	    ├── get-disk                 │
-//	    ├── get-memory               ├── print-summary (only-if-changed, when)
+//	    ├── get-memory               ├── print-summary (TaskFuncWithResults, reads prior data)
 //	    ├── get-load [retry:2] ──────┘
 //	    └── run-uptime [params] ─────┘
-//	optional-fail [continue] (independent, no deps on summary)
+//	optional-fail [continue] (independent)
+//	    └── alert-on-failure (When: checks Status == StatusFailed)
 //
 // Run with: OSAPI_TOKEN="<jwt>" go run main.go
 package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -254,26 +257,70 @@ func main() {
 	)
 	optionalFail.OnError(orchestrator.Continue)
 
-	// Level 2: summary (depends on all queries, guard + OnlyIfChanged).
-	// Uses Results.Get() to read data from previous tasks.
-	summary := plan.TaskFunc(
+	// Level 2: summary — uses TaskFuncWithResults to read data from prior
+	// tasks and aggregate it. This is the key inter-task data passing pattern.
+	summary := plan.TaskFuncWithResults(
 		"print-summary",
 		func(
 			_ context.Context,
 			_ *osapi.Client,
+			results orchestrator.Results,
 		) (*orchestrator.Result, error) {
 			fmt.Println("\n  --- Fleet Summary ---")
-			fmt.Println("  All node queries completed.")
 
-			return &orchestrator.Result{Changed: false}, nil
+			// Read hostname from a prior task via Results.Get().
+			if r := results.Get("get-hostname"); r != nil {
+				if h, ok := r.Data["hostname"].(string); ok {
+					fmt.Printf("  Hostname: %s\n", h)
+				}
+			}
+
+			// Read uptime stdout from a prior command task.
+			if r := results.Get("run-uptime"); r != nil {
+				if stdout, ok := r.Data["stdout"].(string); ok {
+					fmt.Printf("  Uptime:   %s\n", stdout)
+				}
+			}
+
+			// Return aggregated data — available in Report.Tasks[].Data
+			// after plan execution completes.
+			return &orchestrator.Result{
+				Changed: false,
+				Data:    map[string]any{"completed": true},
+			}, nil
 		},
 	)
 	summary.DependsOn(getHostname, getDisk, getMemory, getLoad, runUptime)
 	summary.OnlyIfChanged() // skip if no dependency reported changes
+
+	// Guard using Status inspection — only run if hostname succeeded.
 	summary.When(func(results orchestrator.Results) bool {
 		r := results.Get("get-hostname")
 
-		return r != nil && r.Data["hostname"] != nil
+		return r != nil && r.Status == orchestrator.StatusChanged
+	})
+
+	// Level 2: alert task — runs only if optional-fail has StatusFailed.
+	// Demonstrates using Status in a When guard for failure-triggered recovery.
+	alertOnFailure := plan.TaskFunc(
+		"alert-on-failure",
+		func(
+			_ context.Context,
+			_ *osapi.Client,
+		) (*orchestrator.Result, error) {
+			fmt.Println("\n  [alert] optional-fail task failed — sending alert")
+
+			return &orchestrator.Result{
+				Changed: true,
+				Data:    map[string]any{"alerted": true},
+			}, nil
+		},
+	)
+	alertOnFailure.DependsOn(optionalFail)
+	alertOnFailure.When(func(results orchestrator.Results) bool {
+		r := results.Get("optional-fail")
+
+		return r != nil && r.Status == orchestrator.StatusFailed
 	})
 
 	// --- Structured DAG access ---
@@ -308,6 +355,7 @@ func main() {
 	}
 
 	// --- Detailed result inspection ---
+	// TaskResult.Data carries operation response data for post-run access.
 
 	fmt.Println("\nDetailed results:")
 
@@ -324,5 +372,10 @@ func main() {
 			r.Changed,
 			r.Duration,
 		)
+
+		if len(r.Data) > 0 {
+			b, _ := json.MarshalIndent(r.Data, "  "+strings.Repeat(" ", 20), "  ")
+			fmt.Printf("  %-20s data=%s\n", "", b)
+		}
 	}
 }

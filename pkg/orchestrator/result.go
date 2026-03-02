@@ -23,19 +23,32 @@ const (
 	StatusFailed    Status = "failed"
 )
 
+// HostResult represents a single host's response within a broadcast
+// operation.
+type HostResult struct {
+	Hostname string
+	Changed  bool
+	Error    string
+	Data     map[string]any
+}
+
 // Result is the outcome of a single task execution.
 type Result struct {
-	Changed bool
-	Data    map[string]any
+	Changed     bool
+	Data        map[string]any
+	Status      Status
+	HostResults []HostResult
 }
 
 // TaskResult records the full execution details of a task.
 type TaskResult struct {
-	Name     string
-	Status   Status
-	Changed  bool
-	Duration time.Duration
-	Error    error
+	Name        string
+	Status      Status
+	Changed     bool
+	Duration    time.Duration
+	Error       error
+	Data        map[string]any
+	HostResults []HostResult
 }
 
 // Results is a map of task name to Result, used for conditional logic.

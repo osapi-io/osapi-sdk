@@ -232,25 +232,31 @@ func (r *runner) runTask(
 ) TaskResult {
 	start := time.Now()
 
-	// Skip if any dependency failed (Continue strategy).
-	r.mu.Lock()
-	for _, dep := range t.deps {
-		if r.failed[dep.name] {
-			r.failed[t.name] = true
-			r.mu.Unlock()
+	// Skip if any dependency failed — unless the task has a When guard,
+	// which may intentionally inspect failure status (e.g. alert-on-failure).
+	if t.guard == nil {
+		r.mu.Lock()
 
-			tr := TaskResult{
-				Name:     t.name,
-				Status:   StatusSkipped,
-				Duration: time.Since(start),
+		for _, dep := range t.deps {
+			if r.failed[dep.name] {
+				r.failed[t.name] = true
+				r.results[t.name] = &Result{Status: StatusSkipped}
+				r.mu.Unlock()
+
+				tr := TaskResult{
+					Name:     t.name,
+					Status:   StatusSkipped,
+					Duration: time.Since(start),
+				}
+				r.callOnSkip(t, "dependency failed")
+				r.callAfterTask(t, tr)
+
+				return tr
 			}
-			r.callOnSkip(t, "dependency failed")
-			r.callAfterTask(t, tr)
-
-			return tr
 		}
+
+		r.mu.Unlock()
 	}
-	r.mu.Unlock()
 
 	if t.requiresChange {
 		anyChanged := false
@@ -268,6 +274,10 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !anyChanged {
+			r.mu.Lock()
+			r.results[t.name] = &Result{Status: StatusSkipped}
+			r.mu.Unlock()
+
 			tr := TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
@@ -287,13 +297,21 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !shouldRun {
+			r.mu.Lock()
+			r.results[t.name] = &Result{Status: StatusSkipped}
+			r.mu.Unlock()
+
 			tr := TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
 				Duration: time.Since(start),
 			}
 
-			r.callOnSkip(t, "guard returned false")
+			reason := "guard returned false"
+			if t.guardReason != "" {
+				reason = t.guardReason
+			}
+			r.callOnSkip(t, reason)
 			r.callAfterTask(t, tr)
 
 			return tr
@@ -315,7 +333,13 @@ func (r *runner) runTask(
 	client := r.plan.client
 
 	for attempt := range maxAttempts {
-		if t.fn != nil {
+		if t.fnr != nil {
+			r.mu.Lock()
+			results := r.results
+			r.mu.Unlock()
+
+			result, err = t.fnr(ctx, client, results)
+		} else if t.fn != nil {
 			result, err = t.fn(ctx, client)
 		} else {
 			result, err = r.executeOp(ctx, t.op)
@@ -335,6 +359,7 @@ func (r *runner) runTask(
 	if err != nil {
 		r.mu.Lock()
 		r.failed[t.name] = true
+		r.results[t.name] = &Result{Status: StatusFailed}
 		r.mu.Unlock()
 
 		tr := TaskResult{
@@ -349,20 +374,24 @@ func (r *runner) runTask(
 		return tr
 	}
 
-	r.mu.Lock()
-	r.results[t.name] = result
-	r.mu.Unlock()
-
 	status := StatusUnchanged
 	if result.Changed {
 		status = StatusChanged
 	}
 
+	result.Status = status
+
+	r.mu.Lock()
+	r.results[t.name] = result
+	r.mu.Unlock()
+
 	tr := TaskResult{
-		Name:     t.name,
-		Status:   status,
-		Changed:  result.Changed,
-		Duration: elapsed,
+		Name:        t.name,
+		Status:      status,
+		Changed:     result.Changed,
+		Duration:    elapsed,
+		Data:        result.Data,
+		HostResults: result.HostResults,
 	}
 
 	r.callAfterTask(t, tr)
@@ -372,6 +401,59 @@ func (r *runner) runTask(
 
 // DefaultPollInterval is the interval between job status polls.
 var DefaultPollInterval = 500 * time.Millisecond
+
+// isCommandOp returns true for command execution operations.
+func isCommandOp(
+	operation string,
+) bool {
+	return operation == "command.exec.execute" ||
+		operation == "command.shell.execute"
+}
+
+// extractHostResults parses per-agent results from a broadcast
+// collection response.
+func extractHostResults(
+	data map[string]any,
+) []HostResult {
+	resultsRaw, ok := data["results"]
+	if !ok {
+		return nil
+	}
+
+	items, ok := resultsRaw.([]any)
+	if !ok {
+		return nil
+	}
+
+	hostResults := make([]HostResult, 0, len(items))
+
+	for _, item := range items {
+		m, ok := item.(map[string]any)
+		if !ok {
+			continue
+		}
+
+		hr := HostResult{
+			Data: m,
+		}
+
+		if h, ok := m["hostname"].(string); ok {
+			hr.Hostname = h
+		}
+
+		if c, ok := m["changed"].(bool); ok {
+			hr.Changed = c
+		}
+
+		if e, ok := m["error"].(string); ok {
+			hr.Error = e
+		}
+
+		hostResults = append(hostResults, hr)
+	}
+
+	return hostResults
+}
 
 // executeOp submits a declarative Op as a job via the SDK and polls
 // for completion.
@@ -415,7 +497,29 @@ func (r *runner) executeOp(
 
 	jobID := createResp.JSON201.JobId.String()
 
-	return r.pollJob(ctx, jobID)
+	result, err := r.pollJob(ctx, jobID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract per-host results for broadcast targets.
+	if IsBroadcastTarget(op.Target) {
+		result.HostResults = extractHostResults(result.Data)
+	}
+
+	// Non-zero exit for command operations = failure.
+	if isCommandOp(op.Operation) {
+		if exitCode, ok := result.Data["exit_code"].(float64); ok && exitCode != 0 {
+			result.Status = StatusFailed
+
+			return result, fmt.Errorf(
+				"command exited with code %d",
+				int(exitCode),
+			)
+		}
+	}
+
+	return result, nil
 }
 
 // pollJob polls a job until it reaches a terminal state.
@@ -466,6 +570,7 @@ func (r *runner) pollJob(
 				}
 
 				changed, _ := data["changed"].(bool)
+				delete(data, "changed")
 
 				return &Result{Changed: changed, Data: data}, nil
 			case "failed":

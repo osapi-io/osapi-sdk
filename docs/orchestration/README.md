@@ -69,6 +69,66 @@ plan := orchestrator.NewPlan(client, orchestrator.OnError(orchestrator.Continue)
 task.OnError(orchestrator.Retry(3)) // override for this task
 ```
 
+## Result Types
+
+### Result
+
+The `Result` struct returned by task functions:
+
+| Field         | Type             | Description                                    |
+| ------------- | ---------------- | ---------------------------------------------- |
+| `Changed`     | `bool`           | Whether the operation modified state           |
+| `Data`        | `map[string]any` | Operation-specific response data               |
+| `Status`      | `Status`         | Terminal status (`changed`, `unchanged`, etc.) |
+| `HostResults` | `[]HostResult`   | Per-host results for broadcast operations      |
+
+### TaskResult
+
+The `TaskResult` struct provided to `AfterTask` hooks and in `Report.Tasks`:
+
+| Field      | Type             | Description                                 |
+| ---------- | ---------------- | ------------------------------------------- |
+| `Name`     | `string`         | Task name                                   |
+| `Status`   | `Status`         | Terminal status                             |
+| `Changed`  | `bool`           | Whether the operation reported changes      |
+| `Duration` | `time.Duration`  | Execution time                              |
+| `Error`    | `error`          | Error if task failed; nil on success        |
+| `Data`     | `map[string]any` | Operation response data for post-run access |
+
+### HostResult
+
+Per-host data for broadcast operations (targeting `_all` or label selectors):
+
+| Field      | Type             | Description                        |
+| ---------- | ---------------- | ---------------------------------- |
+| `Hostname` | `string`         | Agent hostname                     |
+| `Changed`  | `bool`           | Whether this host reported changes |
+| `Error`    | `string`         | Error message; empty on success    |
+| `Data`     | `map[string]any` | Host-specific response data        |
+
+## TaskFuncWithResults
+
+Use `TaskFuncWithResults` when a task needs to read results from prior tasks:
+
+```go
+summarize := plan.TaskFuncWithResults(
+    "summarize",
+    func(ctx context.Context, client *osapi.Client, results orchestrator.Results) (*orchestrator.Result, error) {
+        r := results.Get("get-hostname")
+        hostname := r.Data["hostname"].(string)
+
+        return &orchestrator.Result{
+            Changed: true,
+            Data:    map[string]any{"summary": hostname},
+        }, nil
+    },
+)
+summarize.DependsOn(getHostname)
+```
+
+Unlike `TaskFunc`, the function receives the `Results` map containing completed
+dependency outputs.
+
 ## Adding a New Operation
 
 When a new operation is added to OSAPI:
