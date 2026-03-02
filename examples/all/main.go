@@ -32,7 +32,7 @@
 //	check-health
 //	    ├── get-hostname ────────────┐
 //	    ├── get-disk                 │
-//	    ├── get-memory               ├── print-summary (only-if-changed, when)
+//	    ├── get-memory               ├── print-summary (TaskFuncWithResults, only-if-changed, when)
 //	    ├── get-load [retry:2] ──────┘
 //	    └── run-uptime [params] ─────┘
 //	optional-fail [continue] (independent, no deps on summary)
@@ -255,17 +255,27 @@ func main() {
 	optionalFail.OnError(orchestrator.Continue)
 
 	// Level 2: summary (depends on all queries, guard + OnlyIfChanged).
-	// Uses Results.Get() to read data from previous tasks.
-	summary := plan.TaskFunc(
+	// Uses TaskFuncWithResults to access completed results from prior tasks.
+	summary := plan.TaskFuncWithResults(
 		"print-summary",
 		func(
 			_ context.Context,
 			_ *osapi.Client,
+			results orchestrator.Results,
 		) (*orchestrator.Result, error) {
 			fmt.Println("\n  --- Fleet Summary ---")
-			fmt.Println("  All node queries completed.")
 
-			return &orchestrator.Result{Changed: false}, nil
+			r := results.Get("get-hostname")
+			if r != nil {
+				if h, ok := r.Data["hostname"].(string); ok {
+					fmt.Printf("  Hostname: %s\n", h)
+				}
+			}
+
+			return &orchestrator.Result{
+				Changed: false,
+				Data:    map[string]any{"completed": true},
+			}, nil
 		},
 	)
 	summary.DependsOn(getHostname, getDisk, getMemory, getLoad, runUptime)
@@ -273,7 +283,7 @@ func main() {
 	summary.When(func(results orchestrator.Results) bool {
 		r := results.Get("get-hostname")
 
-		return r != nil && r.Data["hostname"] != nil
+		return r != nil && r.Status == orchestrator.StatusChanged
 	})
 
 	// --- Structured DAG access ---
@@ -324,5 +334,12 @@ func main() {
 			r.Changed,
 			r.Duration,
 		)
+
+		// TaskResult.Data carries operation response data for post-run access.
+		if r.Data != nil {
+			if stdout, ok := r.Data["stdout"].(string); ok && stdout != "" {
+				fmt.Printf("  %-20s stdout=%q\n", "", stdout)
+			}
+		}
 	}
 }
