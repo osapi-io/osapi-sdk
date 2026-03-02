@@ -237,6 +237,7 @@ func (r *runner) runTask(
 	for _, dep := range t.deps {
 		if r.failed[dep.name] {
 			r.failed[t.name] = true
+			r.results[t.name] = &Result{Status: StatusSkipped}
 			r.mu.Unlock()
 
 			tr := TaskResult{
@@ -268,6 +269,10 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !anyChanged {
+			r.mu.Lock()
+			r.results[t.name] = &Result{Status: StatusSkipped}
+			r.mu.Unlock()
+
 			tr := TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
@@ -287,6 +292,10 @@ func (r *runner) runTask(
 		r.mu.Unlock()
 
 		if !shouldRun {
+			r.mu.Lock()
+			r.results[t.name] = &Result{Status: StatusSkipped}
+			r.mu.Unlock()
+
 			tr := TaskResult{
 				Name:     t.name,
 				Status:   StatusSkipped,
@@ -335,6 +344,7 @@ func (r *runner) runTask(
 	if err != nil {
 		r.mu.Lock()
 		r.failed[t.name] = true
+		r.results[t.name] = &Result{Status: StatusFailed}
 		r.mu.Unlock()
 
 		tr := TaskResult{
@@ -349,14 +359,16 @@ func (r *runner) runTask(
 		return tr
 	}
 
-	r.mu.Lock()
-	r.results[t.name] = result
-	r.mu.Unlock()
-
 	status := StatusUnchanged
 	if result.Changed {
 		status = StatusChanged
 	}
+
+	result.Status = status
+
+	r.mu.Lock()
+	r.results[t.name] = result
+	r.mu.Unlock()
 
 	tr := TaskResult{
 		Name:     t.name,
