@@ -1033,6 +1033,28 @@ func (s *PlanPublicTestSuite) TestRunHooks() {
 		s.Contains(skips[0], "guard returned false")
 	})
 
+	s.Run("skip hook for guard with custom reason", func() {
+		var events []string
+
+		hooks := allHooks(&events)
+		plan := orchestrator.NewPlan(nil, orchestrator.WithHooks(hooks))
+
+		a := plan.TaskFunc("a", taskFunc(false, nil))
+		b := plan.TaskFunc("b", taskFunc(true, nil))
+		b.DependsOn(a)
+		b.WhenWithReason(
+			func(_ orchestrator.Results) bool { return false },
+			"host is unreachable",
+		)
+
+		_, err := plan.Run(context.Background())
+		s.NoError(err)
+
+		skips := filterPrefix(events, "skip-")
+		s.Len(skips, 1)
+		s.Contains(skips[0], "host is unreachable")
+	})
+
 	s.Run("skip hook for only-if-changed", func() {
 		var events []string
 
