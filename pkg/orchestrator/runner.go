@@ -565,6 +565,7 @@ func (r *runner) pollJob(
 				}
 
 				changed, _ := data["changed"].(bool)
+				delete(data, "changed")
 
 				return &Result{Changed: changed, Data: data}, nil
 			case "failed":

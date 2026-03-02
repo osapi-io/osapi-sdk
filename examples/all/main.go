@@ -44,6 +44,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -372,8 +373,9 @@ func main() {
 			r.Duration,
 		)
 
-		for k, v := range r.Data {
-			fmt.Printf("  %-20s %s=%v\n", "", k, v)
+		if len(r.Data) > 0 {
+			b, _ := json.MarshalIndent(r.Data, "  "+strings.Repeat(" ", 20), "  ")
+			fmt.Printf("  %-20s data=%s\n", "", b)
 		}
 	}
 }
