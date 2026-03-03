@@ -8,8 +8,13 @@ before:
 builds:
   - skip: true
 
+archives:
+  - formats:
+    - binary
 checksum:
   name_template: 'checksums.txt'
+snapshot:
+  version_template: "{{ incpatch .Version }}.dev"
 changelog:
   sort: asc
   filters:
