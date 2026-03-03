@@ -12,13 +12,13 @@
 
 Go SDK for [OSAPI][] — client library and orchestration primitives.
 
-## Install
+## 📦 Install
 
 ```bash
 go get github.com/osapi-io/osapi-sdk
 ```
 
-## SDK Client
+## 🔌 SDK Client
 
 Typed Go client for every OSAPI endpoint. See the
 [client docs](docs/osapi/README.md) for targeting, options, and quick
@@ -35,7 +35,7 @@ start.
 | Audit   | List, get, export                                     | [docs](docs/osapi/audit.md)   | [`audit.go`](pkg/osapi/audit.go)     |
 | Metrics | Prometheus text                                       | [docs](docs/osapi/metrics.md) | [`metrics.go`](pkg/osapi/metrics.go) |
 
-## Orchestration
+## 🔀 Orchestration
 
 DAG-based task execution on top of the client. See the
 [orchestration docs](docs/orchestration/README.md) for hooks, error
@@ -69,7 +69,7 @@ strategies, and adding new operations.
 | `command.exec.execute`  | Execute a command      | No         | [docs](docs/orchestration/command-exec.md)       |
 | `command.shell.execute` | Execute a shell string | No         | [docs](docs/orchestration/command-shell.md)      |
 
-## Examples
+## 📋 Examples
 
 Each example is a standalone Go program you can read and run.
 
@@ -83,17 +83,17 @@ cd examples/discovery
 OSAPI_TOKEN="<jwt>" go run main.go
 ```
 
-## Documentation
+## 📖 Documentation
 
 See the [generated documentation][] for package-level API details.
 
-## Contributing
+## 🤝 Contributing
 
 See the [Development](docs/development.md) guide for prerequisites, setup,
 and conventions. See the [Contributing](docs/contributing.md) guide before
 submitting a PR.
 
-## License
+## 📄 License
 
 The [MIT][] License.
 
