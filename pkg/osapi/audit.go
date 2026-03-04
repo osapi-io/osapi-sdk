@@ -22,6 +22,7 @@ package osapi
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 
@@ -38,31 +39,96 @@ func (s *AuditService) List(
 	ctx context.Context,
 	limit int,
 	offset int,
-) (*gen.GetAuditLogsResponse, error) {
+) (*Response[AuditList], error) {
 	params := &gen.GetAuditLogsParams{
 		Limit:  &limit,
 		Offset: &offset,
 	}
 
-	return s.client.GetAuditLogsWithResponse(ctx, params)
+	resp, err := s.client.GetAuditLogsWithResponse(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf("list audit logs: %w", err)
+	}
+
+	if err := checkError(
+		resp.StatusCode(),
+		resp.JSON400,
+		resp.JSON401,
+		resp.JSON403,
+		resp.JSON500,
+	); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(auditListFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Get retrieves a single audit log entry by ID.
 func (s *AuditService) Get(
 	ctx context.Context,
 	id string,
-) (*gen.GetAuditLogByIDResponse, error) {
+) (*Response[AuditEntry], error) {
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.client.GetAuditLogByIDWithResponse(ctx, parsedID)
+	resp, err := s.client.GetAuditLogByIDWithResponse(ctx, parsedID)
+	if err != nil {
+		return nil, fmt.Errorf("get audit log %s: %w", id, err)
+	}
+
+	if err := checkError(
+		resp.StatusCode(),
+		resp.JSON401,
+		resp.JSON403,
+		resp.JSON404,
+		resp.JSON500,
+	); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(auditEntryFromGen(resp.JSON200.Entry), resp.Body), nil
 }
 
 // Export retrieves all audit log entries for export.
 func (s *AuditService) Export(
 	ctx context.Context,
-) (*gen.GetAuditExportResponse, error) {
-	return s.client.GetAuditExportWithResponse(ctx)
+) (*Response[AuditList], error) {
+	resp, err := s.client.GetAuditExportWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("export audit logs: %w", err)
+	}
+
+	if err := checkError(
+		resp.StatusCode(),
+		resp.JSON401,
+		resp.JSON403,
+		resp.JSON500,
+	); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(auditListFromGen(resp.JSON200), resp.Body), nil
 }

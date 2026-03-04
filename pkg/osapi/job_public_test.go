@@ -22,6 +22,7 @@ package osapi_test
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -35,31 +36,11 @@ import (
 type JobPublicTestSuite struct {
 	suite.Suite
 
-	ctx    context.Context
-	server *httptest.Server
-	sut    *osapi.Client
+	ctx context.Context
 }
 
 func (suite *JobPublicTestSuite) SetupTest() {
 	suite.ctx = context.Background()
-
-	suite.server = httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{}`))
-		}),
-	)
-
-	suite.sut = osapi.New(
-		suite.server.URL,
-		"test-token",
-		osapi.WithLogger(slog.Default()),
-	)
-}
-
-func (suite *JobPublicTestSuite) TearDownTest() {
-	suite.server.Close()
 }
 
 func (suite *JobPublicTestSuite) TestCreate() {
@@ -67,22 +48,81 @@ func (suite *JobPublicTestSuite) TestCreate() {
 		name         string
 		operation    map[string]interface{}
 		target       string
-		validateFunc func(error)
+		validateFunc func(*osapi.Response[osapi.JobCreated], error)
 	}{
 		{
-			name:      "when creating job returns no error",
+			name:      "when creating job returns response",
 			operation: map[string]interface{}{"type": "system.hostname.get"},
 			target:    "_any",
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobCreated], err error) {
 				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal("550e8400-e29b-41d4-a716-446655440000", resp.Data.JobID)
+				suite.Equal("pending", resp.Data.Status)
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Job.Create(suite.ctx, tc.operation, tc.target)
-			tc.validateFunc(err)
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusCreated)
+					_, _ = w.Write([]byte(`{"job_id":"550e8400-e29b-41d4-a716-446655440000","status":"pending"}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Job.Create(suite.ctx, tc.operation, tc.target)
+			tc.validateFunc(resp, err)
+		})
+	}
+}
+
+func (suite *JobPublicTestSuite) TestCreateError() {
+	tests := []struct {
+		name         string
+		validateFunc func(*osapi.Response[osapi.JobCreated], error)
+	}{
+		{
+			name: "when server returns 400 returns ValidationError",
+			validateFunc: func(resp *osapi.Response[osapi.JobCreated], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.ValidationError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusBadRequest, target.StatusCode)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusBadRequest)
+					_, _ = w.Write([]byte(`{"error":"validation failed"}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Job.Create(suite.ctx, map[string]interface{}{}, "_any")
+			tc.validateFunc(resp, err)
 		})
 	}
 }
@@ -91,20 +131,24 @@ func (suite *JobPublicTestSuite) TestGet() {
 	tests := []struct {
 		name         string
 		id           string
-		validateFunc func(error)
+		validateFunc func(*osapi.Response[osapi.JobDetail], error)
 	}{
 		{
-			name: "when valid UUID returns no error",
+			name: "when valid UUID returns response",
 			id:   "550e8400-e29b-41d4-a716-446655440000",
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobDetail], err error) {
 				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal("550e8400-e29b-41d4-a716-446655440000", resp.Data.ID)
+				suite.Equal("completed", resp.Data.Status)
 			},
 		},
 		{
 			name: "when invalid UUID returns error",
 			id:   "not-a-uuid",
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobDetail], err error) {
 				suite.Error(err)
+				suite.Nil(resp)
 				suite.Contains(err.Error(), "invalid job ID")
 			},
 		},
@@ -112,8 +156,65 @@ func (suite *JobPublicTestSuite) TestGet() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Job.Get(suite.ctx, tc.id)
-			tc.validateFunc(err)
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(`{"id":"550e8400-e29b-41d4-a716-446655440000","status":"completed"}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Job.Get(suite.ctx, tc.id)
+			tc.validateFunc(resp, err)
+		})
+	}
+}
+
+func (suite *JobPublicTestSuite) TestGetNotFound() {
+	tests := []struct {
+		name         string
+		validateFunc func(*osapi.Response[osapi.JobDetail], error)
+	}{
+		{
+			name: "when server returns 404 returns NotFoundError",
+			validateFunc: func(resp *osapi.Response[osapi.JobDetail], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.NotFoundError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusNotFound, target.StatusCode)
+				suite.Equal("job not found", target.Message)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusNotFound)
+					_, _ = w.Write([]byte(`{"error":"job not found"}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Job.Get(suite.ctx, "550e8400-e29b-41d4-a716-446655440000")
+			tc.validateFunc(resp, err)
 		})
 	}
 }
@@ -143,7 +244,61 @@ func (suite *JobPublicTestSuite) TestDelete() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Job.Delete(suite.ctx, tc.id)
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.WriteHeader(http.StatusNoContent)
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			err := sut.Job.Delete(suite.ctx, tc.id)
+			tc.validateFunc(err)
+		})
+	}
+}
+
+func (suite *JobPublicTestSuite) TestDeleteNotFound() {
+	tests := []struct {
+		name         string
+		validateFunc func(error)
+	}{
+		{
+			name: "when server returns 404 returns NotFoundError",
+			validateFunc: func(err error) {
+				suite.Error(err)
+
+				var target *osapi.NotFoundError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusNotFound, target.StatusCode)
+				suite.Equal("job not found", target.Message)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusNotFound)
+					_, _ = w.Write([]byte(`{"error":"job not found"}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			err := sut.Job.Delete(suite.ctx, "550e8400-e29b-41d4-a716-446655440000")
 			tc.validateFunc(err)
 		})
 	}
@@ -153,32 +308,51 @@ func (suite *JobPublicTestSuite) TestList() {
 	tests := []struct {
 		name         string
 		params       osapi.ListParams
-		validateFunc func(error)
+		validateFunc func(*osapi.Response[osapi.JobList], error)
 	}{
 		{
-			name:   "when no filters returns no error",
+			name:   "when no filters returns response",
 			params: osapi.ListParams{},
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobList], err error) {
 				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal(0, resp.Data.TotalItems)
+				suite.Empty(resp.Data.Items)
 			},
 		},
 		{
-			name: "when all filters provided returns no error",
+			name: "when all filters provided returns response",
 			params: osapi.ListParams{
 				Status: "completed",
 				Limit:  10,
 				Offset: 5,
 			},
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobList], err error) {
 				suite.NoError(err)
+				suite.NotNil(resp)
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Job.List(suite.ctx, tc.params)
-			tc.validateFunc(err)
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(`{"items":[],"total_items":0}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Job.List(suite.ctx, tc.params)
+			tc.validateFunc(resp, err)
 		})
 	}
 }
@@ -186,20 +360,37 @@ func (suite *JobPublicTestSuite) TestList() {
 func (suite *JobPublicTestSuite) TestQueueStats() {
 	tests := []struct {
 		name         string
-		validateFunc func(error)
+		validateFunc func(*osapi.Response[osapi.QueueStats], error)
 	}{
 		{
-			name: "when requesting queue stats returns no error",
-			validateFunc: func(err error) {
+			name: "when requesting queue stats returns response",
+			validateFunc: func(resp *osapi.Response[osapi.QueueStats], err error) {
 				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal(5, resp.Data.TotalJobs)
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Job.QueueStats(suite.ctx)
-			tc.validateFunc(err)
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(`{"total_jobs":5}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Job.QueueStats(suite.ctx)
+			tc.validateFunc(resp, err)
 		})
 	}
 }
@@ -209,30 +400,35 @@ func (suite *JobPublicTestSuite) TestRetry() {
 		name         string
 		id           string
 		target       string
-		validateFunc func(error)
+		validateFunc func(*osapi.Response[osapi.JobCreated], error)
 	}{
 		{
-			name:   "when valid UUID with empty target returns no error",
+			name:   "when valid UUID with empty target returns response",
 			id:     "550e8400-e29b-41d4-a716-446655440000",
 			target: "",
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobCreated], err error) {
 				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal("550e8400-e29b-41d4-a716-446655440000", resp.Data.JobID)
+				suite.Equal("pending", resp.Data.Status)
 			},
 		},
 		{
-			name:   "when valid UUID with target returns no error",
+			name:   "when valid UUID with target returns response",
 			id:     "550e8400-e29b-41d4-a716-446655440000",
 			target: "web-01",
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobCreated], err error) {
 				suite.NoError(err)
+				suite.NotNil(resp)
 			},
 		},
 		{
 			name:   "when invalid UUID returns error",
 			id:     "not-a-uuid",
 			target: "",
-			validateFunc: func(err error) {
+			validateFunc: func(resp *osapi.Response[osapi.JobCreated], err error) {
 				suite.Error(err)
+				suite.Nil(resp)
 				suite.Contains(err.Error(), "invalid job ID")
 			},
 		},
@@ -240,8 +436,23 @@ func (suite *JobPublicTestSuite) TestRetry() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			_, err := suite.sut.Job.Retry(suite.ctx, tc.id, tc.target)
-			tc.validateFunc(err)
+			server := httptest.NewServer(
+				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusCreated)
+					_, _ = w.Write([]byte(`{"job_id":"550e8400-e29b-41d4-a716-446655440000","status":"pending"}`))
+				}),
+			)
+			defer server.Close()
+
+			sut := osapi.New(
+				server.URL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Job.Retry(suite.ctx, tc.id, tc.target)
+			tc.validateFunc(resp, err)
 		})
 	}
 }

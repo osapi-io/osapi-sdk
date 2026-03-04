@@ -3,11 +3,8 @@ package orchestrator
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
-
-	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
 
 // runner executes a validated plan.
@@ -482,20 +479,7 @@ func (r *runner) executeOp(
 		return nil, fmt.Errorf("create job: %w", err)
 	}
 
-	if createResp.StatusCode() != http.StatusCreated {
-		return nil, fmt.Errorf(
-			"create job: %s",
-			messageFromResponse(
-				createResp.StatusCode(),
-				createResp.JSON400,
-				createResp.JSON401,
-				createResp.JSON403,
-				createResp.JSON500,
-			),
-		)
-	}
-
-	jobID := createResp.JSON201.JobId.String()
+	jobID := createResp.Data.JobID
 
 	result, err := r.pollJob(ctx, jobID)
 	if err != nil {
@@ -540,31 +524,13 @@ func (r *runner) pollJob(
 				return nil, fmt.Errorf("poll job %s: %w", jobID, err)
 			}
 
-			if resp.StatusCode() != http.StatusOK {
-				return nil, fmt.Errorf(
-					"poll job %s: %s",
-					jobID,
-					messageFromResponse(
-						resp.StatusCode(),
-						resp.JSON400,
-						resp.JSON401,
-						resp.JSON403,
-						resp.JSON404,
-						resp.JSON500,
-					),
-				)
-			}
+			job := resp.Data
 
-			status := ""
-			if resp.JSON200.Status != nil {
-				status = *resp.JSON200.Status
-			}
-
-			switch status {
+			switch job.Status {
 			case "completed":
 				data := make(map[string]any)
-				if resp.JSON200.Result != nil {
-					if m, ok := resp.JSON200.Result.(map[string]any); ok {
+				if job.Result != nil {
+					if m, ok := job.Result.(map[string]any); ok {
 						data = m
 					}
 				}
@@ -575,30 +541,14 @@ func (r *runner) pollJob(
 				return &Result{Changed: changed, Data: data}, nil
 			case "failed":
 				errMsg := "job failed"
-				if resp.JSON200.Error != nil {
-					errMsg = *resp.JSON200.Error
+				if job.Error != "" {
+					errMsg = job.Error
 				}
 
 				return nil, fmt.Errorf("job %s: %s", jobID, errMsg)
 			}
 		}
 	}
-}
-
-// messageFromResponse extracts a human-readable error message from
-// generated ErrorResponse pointers. It returns the first non-nil
-// error message found, or falls back to the HTTP status code.
-func messageFromResponse(
-	statusCode int,
-	responses ...*gen.ErrorResponse,
-) string {
-	for _, r := range responses {
-		if r != nil && r.Error != nil {
-			return *r.Error
-		}
-	}
-
-	return fmt.Sprintf("unexpected status %d", statusCode)
 }
 
 // levelize groups tasks into levels where all tasks in a level can

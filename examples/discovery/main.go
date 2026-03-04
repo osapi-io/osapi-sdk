@@ -36,7 +36,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 
@@ -146,16 +145,9 @@ func main() {
 		ctx context.Context,
 		c *osapi.Client,
 	) (*orchestrator.Result, error) {
-		resp, err := c.Health.Liveness(ctx)
+		_, err := c.Health.Liveness(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("health check: %w", err)
-		}
-
-		if resp.StatusCode() != http.StatusOK {
-			return nil, fmt.Errorf(
-				"API not healthy: %d",
-				resp.StatusCode(),
-			)
 		}
 
 		return &orchestrator.Result{Changed: false}, nil
@@ -171,24 +163,15 @@ func main() {
 			return nil, fmt.Errorf("list agents: %w", err)
 		}
 
-		if resp.StatusCode() != http.StatusOK {
-			return nil, fmt.Errorf(
-				"list agents: %d",
-				resp.StatusCode(),
-			)
-		}
-
-		agents := resp.JSON200
-
-		hostnames := make([]string, len(agents.Agents))
-		for i, a := range agents.Agents {
+		hostnames := make([]string, len(resp.Data.Agents))
+		for i, a := range resp.Data.Agents {
 			hostnames[i] = a.Hostname
 		}
 
 		return &orchestrator.Result{
 			Changed: false,
 			Data: map[string]any{
-				"total":     agents.Total,
+				"total":     resp.Data.Total,
 				"hostnames": hostnames,
 			},
 		}, nil
@@ -204,21 +187,12 @@ func main() {
 			return nil, fmt.Errorf("get status: %w", err)
 		}
 
-		if resp.StatusCode() != http.StatusOK {
-			return nil, fmt.Errorf(
-				"get status: %d",
-				resp.StatusCode(),
-			)
-		}
-
-		s := resp.JSON200
-
 		return &orchestrator.Result{
 			Changed: false,
 			Data: map[string]any{
-				"status":  s.Status,
-				"version": s.Version,
-				"uptime":  s.Uptime,
+				"status":  resp.Data.Status,
+				"version": resp.Data.Version,
+				"uptime":  resp.Data.Uptime,
 			},
 		}, nil
 	})
@@ -228,16 +202,9 @@ func main() {
 		ctx context.Context,
 		c *osapi.Client,
 	) (*orchestrator.Result, error) {
-		resp, err := c.Node.Load(ctx, "_any")
+		_, err := c.Node.Load(ctx, "_any")
 		if err != nil {
 			return nil, fmt.Errorf("get load: %w", err)
-		}
-
-		if resp.StatusCode() != http.StatusOK {
-			return nil, fmt.Errorf(
-				"get load: %d",
-				resp.StatusCode(),
-			)
 		}
 
 		return &orchestrator.Result{Changed: false}, nil
@@ -248,16 +215,9 @@ func main() {
 		ctx context.Context,
 		c *osapi.Client,
 	) (*orchestrator.Result, error) {
-		resp, err := c.Node.Memory(ctx, "_any")
+		_, err := c.Node.Memory(ctx, "_any")
 		if err != nil {
 			return nil, fmt.Errorf("get memory: %w", err)
-		}
-
-		if resp.StatusCode() != http.StatusOK {
-			return nil, fmt.Errorf(
-				"get memory: %d",
-				resp.StatusCode(),
-			)
 		}
 
 		return &orchestrator.Result{Changed: false}, nil

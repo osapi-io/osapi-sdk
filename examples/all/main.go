@@ -191,16 +191,9 @@ func main() {
 			ctx context.Context,
 			c *osapi.Client,
 		) (*orchestrator.Result, error) {
-			resp, err := c.Health.Liveness(ctx)
+			_, err := c.Health.Liveness(ctx)
 			if err != nil {
 				return nil, fmt.Errorf("health check: %w", err)
-			}
-
-			if resp.StatusCode() != 200 {
-				return nil, fmt.Errorf(
-					"unhealthy: status %d",
-					resp.StatusCode(),
-				)
 			}
 
 			return &orchestrator.Result{Changed: false}, nil
