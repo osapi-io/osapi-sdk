@@ -47,9 +47,9 @@ the request:
 | `hostname`  | Send to a specific host                     |
 | `key:value` | Send to agents matching a label             |
 
-Agents expose labels (used for targeting) and extended system facts via
-`client.Agent.Get()`. Facts come from agent-side providers and include OS,
-hardware, and network details.
+Agents expose labels (used for targeting) and structured system details
+(OS, CPU, memory, network interfaces) via `client.Agent.Get()`. An
+additional `Facts` map carries open-ended data from agent-side providers.
 
 ## 🔀 Orchestration
 
