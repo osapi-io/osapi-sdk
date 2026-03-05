@@ -79,7 +79,7 @@ func main() {
 	fmt.Printf("  Status:       %s\n", a.Status)
 	fmt.Printf("  Architecture: %s\n", a.Architecture)
 	fmt.Printf("  Kernel:       %s\n", a.KernelVersion)
-	fmt.Printf("  CPUs:         %d\n", a.CpuCount)
+	fmt.Printf("  CPUs:         %d\n", a.CPUCount)
 	fmt.Printf("  FQDN:         %s\n", a.Fqdn)
 	fmt.Printf("  Package Mgr:  %s\n", a.PackageMgr)
 	fmt.Printf("  Service Mgr:  %s\n", a.ServiceMgr)

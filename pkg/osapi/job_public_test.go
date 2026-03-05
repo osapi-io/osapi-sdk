@@ -149,7 +149,7 @@ func (suite *JobPublicTestSuite) TestCreateHTTPError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 			)
 			server.Close()
 
@@ -276,7 +276,7 @@ func (suite *JobPublicTestSuite) TestGetHTTPError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 			)
 			server.Close()
 
@@ -434,7 +434,7 @@ func (suite *JobPublicTestSuite) TestDeleteHTTPError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 			)
 			server.Close()
 
@@ -562,7 +562,7 @@ func (suite *JobPublicTestSuite) TestListHTTPError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 			)
 			server.Close()
 
@@ -714,7 +714,7 @@ func (suite *JobPublicTestSuite) TestQueueStatsHTTPError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 			)
 			server.Close()
 
@@ -894,7 +894,7 @@ func (suite *JobPublicTestSuite) TestRetryHTTPError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 			)
 			server.Close()
 

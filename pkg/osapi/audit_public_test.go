@@ -116,7 +116,7 @@ func (suite *AuditPublicTestSuite) TestListError() {
 			name: "when HTTP request fails returns error",
 			setupServer: func() *httptest.Server {
 				server := httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+					http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 				)
 				server.Close()
 
@@ -252,7 +252,7 @@ func (suite *AuditPublicTestSuite) TestGetError() {
 			name: "when HTTP request fails returns error",
 			setupServer: func() *httptest.Server {
 				server := httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+					http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 				)
 				server.Close()
 
@@ -372,7 +372,7 @@ func (suite *AuditPublicTestSuite) TestExportError() {
 			name: "when HTTP request fails returns error",
 			setupServer: func() *httptest.Server {
 				server := httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}),
+					http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
 				)
 				server.Close()
 

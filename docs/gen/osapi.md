@@ -155,7 +155,7 @@ type Agent struct {
     Status        string
     Labels        map[string]string
     Architecture  string
-    CpuCount      int
+    CPUCount      int
     Fqdn          string
     KernelVersion string
     PackageMgr    string
