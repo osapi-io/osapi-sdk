@@ -34,6 +34,13 @@ const (
 	DNSUpdateResultItemStatusOk     DNSUpdateResultItemStatus = "ok"
 )
 
+// Defines values for NetworkInterfaceResponseFamily.
+const (
+	Dual  NetworkInterfaceResponseFamily = "dual"
+	Inet  NetworkInterfaceResponseFamily = "inet"
+	Inet6 NetworkInterfaceResponseFamily = "inet6"
+)
+
 // Defines values for GetJobParamsStatus.
 const (
 	GetJobParamsStatusCompleted      GetJobParamsStatus = "completed"
@@ -57,8 +64,24 @@ type AgentDetail struct {
 
 // AgentInfo defines model for AgentInfo.
 type AgentInfo struct {
+	// Architecture CPU architecture.
+	Architecture *string `json:"architecture,omitempty"`
+
+	// CpuCount Number of logical CPUs.
+	CpuCount *int `json:"cpu_count,omitempty"`
+
+	// Facts Extended facts from additional providers.
+	Facts *map[string]interface{} `json:"facts,omitempty"`
+
+	// Fqdn Fully qualified domain name.
+	Fqdn *string `json:"fqdn,omitempty"`
+
 	// Hostname The hostname of the agent.
-	Hostname string `json:"hostname"`
+	Hostname   string                      `json:"hostname"`
+	Interfaces *[]NetworkInterfaceResponse `json:"interfaces,omitempty"`
+
+	// KernelVersion OS kernel version.
+	KernelVersion *string `json:"kernel_version,omitempty"`
 
 	// Labels Key-value labels configured on the agent.
 	Labels *map[string]string `json:"labels,omitempty"`
@@ -72,8 +95,14 @@ type AgentInfo struct {
 	// OsInfo Operating system information.
 	OsInfo *OSInfoResponse `json:"os_info,omitempty"`
 
+	// PackageMgr Package manager.
+	PackageMgr *string `json:"package_mgr,omitempty"`
+
 	// RegisteredAt When the agent last refreshed its heartbeat.
 	RegisteredAt *time.Time `json:"registered_at,omitempty"`
+
+	// ServiceMgr Init system.
+	ServiceMgr *string `json:"service_mgr,omitempty"`
 
 	// StartedAt When the agent process started.
 	StartedAt *time.Time `json:"started_at,omitempty"`
@@ -569,6 +598,19 @@ type NATSInfo struct {
 	// Version NATS server version.
 	Version string `json:"version"`
 }
+
+// NetworkInterfaceResponse defines model for NetworkInterfaceResponse.
+type NetworkInterfaceResponse struct {
+	// Family IP address family.
+	Family *NetworkInterfaceResponseFamily `json:"family,omitempty"`
+	Ipv4   *string                         `json:"ipv4,omitempty"`
+	Ipv6   *string                         `json:"ipv6,omitempty"`
+	Mac    *string                         `json:"mac,omitempty"`
+	Name   string                          `json:"name"`
+}
+
+// NetworkInterfaceResponseFamily IP address family.
+type NetworkInterfaceResponseFamily string
 
 // NodeStatusCollectionResponse defines model for NodeStatusCollectionResponse.
 type NodeStatusCollectionResponse struct {

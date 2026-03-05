@@ -22,6 +22,7 @@ package osapi
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
@@ -34,14 +35,46 @@ type AgentService struct {
 // List retrieves all active agents.
 func (s *AgentService) List(
 	ctx context.Context,
-) (*gen.GetAgentResponse, error) {
-	return s.client.GetAgentWithResponse(ctx)
+) (*Response[AgentList], error) {
+	resp, err := s.client.GetAgentWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list agents: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(agentListFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Get retrieves detailed information about a specific agent by hostname.
 func (s *AgentService) Get(
 	ctx context.Context,
 	hostname string,
-) (*gen.GetAgentDetailsResponse, error) {
-	return s.client.GetAgentDetailsWithResponse(ctx, hostname)
+) (*Response[Agent], error) {
+	resp, err := s.client.GetAgentDetailsWithResponse(ctx, hostname)
+	if err != nil {
+		return nil, fmt.Errorf("get agent %s: %w", hostname, err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON401, resp.JSON403, resp.JSON404, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(agentFromGen(resp.JSON200), resp.Body), nil
 }
