@@ -4,3 +4,8 @@ dist/
 docs/node_modules/
 docs/bun.lock
 .just/
+
+examples/*/*
+!examples/*/*.go
+!examples/*/*.mod
+!examples/*/*.sum
