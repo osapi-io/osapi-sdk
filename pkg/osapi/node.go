@@ -22,6 +22,7 @@ package osapi
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
@@ -71,56 +72,168 @@ type ShellRequest struct {
 func (s *NodeService) Status(
 	ctx context.Context,
 	target string,
-) (*gen.GetNodeStatusResponse, error) {
-	return s.client.GetNodeStatusWithResponse(ctx, target)
+) (*Response[Collection[NodeStatus]], error) {
+	resp, err := s.client.GetNodeStatusWithResponse(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("get status: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(nodeStatusCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Hostname retrieves the hostname from the target host.
 func (s *NodeService) Hostname(
 	ctx context.Context,
 	target string,
-) (*gen.GetNodeHostnameResponse, error) {
-	return s.client.GetNodeHostnameWithResponse(ctx, target)
+) (*Response[Collection[HostnameResult]], error) {
+	resp, err := s.client.GetNodeHostnameWithResponse(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("get hostname: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(hostnameCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Disk retrieves disk usage information from the target host.
 func (s *NodeService) Disk(
 	ctx context.Context,
 	target string,
-) (*gen.GetNodeDiskResponse, error) {
-	return s.client.GetNodeDiskWithResponse(ctx, target)
+) (*Response[Collection[DiskResult]], error) {
+	resp, err := s.client.GetNodeDiskWithResponse(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("get disk: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(diskCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Memory retrieves memory usage information from the target host.
 func (s *NodeService) Memory(
 	ctx context.Context,
 	target string,
-) (*gen.GetNodeMemoryResponse, error) {
-	return s.client.GetNodeMemoryWithResponse(ctx, target)
+) (*Response[Collection[MemoryResult]], error) {
+	resp, err := s.client.GetNodeMemoryWithResponse(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("get memory: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(memoryCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Load retrieves load average information from the target host.
 func (s *NodeService) Load(
 	ctx context.Context,
 	target string,
-) (*gen.GetNodeLoadResponse, error) {
-	return s.client.GetNodeLoadWithResponse(ctx, target)
+) (*Response[Collection[LoadResult]], error) {
+	resp, err := s.client.GetNodeLoadWithResponse(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("get load: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(loadCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // OS retrieves operating system information from the target host.
 func (s *NodeService) OS(
 	ctx context.Context,
 	target string,
-) (*gen.GetNodeOSResponse, error) {
-	return s.client.GetNodeOSWithResponse(ctx, target)
+) (*Response[Collection[OSInfoResult]], error) {
+	resp, err := s.client.GetNodeOSWithResponse(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("get os: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(osInfoCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Uptime retrieves uptime information from the target host.
 func (s *NodeService) Uptime(
 	ctx context.Context,
 	target string,
-) (*gen.GetNodeUptimeResponse, error) {
-	return s.client.GetNodeUptimeWithResponse(ctx, target)
+) (*Response[Collection[UptimeResult]], error) {
+	resp, err := s.client.GetNodeUptimeWithResponse(ctx, target)
+	if err != nil {
+		return nil, fmt.Errorf("get uptime: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(uptimeCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // GetDNS retrieves DNS configuration for a network interface on the
@@ -129,8 +242,24 @@ func (s *NodeService) GetDNS(
 	ctx context.Context,
 	target string,
 	interfaceName string,
-) (*gen.GetNodeNetworkDNSByInterfaceResponse, error) {
-	return s.client.GetNodeNetworkDNSByInterfaceWithResponse(ctx, target, interfaceName)
+) (*Response[Collection[DNSConfig]], error) {
+	resp, err := s.client.GetNodeNetworkDNSByInterfaceWithResponse(ctx, target, interfaceName)
+	if err != nil {
+		return nil, fmt.Errorf("get dns: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(dnsConfigCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // UpdateDNS updates DNS configuration for a network interface on the
@@ -141,7 +270,7 @@ func (s *NodeService) UpdateDNS(
 	interfaceName string,
 	servers []string,
 	searchDomains []string,
-) (*gen.PutNodeNetworkDNSResponse, error) {
+) (*Response[Collection[DNSUpdateResult]], error) {
 	body := gen.DNSConfigUpdateRequest{
 		InterfaceName: interfaceName,
 	}
@@ -154,7 +283,23 @@ func (s *NodeService) UpdateDNS(
 		body.SearchDomains = &searchDomains
 	}
 
-	return s.client.PutNodeNetworkDNSWithResponse(ctx, target, body)
+	resp, err := s.client.PutNodeNetworkDNSWithResponse(ctx, target, body)
+	if err != nil {
+		return nil, fmt.Errorf("update dns: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON202 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(dnsUpdateCollectionFromGen(resp.JSON202), resp.Body), nil
 }
 
 // Ping sends an ICMP ping to the specified address from the target host.
@@ -162,19 +307,35 @@ func (s *NodeService) Ping(
 	ctx context.Context,
 	target string,
 	address string,
-) (*gen.PostNodeNetworkPingResponse, error) {
+) (*Response[Collection[PingResult]], error) {
 	body := gen.PostNodeNetworkPingJSONRequestBody{
 		Address: address,
 	}
 
-	return s.client.PostNodeNetworkPingWithResponse(ctx, target, body)
+	resp, err := s.client.PostNodeNetworkPingWithResponse(ctx, target, body)
+	if err != nil {
+		return nil, fmt.Errorf("ping: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(pingCollectionFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Exec executes a command directly without a shell interpreter.
 func (s *NodeService) Exec(
 	ctx context.Context,
 	req ExecRequest,
-) (*gen.PostNodeCommandExecResponse, error) {
+) (*Response[Collection[CommandResult]], error) {
 	body := gen.CommandExecRequest{
 		Command: req.Command,
 	}
@@ -191,7 +352,23 @@ func (s *NodeService) Exec(
 		body.Timeout = &req.Timeout
 	}
 
-	return s.client.PostNodeCommandExecWithResponse(ctx, req.Target, body)
+	resp, err := s.client.PostNodeCommandExecWithResponse(ctx, req.Target, body)
+	if err != nil {
+		return nil, fmt.Errorf("exec command: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON202 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(commandCollectionFromGen(resp.JSON202), resp.Body), nil
 }
 
 // Shell executes a command through /bin/sh -c with shell features
@@ -199,7 +376,7 @@ func (s *NodeService) Exec(
 func (s *NodeService) Shell(
 	ctx context.Context,
 	req ShellRequest,
-) (*gen.PostNodeCommandShellResponse, error) {
+) (*Response[Collection[CommandResult]], error) {
 	body := gen.CommandShellRequest{
 		Command: req.Command,
 	}
@@ -212,5 +389,21 @@ func (s *NodeService) Shell(
 		body.Timeout = &req.Timeout
 	}
 
-	return s.client.PostNodeCommandShellWithResponse(ctx, req.Target, body)
+	resp, err := s.client.PostNodeCommandShellWithResponse(ctx, req.Target, body)
+	if err != nil {
+		return nil, fmt.Errorf("shell command: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON202 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(commandCollectionFromGen(resp.JSON202), resp.Body), nil
 }

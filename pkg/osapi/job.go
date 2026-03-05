@@ -39,39 +39,80 @@ func (s *JobService) Create(
 	ctx context.Context,
 	operation map[string]interface{},
 	target string,
-) (*gen.PostJobResponse, error) {
+) (*Response[JobCreated], error) {
 	body := gen.CreateJobRequest{
 		Operation:      operation,
 		TargetHostname: target,
 	}
 
-	return s.client.PostJobWithResponse(ctx, body)
+	resp, err := s.client.PostJobWithResponse(ctx, body)
+	if err != nil {
+		return nil, fmt.Errorf("create job: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON201 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(jobCreatedFromGen(resp.JSON201), resp.Body), nil
 }
 
 // Get retrieves a job by ID.
 func (s *JobService) Get(
 	ctx context.Context,
 	id string,
-) (*gen.GetJobByIDResponse, error) {
+) (*Response[JobDetail], error) {
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, fmt.Errorf("invalid job ID: %w", err)
 	}
 
-	return s.client.GetJobByIDWithResponse(ctx, parsedID)
+	resp, err := s.client.GetJobByIDWithResponse(ctx, parsedID)
+	if err != nil {
+		return nil, fmt.Errorf("get job: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON404, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(jobDetailFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Delete deletes a job by ID.
 func (s *JobService) Delete(
 	ctx context.Context,
 	id string,
-) (*gen.DeleteJobByIDResponse, error) {
+) error {
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		return nil, fmt.Errorf("invalid job ID: %w", err)
+		return fmt.Errorf("invalid job ID: %w", err)
 	}
 
-	return s.client.DeleteJobByIDWithResponse(ctx, parsedID)
+	resp, err := s.client.DeleteJobByIDWithResponse(ctx, parsedID)
+	if err != nil {
+		return fmt.Errorf("delete job: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON404, resp.JSON500); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ListParams contains optional filters for listing jobs.
@@ -91,7 +132,7 @@ type ListParams struct {
 func (s *JobService) List(
 	ctx context.Context,
 	params ListParams,
-) (*gen.GetJobResponse, error) {
+) (*Response[JobList], error) {
 	p := &gen.GetJobParams{}
 
 	if params.Status != "" {
@@ -107,14 +148,46 @@ func (s *JobService) List(
 		p.Offset = &params.Offset
 	}
 
-	return s.client.GetJobWithResponse(ctx, p)
+	resp, err := s.client.GetJobWithResponse(ctx, p)
+	if err != nil {
+		return nil, fmt.Errorf("list jobs: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(jobListFromGen(resp.JSON200), resp.Body), nil
 }
 
 // QueueStats retrieves job queue statistics.
 func (s *JobService) QueueStats(
 	ctx context.Context,
-) (*gen.GetJobStatusResponse, error) {
-	return s.client.GetJobStatusWithResponse(ctx)
+) (*Response[QueueStats], error) {
+	resp, err := s.client.GetJobStatusWithResponse(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("queue stats: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(queueStatsFromGen(resp.JSON200), resp.Body), nil
 }
 
 // Retry retries a failed job by ID, optionally on a different target.
@@ -122,7 +195,7 @@ func (s *JobService) Retry(
 	ctx context.Context,
 	id string,
 	target string,
-) (*gen.RetryJobByIDResponse, error) {
+) (*Response[JobCreated], error) {
 	parsedID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, fmt.Errorf("invalid job ID: %w", err)
@@ -133,5 +206,21 @@ func (s *JobService) Retry(
 		body.TargetHostname = &target
 	}
 
-	return s.client.RetryJobByIDWithResponse(ctx, parsedID, body)
+	resp, err := s.client.RetryJobByIDWithResponse(ctx, parsedID, body)
+	if err != nil {
+		return nil, fmt.Errorf("retry job: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON404, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON201 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(jobCreatedFromGen(resp.JSON201), resp.Body), nil
 }

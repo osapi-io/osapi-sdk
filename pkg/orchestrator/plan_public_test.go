@@ -839,7 +839,7 @@ func (s *PlanPublicTestSuite) TestRunOpTaskErrors() {
 			validateFunc: func(report *orchestrator.Report, err error) {
 				s.Error(err)
 				s.NotNil(report)
-				s.Contains(err.Error(), "unexpected status 200")
+				s.Contains(err.Error(), "nil response body")
 			},
 		},
 		{

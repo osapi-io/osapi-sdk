@@ -1,0 +1,243 @@
+// Copyright (c) 2026 John Dewey
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
+package osapi
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/suite"
+
+	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
+)
+
+type AgentTypesTestSuite struct {
+	suite.Suite
+}
+
+func (suite *AgentTypesTestSuite) TestAgentFromGen() {
+	now := time.Now().UTC().Truncate(time.Second)
+	startedAt := now.Add(-1 * time.Hour)
+
+	tests := []struct {
+		name         string
+		input        *gen.AgentInfo
+		validateFunc func(Agent)
+	}{
+		{
+			name: "when all fields are populated",
+			input: func() *gen.AgentInfo {
+				labels := map[string]string{"group": "web", "env": "prod"}
+				arch := "amd64"
+				cpuCount := 8
+				fqdn := "web-01.example.com"
+				kernelVersion := "5.15.0-generic"
+				packageMgr := "apt"
+				serviceMgr := "systemd"
+				uptime := "5d 3h 22m"
+				family := gen.NetworkInterfaceResponseFamily("inet")
+				ipv4 := "192.168.1.10"
+				ipv6 := "fe80::1"
+				mac := "00:11:22:33:44:55"
+				facts := map[string]interface{}{"custom_key": "custom_value"}
+
+				return &gen.AgentInfo{
+					Hostname:      "web-01",
+					Status:        gen.AgentInfoStatus("Ready"),
+					Labels:        &labels,
+					Architecture:  &arch,
+					CpuCount:      &cpuCount,
+					Fqdn:          &fqdn,
+					KernelVersion: &kernelVersion,
+					PackageMgr:    &packageMgr,
+					ServiceMgr:    &serviceMgr,
+					LoadAverage: &gen.LoadAverageResponse{
+						N1min:  0.5,
+						N5min:  1.2,
+						N15min: 0.8,
+					},
+					Memory: &gen.MemoryResponse{
+						Total: 8589934592,
+						Used:  4294967296,
+						Free:  4294967296,
+					},
+					OsInfo: &gen.OSInfoResponse{
+						Distribution: "Ubuntu",
+						Version:      "22.04",
+					},
+					Interfaces: &[]gen.NetworkInterfaceResponse{
+						{
+							Name:   "eth0",
+							Family: &family,
+							Ipv4:   &ipv4,
+							Ipv6:   &ipv6,
+							Mac:    &mac,
+						},
+					},
+					Uptime:       &uptime,
+					StartedAt:    &startedAt,
+					RegisteredAt: &now,
+					Facts:        &facts,
+				}
+			}(),
+			validateFunc: func(a Agent) {
+				suite.Equal("web-01", a.Hostname)
+				suite.Equal("Ready", a.Status)
+				suite.Equal(map[string]string{"group": "web", "env": "prod"}, a.Labels)
+				suite.Equal("amd64", a.Architecture)
+				suite.Equal(8, a.CPUCount)
+				suite.Equal("web-01.example.com", a.Fqdn)
+				suite.Equal("5.15.0-generic", a.KernelVersion)
+				suite.Equal("apt", a.PackageMgr)
+				suite.Equal("systemd", a.ServiceMgr)
+
+				suite.Require().NotNil(a.LoadAverage)
+				suite.InDelta(0.5, float64(a.LoadAverage.OneMin), 0.001)
+				suite.InDelta(1.2, float64(a.LoadAverage.FiveMin), 0.001)
+				suite.InDelta(0.8, float64(a.LoadAverage.FifteenMin), 0.001)
+
+				suite.Require().NotNil(a.Memory)
+				suite.Equal(8589934592, a.Memory.Total)
+				suite.Equal(4294967296, a.Memory.Used)
+				suite.Equal(4294967296, a.Memory.Free)
+
+				suite.Require().NotNil(a.OSInfo)
+				suite.Equal("Ubuntu", a.OSInfo.Distribution)
+				suite.Equal("22.04", a.OSInfo.Version)
+
+				suite.Require().Len(a.Interfaces, 1)
+				suite.Equal("eth0", a.Interfaces[0].Name)
+				suite.Equal("inet", a.Interfaces[0].Family)
+				suite.Equal("192.168.1.10", a.Interfaces[0].IPv4)
+				suite.Equal("fe80::1", a.Interfaces[0].IPv6)
+				suite.Equal("00:11:22:33:44:55", a.Interfaces[0].MAC)
+
+				suite.Equal("5d 3h 22m", a.Uptime)
+				suite.Equal(startedAt, a.StartedAt)
+				suite.Equal(now, a.RegisteredAt)
+				suite.Equal(map[string]any{"custom_key": "custom_value"}, a.Facts)
+			},
+		},
+		{
+			name: "when only required fields are set",
+			input: &gen.AgentInfo{
+				Hostname: "minimal-host",
+				Status:   gen.AgentInfoStatus("Ready"),
+			},
+			validateFunc: func(a Agent) {
+				suite.Equal("minimal-host", a.Hostname)
+				suite.Equal("Ready", a.Status)
+				suite.Nil(a.Labels)
+				suite.Empty(a.Architecture)
+				suite.Zero(a.CPUCount)
+				suite.Empty(a.Fqdn)
+				suite.Empty(a.KernelVersion)
+				suite.Empty(a.PackageMgr)
+				suite.Empty(a.ServiceMgr)
+				suite.Nil(a.LoadAverage)
+				suite.Nil(a.Memory)
+				suite.Nil(a.OSInfo)
+				suite.Nil(a.Interfaces)
+				suite.Empty(a.Uptime)
+				suite.True(a.StartedAt.IsZero())
+				suite.True(a.RegisteredAt.IsZero())
+				suite.Nil(a.Facts)
+			},
+		},
+		{
+			name: "when interfaces list is empty",
+			input: func() *gen.AgentInfo {
+				ifaces := []gen.NetworkInterfaceResponse{}
+
+				return &gen.AgentInfo{
+					Hostname:   "no-ifaces",
+					Status:     gen.AgentInfoStatus("Ready"),
+					Interfaces: &ifaces,
+				}
+			}(),
+			validateFunc: func(a Agent) {
+				suite.Equal("no-ifaces", a.Hostname)
+				suite.NotNil(a.Interfaces)
+				suite.Empty(a.Interfaces)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			result := agentFromGen(tc.input)
+			tc.validateFunc(result)
+		})
+	}
+}
+
+func (suite *AgentTypesTestSuite) TestAgentListFromGen() {
+	tests := []struct {
+		name         string
+		input        *gen.ListAgentsResponse
+		validateFunc func(AgentList)
+	}{
+		{
+			name: "when list contains agents",
+			input: &gen.ListAgentsResponse{
+				Agents: []gen.AgentInfo{
+					{
+						Hostname: "web-01",
+						Status:   gen.AgentInfoStatus("Ready"),
+					},
+					{
+						Hostname: "web-02",
+						Status:   gen.AgentInfoStatus("Ready"),
+					},
+				},
+				Total: 2,
+			},
+			validateFunc: func(al AgentList) {
+				suite.Equal(2, al.Total)
+				suite.Require().Len(al.Agents, 2)
+				suite.Equal("web-01", al.Agents[0].Hostname)
+				suite.Equal("web-02", al.Agents[1].Hostname)
+			},
+		},
+		{
+			name: "when list is empty",
+			input: &gen.ListAgentsResponse{
+				Agents: []gen.AgentInfo{},
+				Total:  0,
+			},
+			validateFunc: func(al AgentList) {
+				suite.Equal(0, al.Total)
+				suite.Empty(al.Agents)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			result := agentListFromGen(tc.input)
+			tc.validateFunc(result)
+		})
+	}
+}
+
+func TestAgentTypesTestSuite(t *testing.T) {
+	suite.Run(t, new(AgentTypesTestSuite))
+}

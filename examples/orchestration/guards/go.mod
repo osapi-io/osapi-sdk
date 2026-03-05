@@ -1,8 +1,8 @@
-module github.com/osapi-io/osapi-sdk/examples/all
+module github.com/osapi-io/osapi-sdk/examples/orchestration/guards
 
 go 1.25.7
 
-replace github.com/osapi-io/osapi-sdk => ../..
+replace github.com/osapi-io/osapi-sdk => ../../..
 
 require github.com/osapi-io/osapi-sdk v0.0.0-00010101000000-000000000000
 
