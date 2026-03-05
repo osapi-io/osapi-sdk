@@ -85,10 +85,21 @@ func (suite *AgentPublicTestSuite) TestList() {
 func (suite *AgentPublicTestSuite) TestListError() {
 	tests := []struct {
 		name         string
+		serverURL    string
+		serverFunc   func() *httptest.Server
 		validateFunc func(*osapi.Response[osapi.AgentList], error)
 	}{
 		{
 			name: "when server returns 401 returns AuthError",
+			serverFunc: func() *httptest.Server {
+				return httptest.NewServer(
+					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusUnauthorized)
+						_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
+					}),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.AgentList], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -98,21 +109,48 @@ func (suite *AgentPublicTestSuite) TestListError() {
 				suite.Equal(http.StatusUnauthorized, target.StatusCode)
 			},
 		},
+		{
+			name:      "when client HTTP error returns wrapped error",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.AgentList], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+				suite.Contains(err.Error(), "list agents")
+			},
+		},
+		{
+			name: "when response JSON200 is nil returns UnexpectedStatusError",
+			serverFunc: func() *httptest.Server {
+				return httptest.NewServer(
+					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+						w.Header().Set("Content-Type", "text/plain")
+						w.WriteHeader(http.StatusOK)
+					}),
+				)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.AgentList], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.UnexpectedStatusError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusOK, target.StatusCode)
+				suite.Contains(target.Message, "nil response body")
+			},
+		},
 	}
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusUnauthorized)
-					_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
-				}),
-			)
-			defer server.Close()
+			url := tc.serverURL
+			if tc.serverFunc != nil {
+				server := tc.serverFunc()
+				defer server.Close()
+				url = server.URL
+			}
 
 			sut := osapi.New(
-				server.URL,
+				url,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -167,10 +205,21 @@ func (suite *AgentPublicTestSuite) TestGet() {
 func (suite *AgentPublicTestSuite) TestGetError() {
 	tests := []struct {
 		name         string
+		serverURL    string
+		serverFunc   func() *httptest.Server
 		validateFunc func(*osapi.Response[osapi.Agent], error)
 	}{
 		{
 			name: "when server returns 404 returns NotFoundError",
+			serverFunc: func() *httptest.Server {
+				return httptest.NewServer(
+					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+						w.Header().Set("Content-Type", "application/json")
+						w.WriteHeader(http.StatusNotFound)
+						_, _ = w.Write([]byte(`{"error":"agent not found"}`))
+					}),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Agent], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -181,21 +230,48 @@ func (suite *AgentPublicTestSuite) TestGetError() {
 				suite.Equal("agent not found", target.Message)
 			},
 		},
+		{
+			name:      "when client HTTP error returns wrapped error",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Agent], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+				suite.Contains(err.Error(), "get agent")
+			},
+		},
+		{
+			name: "when response JSON200 is nil returns UnexpectedStatusError",
+			serverFunc: func() *httptest.Server {
+				return httptest.NewServer(
+					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+						w.Header().Set("Content-Type", "text/plain")
+						w.WriteHeader(http.StatusOK)
+					}),
+				)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Agent], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.UnexpectedStatusError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusOK, target.StatusCode)
+				suite.Contains(target.Message, "nil response body")
+			},
+		},
 	}
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusNotFound)
-					_, _ = w.Write([]byte(`{"error":"agent not found"}`))
-				}),
-			)
-			defer server.Close()
+			url := tc.serverURL
+			if tc.serverFunc != nil {
+				server := tc.serverFunc()
+				defer server.Close()
+				url = server.URL
+			}
 
 			sut := osapi.New(
-				server.URL,
+				url,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)

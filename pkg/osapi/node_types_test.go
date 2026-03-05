@@ -152,8 +152,18 @@ func (suite *NodeTypesTestSuite) TestDisksFromGen() {
 			name: "when populated",
 			input: func() *gen.DisksResponse {
 				d := gen.DisksResponse{
-					{Name: "/dev/sda1", Total: 500000000000, Used: 250000000000, Free: 250000000000},
-					{Name: "/dev/sdb1", Total: 1000000000000, Used: 100000000000, Free: 900000000000},
+					{
+						Name:  "/dev/sda1",
+						Total: 500000000000,
+						Used:  250000000000,
+						Free:  250000000000,
+					},
+					{
+						Name:  "/dev/sdb1",
+						Total: 1000000000000,
+						Used:  100000000000,
+						Free:  900000000000,
+					},
 				}
 
 				return &d
@@ -197,7 +207,24 @@ func (suite *NodeTypesTestSuite) TestDisksFromGen() {
 }
 
 func (suite *NodeTypesTestSuite) TestHostnameCollectionFromGen() {
-	testUUID := openapi_types.UUID{0x55, 0x0e, 0x84, 0x00, 0xe2, 0x9b, 0x41, 0xd4, 0xa7, 0x16, 0x44, 0x66, 0x55, 0x44, 0x00, 0x00}
+	testUUID := openapi_types.UUID{
+		0x55,
+		0x0e,
+		0x84,
+		0x00,
+		0xe2,
+		0x9b,
+		0x41,
+		0xd4,
+		0xa7,
+		0x16,
+		0x44,
+		0x66,
+		0x55,
+		0x44,
+		0x00,
+		0x00,
+	}
 
 	tests := []struct {
 		name         string
@@ -263,7 +290,24 @@ func (suite *NodeTypesTestSuite) TestHostnameCollectionFromGen() {
 }
 
 func (suite *NodeTypesTestSuite) TestNodeStatusCollectionFromGen() {
-	testUUID := openapi_types.UUID{0x55, 0x0e, 0x84, 0x00, 0xe2, 0x9b, 0x41, 0xd4, 0xa7, 0x16, 0x44, 0x66, 0x55, 0x44, 0x00, 0x00}
+	testUUID := openapi_types.UUID{
+		0x55,
+		0x0e,
+		0x84,
+		0x00,
+		0xe2,
+		0x9b,
+		0x41,
+		0xd4,
+		0xa7,
+		0x16,
+		0x44,
+		0x66,
+		0x55,
+		0x44,
+		0x00,
+		0x00,
+	}
 
 	tests := []struct {
 		name         string
@@ -275,7 +319,12 @@ func (suite *NodeTypesTestSuite) TestNodeStatusCollectionFromGen() {
 			input: func() *gen.NodeStatusCollectionResponse {
 				uptime := "5d 3h 22m"
 				disks := gen.DisksResponse{
-					{Name: "/dev/sda1", Total: 500000000000, Used: 250000000000, Free: 250000000000},
+					{
+						Name:  "/dev/sda1",
+						Total: 500000000000,
+						Used:  250000000000,
+						Free:  250000000000,
+					},
 				}
 
 				return &gen.NodeStatusCollectionResponse{
@@ -363,7 +412,24 @@ func (suite *NodeTypesTestSuite) TestNodeStatusCollectionFromGen() {
 }
 
 func (suite *NodeTypesTestSuite) TestDiskCollectionFromGen() {
-	testUUID := openapi_types.UUID{0x55, 0x0e, 0x84, 0x00, 0xe2, 0x9b, 0x41, 0xd4, 0xa7, 0x16, 0x44, 0x66, 0x55, 0x44, 0x00, 0x00}
+	testUUID := openapi_types.UUID{
+		0x55,
+		0x0e,
+		0x84,
+		0x00,
+		0xe2,
+		0x9b,
+		0x41,
+		0xd4,
+		0xa7,
+		0x16,
+		0x44,
+		0x66,
+		0x55,
+		0x44,
+		0x00,
+		0x00,
+	}
 
 	tests := []struct {
 		name         string
@@ -374,8 +440,18 @@ func (suite *NodeTypesTestSuite) TestDiskCollectionFromGen() {
 			name: "when disks are populated",
 			input: func() *gen.DiskCollectionResponse {
 				disks := gen.DisksResponse{
-					{Name: "/dev/sda1", Total: 500000000000, Used: 250000000000, Free: 250000000000},
-					{Name: "/dev/sdb1", Total: 1000000000000, Used: 100000000000, Free: 900000000000},
+					{
+						Name:  "/dev/sda1",
+						Total: 500000000000,
+						Used:  250000000000,
+						Free:  250000000000,
+					},
+					{
+						Name:  "/dev/sdb1",
+						Total: 1000000000000,
+						Used:  100000000000,
+						Free:  900000000000,
+					},
 				}
 
 				return &gen.DiskCollectionResponse{
@@ -428,7 +504,24 @@ func (suite *NodeTypesTestSuite) TestDiskCollectionFromGen() {
 }
 
 func (suite *NodeTypesTestSuite) TestCommandCollectionFromGen() {
-	testUUID := openapi_types.UUID{0x55, 0x0e, 0x84, 0x00, 0xe2, 0x9b, 0x41, 0xd4, 0xa7, 0x16, 0x44, 0x66, 0x55, 0x44, 0x00, 0x00}
+	testUUID := openapi_types.UUID{
+		0x55,
+		0x0e,
+		0x84,
+		0x00,
+		0xe2,
+		0x9b,
+		0x41,
+		0xd4,
+		0xa7,
+		0x16,
+		0x44,
+		0x66,
+		0x55,
+		0x44,
+		0x00,
+		0x00,
+	}
 
 	tests := []struct {
 		name         string
@@ -513,7 +606,24 @@ func (suite *NodeTypesTestSuite) TestCommandCollectionFromGen() {
 }
 
 func (suite *NodeTypesTestSuite) TestDNSConfigCollectionFromGen() {
-	testUUID := openapi_types.UUID{0x55, 0x0e, 0x84, 0x00, 0xe2, 0x9b, 0x41, 0xd4, 0xa7, 0x16, 0x44, 0x66, 0x55, 0x44, 0x00, 0x00}
+	testUUID := openapi_types.UUID{
+		0x55,
+		0x0e,
+		0x84,
+		0x00,
+		0xe2,
+		0x9b,
+		0x41,
+		0xd4,
+		0xa7,
+		0x16,
+		0x44,
+		0x66,
+		0x55,
+		0x44,
+		0x00,
+		0x00,
+	}
 
 	tests := []struct {
 		name         string
@@ -700,7 +810,24 @@ func (suite *NodeTypesTestSuite) TestDerefHelpers() {
 	})
 
 	suite.Run("jobIDFromGen", func() {
-		id := openapi_types.UUID{0x55, 0x0e, 0x84, 0x00, 0xe2, 0x9b, 0x41, 0xd4, 0xa7, 0x16, 0x44, 0x66, 0x55, 0x44, 0x00, 0x00}
+		id := openapi_types.UUID{
+			0x55,
+			0x0e,
+			0x84,
+			0x00,
+			0xe2,
+			0x9b,
+			0x41,
+			0xd4,
+			0xa7,
+			0x16,
+			0x44,
+			0x66,
+			0x55,
+			0x44,
+			0x00,
+			0x00,
+		}
 		suite.Equal("550e8400-e29b-41d4-a716-446655440000", jobIDFromGen(&id))
 		suite.Equal("", jobIDFromGen(nil))
 	})

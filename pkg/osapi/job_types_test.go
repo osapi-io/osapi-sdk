@@ -46,7 +46,9 @@ func (suite *JobTypesTestSuite) TestJobCreatedFromGen() {
 				rev := int64(42)
 				ts := "2026-03-04T12:00:00Z"
 				return &gen.CreateJobResponse{
-					JobId:     openapi_types.UUID(uuid.MustParse("11111111-1111-1111-1111-111111111111")),
+					JobId: openapi_types.UUID(
+						uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+					),
 					Status:    "pending",
 					Revision:  &rev,
 					Timestamp: &ts,
@@ -187,7 +189,10 @@ func (suite *JobTypesTestSuite) TestJobDetailFromGen() {
 				suite.Equal("web-01", j.Responses["web-01"].Hostname)
 				suite.Equal("completed", j.Responses["web-01"].Status)
 				suite.Empty(j.Responses["web-01"].Error)
-				suite.Equal(map[string]interface{}{"hostname": "web-01"}, j.Responses["web-01"].Data)
+				suite.Equal(
+					map[string]interface{}{"hostname": "web-01"},
+					j.Responses["web-01"].Data,
+				)
 
 				suite.Len(j.Timeline, 1)
 				suite.Equal("2026-03-04T12:00:00Z", j.Timeline[0].Timestamp)

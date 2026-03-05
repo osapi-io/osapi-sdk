@@ -20,6 +20,7 @@ to an OSAPI job type that agents execute.
 | [`node.status.get`](node-status.md)           | Get node status        | Read-only  | Node     |
 | [`node.disk.get`](node-disk.md)               | Get disk usage         | Read-only  | Node     |
 | [`node.memory.get`](node-memory.md)           | Get memory stats       | Read-only  | Node     |
+| [`node.uptime.get`](node-uptime.md)           | Get system uptime      | Read-only  | Node     |
 | [`node.load.get`](node-load.md)               | Get load averages      | Read-only  | Node     |
 
 ### Idempotency

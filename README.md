@@ -62,6 +62,7 @@ strategies, and adding new operations.
 | `node.status.get`       | Get node status        | Read-only  | [docs](docs/orchestration/node-status.md)        |
 | `node.disk.get`         | Get disk usage         | Read-only  | [docs](docs/orchestration/node-disk.md)          |
 | `node.memory.get`       | Get memory stats       | Read-only  | [docs](docs/orchestration/node-memory.md)        |
+| `node.uptime.get`       | Get system uptime      | Read-only  | [docs](docs/orchestration/node-uptime.md)        |
 | `node.load.get`         | Get load averages      | Read-only  | [docs](docs/orchestration/node-load.md)          |
 | `network.dns.get`       | Get DNS configuration  | Read-only  | [docs](docs/orchestration/network-dns-get.md)    |
 | `network.dns.update`    | Update DNS servers     | Yes        | [docs](docs/orchestration/network-dns-update.md) |
