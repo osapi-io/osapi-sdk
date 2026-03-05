@@ -35,6 +35,22 @@ start.
 | Audit   | List, get, export                                     | [docs](docs/osapi/audit.md)   | [`audit.go`](pkg/osapi/audit.go)     |
 | Metrics | Prometheus text                                       | [docs](docs/osapi/metrics.md) | [`metrics.go`](pkg/osapi/metrics.go) |
 
+### Targeting
+
+Most operations accept a `target` parameter to control which agents receive
+the request:
+
+| Target      | Behavior                                    |
+| ----------- | ------------------------------------------- |
+| `_any`      | Send to any available agent (load balanced) |
+| `_all`      | Broadcast to every agent                    |
+| `hostname`  | Send to a specific host                     |
+| `key:value` | Send to agents matching a label             |
+
+Agents expose labels (used for targeting) and extended system facts via
+`client.Agent.Get()`. Facts come from agent-side providers and include OS,
+hardware, and network details.
+
 ## 🔀 Orchestration
 
 DAG-based task execution on top of the client. See the
@@ -74,13 +90,38 @@ strategies, and adding new operations.
 
 Each example is a standalone Go program you can read and run.
 
-| Example                                 | What it shows                                                                                         |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [discovery](examples/discovery/main.go) | Runnable DAG that discovers fleet info: health check, agent listing, and status in parallel           |
-| [all](examples/all/main.go)             | Every feature: hooks, Op tasks, TaskFunc, dependencies, guards, Levels(), error strategies, reporting |
+### SDK Client
+
+| Example                                           | What it shows                           |
+| ------------------------------------------------- | --------------------------------------- |
+| [agent](examples/osapi/agent/main.go)             | Agent discovery, details, and facts     |
+| [audit](examples/osapi/audit/main.go)             | Audit log listing, get, and export      |
+| [command](examples/osapi/command/main.go)          | Command exec and shell execution        |
+| [health](examples/osapi/health/main.go)           | Liveness, readiness, and status checks  |
+| [job](examples/osapi/job/main.go)                 | Job create, get, list, delete, and retry |
+| [metrics](examples/osapi/metrics/main.go)         | Prometheus metrics retrieval            |
+| [network](examples/osapi/network/main.go)         | DNS get/update and ping                 |
+| [node](examples/osapi/node/main.go)               | Hostname, disk, memory, load, uptime    |
+
+### Orchestration
+
+| Example                                                            | What it shows                                  |
+| ------------------------------------------------------------------ | ---------------------------------------------- |
+| [basic](examples/orchestration/basic/main.go)                      | Simple DAG with dependencies                   |
+| [broadcast](examples/orchestration/broadcast/main.go)              | Multi-target operations with per-host results  |
+| [error-strategy](examples/orchestration/error-strategy/main.go)    | StopAll vs Continue error handling             |
+| [guards](examples/orchestration/guards/main.go)                    | When predicates for conditional execution      |
+| [hooks](examples/orchestration/hooks/main.go)                      | Lifecycle callbacks for logging and progress   |
+| [only-if-changed](examples/orchestration/only-if-changed/main.go)  | Skip tasks when dependencies report no changes |
+| [only-if-failed](examples/orchestration/only-if-failed/main.go)    | Run tasks only when a dependency fails         |
+| [parallel](examples/orchestration/parallel/main.go)                | Automatic parallelism for independent tasks    |
+| [result-decode](examples/orchestration/result-decode/main.go)      | Decode result data into typed structs          |
+| [retry](examples/orchestration/retry/main.go)                      | Retry error strategy with configurable attempts |
+| [task-func](examples/orchestration/task-func/main.go)              | Custom Go functions with SDK client access     |
+| [task-func-results](examples/orchestration/task-func-results/main.go) | Cross-task data flow via Results.Get()      |
 
 ```bash
-cd examples/discovery
+cd examples/osapi/node
 OSAPI_TOKEN="<jwt>" go run main.go
 ```
 
