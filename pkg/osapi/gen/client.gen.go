@@ -22,10 +22,17 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
+// Defines values for AgentInfoState.
+const (
+	AgentInfoStateCordoned AgentInfoState = "Cordoned"
+	AgentInfoStateDraining AgentInfoState = "Draining"
+	AgentInfoStateReady    AgentInfoState = "Ready"
+)
+
 // Defines values for AgentInfoStatus.
 const (
-	NotReady AgentInfoStatus = "NotReady"
-	Ready    AgentInfoStatus = "Ready"
+	AgentInfoStatusNotReady AgentInfoStatus = "NotReady"
+	AgentInfoStatusReady    AgentInfoStatus = "Ready"
 )
 
 // Defines values for DNSUpdateResultItemStatus.
@@ -39,6 +46,13 @@ const (
 	Dual  NetworkInterfaceResponseFamily = "dual"
 	Inet  NetworkInterfaceResponseFamily = "inet"
 	Inet6 NetworkInterfaceResponseFamily = "inet6"
+)
+
+// Defines values for NodeConditionType.
+const (
+	DiskPressure   NodeConditionType = "DiskPressure"
+	HighLoad       NodeConditionType = "HighLoad"
+	MemoryPressure NodeConditionType = "MemoryPressure"
 )
 
 // Defines values for GetJobParamsStatus.
@@ -66,6 +80,9 @@ type AgentDetail struct {
 type AgentInfo struct {
 	// Architecture CPU architecture.
 	Architecture *string `json:"architecture,omitempty"`
+
+	// Conditions Evaluated node conditions.
+	Conditions *[]NodeCondition `json:"conditions,omitempty"`
 
 	// CpuCount Number of logical CPUs.
 	CpuCount *int `json:"cpu_count,omitempty"`
@@ -107,12 +124,21 @@ type AgentInfo struct {
 	// StartedAt When the agent process started.
 	StartedAt *time.Time `json:"started_at,omitempty"`
 
+	// State Agent scheduling state.
+	State *AgentInfoState `json:"state,omitempty"`
+
 	// Status The current status of the agent.
 	Status AgentInfoStatus `json:"status"`
+
+	// Timeline Agent state transition history.
+	Timeline *[]TimelineEvent `json:"timeline,omitempty"`
 
 	// Uptime The system uptime.
 	Uptime *string `json:"uptime,omitempty"`
 }
+
+// AgentInfoState Agent scheduling state.
+type AgentInfoState string
 
 // AgentInfoStatus The current status of the agent.
 type AgentInfoStatus string
@@ -612,6 +638,17 @@ type NetworkInterfaceResponse struct {
 // NetworkInterfaceResponseFamily IP address family.
 type NetworkInterfaceResponseFamily string
 
+// NodeCondition defines model for NodeCondition.
+type NodeCondition struct {
+	LastTransitionTime time.Time         `json:"last_transition_time"`
+	Reason             *string           `json:"reason,omitempty"`
+	Status             bool              `json:"status"`
+	Type               NodeConditionType `json:"type"`
+}
+
+// NodeConditionType defines model for NodeCondition.Type.
+type NodeConditionType string
+
 // NodeStatusCollectionResponse defines model for NodeStatusCollectionResponse.
 type NodeStatusCollectionResponse struct {
 	// JobId The job ID used to process this request.
@@ -776,6 +813,15 @@ type StreamInfo struct {
 	Name string `json:"name"`
 }
 
+// TimelineEvent defines model for TimelineEvent.
+type TimelineEvent struct {
+	Error     *string   `json:"error,omitempty"`
+	Event     string    `json:"event"`
+	Hostname  *string   `json:"hostname,omitempty"`
+	Message   *string   `json:"message,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
 // UptimeCollectionResponse defines model for UptimeCollectionResponse.
 type UptimeCollectionResponse struct {
 	// JobId The job ID used to process this request.
@@ -925,6 +971,12 @@ type ClientInterface interface {
 	// GetAgentDetails request
 	GetAgentDetails(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// DrainAgent request
+	DrainAgent(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UndrainAgent request
+	UndrainAgent(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetAuditLogs request
 	GetAuditLogs(ctx context.Context, params *GetAuditLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1027,6 +1079,30 @@ func (c *Client) GetAgent(ctx context.Context, reqEditors ...RequestEditorFn) (*
 
 func (c *Client) GetAgentDetails(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetAgentDetailsRequest(c.Server, hostname)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DrainAgent(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDrainAgentRequest(c.Server, hostname)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UndrainAgent(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUndrainAgentRequest(c.Server, hostname)
 	if err != nil {
 		return nil, err
 	}
@@ -1463,6 +1539,74 @@ func NewGetAgentDetailsRequest(server string, hostname string) (*http.Request, e
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDrainAgentRequest generates requests for DrainAgent
+func NewDrainAgentRequest(server string, hostname string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/agent/%s/drain", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUndrainAgentRequest generates requests for UndrainAgent
+func NewUndrainAgentRequest(server string, hostname string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "hostname", runtime.ParamLocationPath, hostname)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/agent/%s/undrain", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -2483,6 +2627,12 @@ type ClientWithResponsesInterface interface {
 	// GetAgentDetailsWithResponse request
 	GetAgentDetailsWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*GetAgentDetailsResponse, error)
 
+	// DrainAgentWithResponse request
+	DrainAgentWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*DrainAgentResponse, error)
+
+	// UndrainAgentWithResponse request
+	UndrainAgentWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*UndrainAgentResponse, error)
+
 	// GetAuditLogsWithResponse request
 	GetAuditLogsWithResponse(ctx context.Context, params *GetAuditLogsParams, reqEditors ...RequestEditorFn) (*GetAuditLogsResponse, error)
 
@@ -2616,6 +2766,62 @@ func (r GetAgentDetailsResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetAgentDetailsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DrainAgentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Message string `json:"message"`
+	}
+	JSON401 *ErrorResponse
+	JSON403 *ErrorResponse
+	JSON404 *ErrorResponse
+	JSON409 *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r DrainAgentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DrainAgentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UndrainAgentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Message string `json:"message"`
+	}
+	JSON401 *ErrorResponse
+	JSON403 *ErrorResponse
+	JSON404 *ErrorResponse
+	JSON409 *ErrorResponse
+}
+
+// Status returns HTTPResponse.Status
+func (r UndrainAgentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UndrainAgentResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3278,6 +3484,24 @@ func (c *ClientWithResponses) GetAgentDetailsWithResponse(ctx context.Context, h
 	return ParseGetAgentDetailsResponse(rsp)
 }
 
+// DrainAgentWithResponse request returning *DrainAgentResponse
+func (c *ClientWithResponses) DrainAgentWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*DrainAgentResponse, error) {
+	rsp, err := c.DrainAgent(ctx, hostname, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDrainAgentResponse(rsp)
+}
+
+// UndrainAgentWithResponse request returning *UndrainAgentResponse
+func (c *ClientWithResponses) UndrainAgentWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*UndrainAgentResponse, error) {
+	rsp, err := c.UndrainAgent(ctx, hostname, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUndrainAgentResponse(rsp)
+}
+
 // GetAuditLogsWithResponse request returning *GetAuditLogsResponse
 func (c *ClientWithResponses) GetAuditLogsWithResponse(ctx context.Context, params *GetAuditLogsParams, reqEditors ...RequestEditorFn) (*GetAuditLogsResponse, error) {
 	rsp, err := c.GetAuditLogs(ctx, params, reqEditors...)
@@ -3646,6 +3870,118 @@ func ParseGetAgentDetailsResponse(rsp *http.Response) (*GetAgentDetailsResponse,
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDrainAgentResponse parses an HTTP response from a DrainAgentWithResponse call
+func ParseDrainAgentResponse(rsp *http.Response) (*DrainAgentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DrainAgentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message string `json:"message"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUndrainAgentResponse parses an HTTP response from a UndrainAgentWithResponse call
+func ParseUndrainAgentResponse(rsp *http.Response) (*UndrainAgentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UndrainAgentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message string `json:"message"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	}
 

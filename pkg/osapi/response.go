@@ -70,6 +70,8 @@ func checkError(
 		return &AuthError{APIError{StatusCode: statusCode, Message: msg}}
 	case 404:
 		return &NotFoundError{APIError{StatusCode: statusCode, Message: msg}}
+	case 409:
+		return &ConflictError{APIError{StatusCode: statusCode, Message: msg}}
 	case 500:
 		return &ServerError{APIError{StatusCode: statusCode, Message: msg}}
 	default:

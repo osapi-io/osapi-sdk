@@ -31,8 +31,10 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type AgentJobResponse](<#AgentJobResponse>)
 - [type AgentList](<#AgentList>)
 - [type AgentService](<#AgentService>)
+  - [func \(s \*AgentService\) Drain\(ctx context.Context, hostname string\) \(\*Response\[MessageResponse\], error\)](<#AgentService.Drain>)
   - [func \(s \*AgentService\) Get\(ctx context.Context, hostname string\) \(\*Response\[Agent\], error\)](<#AgentService.Get>)
   - [func \(s \*AgentService\) List\(ctx context.Context\) \(\*Response\[AgentList\], error\)](<#AgentService.List>)
+  - [func \(s \*AgentService\) Undrain\(ctx context.Context, hostname string\) \(\*Response\[MessageResponse\], error\)](<#AgentService.Undrain>)
 - [type AgentState](<#AgentState>)
 - [type AgentStats](<#AgentStats>)
 - [type AgentSummary](<#AgentSummary>)
@@ -49,6 +51,9 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type Collection](<#Collection>)
 - [type CommandResult](<#CommandResult>)
 - [type ComponentHealth](<#ComponentHealth>)
+- [type Condition](<#Condition>)
+- [type ConflictError](<#ConflictError>)
+  - [func \(e \*ConflictError\) Unwrap\(\) error](<#ConflictError.Unwrap>)
 - [type ConsumerDetail](<#ConsumerDetail>)
 - [type ConsumerStats](<#ConsumerStats>)
 - [type DNSConfig](<#DNSConfig>)
@@ -79,6 +84,7 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type LoadResult](<#LoadResult>)
 - [type Memory](<#Memory>)
 - [type MemoryResult](<#MemoryResult>)
+- [type MessageResponse](<#MessageResponse>)
 - [type MetricsService](<#MetricsService>)
   - [func \(s \*MetricsService\) Get\(ctx context.Context\) \(string, error\)](<#MetricsService.Get>)
 - [type NATSInfo](<#NATSInfo>)
@@ -145,7 +151,7 @@ func (e *APIError) Error() string
 Error returns a formatted error string.
 
 <a name="Agent"></a>
-## type [Agent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L30-L48>)
+## type [Agent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L30-L51>)
 
 Agent represents a registered OSAPI agent.
 
@@ -153,6 +159,7 @@ Agent represents a registered OSAPI agent.
 type Agent struct {
     Hostname      string
     Status        string
+    State         string
     Labels        map[string]string
     Architecture  string
     CPUCount      int
@@ -164,6 +171,8 @@ type Agent struct {
     Memory        *Memory
     OSInfo        *OSInfo
     Interfaces    []NetworkInterface
+    Conditions    []Condition
+    Timeline      []TimelineEvent
     Uptime        string
     StartedAt     time.Time
     RegisteredAt  time.Time
@@ -186,7 +195,7 @@ type AgentJobResponse struct {
 ```
 
 <a name="AgentList"></a>
-## type [AgentList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L51-L54>)
+## type [AgentList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L62-L65>)
 
 AgentList is a collection of agents.
 
@@ -198,7 +207,7 @@ type AgentList struct {
 ```
 
 <a name="AgentService"></a>
-## type [AgentService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L31-L33>)
+## type [AgentService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L36-L38>)
 
 AgentService provides agent discovery and details operations.
 
@@ -208,8 +217,17 @@ type AgentService struct {
 }
 ```
 
+<a name="AgentService.Drain"></a>
+### func \(\*AgentService\) [Drain](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L89-L92>)
+
+```go
+func (s *AgentService) Drain(ctx context.Context, hostname string) (*Response[MessageResponse], error)
+```
+
+Drain initiates draining of an agent, stopping it from accepting new jobs while allowing in\-flight jobs to complete.
+
 <a name="AgentService.Get"></a>
-### func \(\*AgentService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L59-L62>)
+### func \(\*AgentService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L64-L67>)
 
 ```go
 func (s *AgentService) Get(ctx context.Context, hostname string) (*Response[Agent], error)
@@ -218,13 +236,22 @@ func (s *AgentService) Get(ctx context.Context, hostname string) (*Response[Agen
 Get retrieves detailed information about a specific agent by hostname.
 
 <a name="AgentService.List"></a>
-### func \(\*AgentService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L36-L38>)
+### func \(\*AgentService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L41-L43>)
 
 ```go
 func (s *AgentService) List(ctx context.Context) (*Response[AgentList], error)
 ```
 
 List retrieves all active agents.
+
+<a name="AgentService.Undrain"></a>
+### func \(\*AgentService\) [Undrain](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L117-L120>)
+
+```go
+func (s *AgentService) Undrain(ctx context.Context, hostname string) (*Response[MessageResponse], error)
+```
+
+Undrain resumes job acceptance on a drained agent.
 
 <a name="AgentState"></a>
 ## type [AgentState](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L51-L55>)
@@ -434,6 +461,40 @@ type ComponentHealth struct {
 }
 ```
 
+<a name="Condition"></a>
+## type [Condition](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L54-L59>)
+
+Condition represents a node condition evaluated agent\-side.
+
+```go
+type Condition struct {
+    Type               string
+    Status             bool
+    Reason             string
+    LastTransitionTime time.Time
+}
+```
+
+<a name="ConflictError"></a>
+## type [ConflictError](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/errors.go#L81-L83>)
+
+ConflictError represents conflict errors \(409\).
+
+```go
+type ConflictError struct {
+    APIError
+}
+```
+
+<a name="ConflictError.Unwrap"></a>
+### func \(\*ConflictError\) [Unwrap](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/errors.go#L86>)
+
+```go
+func (e *ConflictError) Unwrap() error
+```
+
+Unwrap returns the underlying APIError.
+
 <a name="ConsumerDetail"></a>
 ## type [ConsumerDetail](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L95-L100>)
 
@@ -638,7 +699,7 @@ type JobDetail struct {
 ```
 
 <a name="JobList"></a>
-## type [JobList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L75-L78>)
+## type [JobList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L66-L69>)
 
 JobList is a paginated list of jobs.
 
@@ -763,7 +824,7 @@ type ListParams struct {
 ```
 
 <a name="LoadAverage"></a>
-## type [LoadAverage](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L66-L70>)
+## type [LoadAverage](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L77-L81>)
 
 LoadAverage represents system load averages.
 
@@ -789,7 +850,7 @@ type LoadResult struct {
 ```
 
 <a name="Memory"></a>
-## type [Memory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L73-L77>)
+## type [Memory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L84-L88>)
 
 Memory represents memory usage information.
 
@@ -811,6 +872,17 @@ type MemoryResult struct {
     Hostname string
     Error    string
     Memory   *Memory
+}
+```
+
+<a name="MessageResponse"></a>
+## type [MessageResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent.go#L31-L33>)
+
+MessageResponse represents a simple message response from the API.
+
+```go
+type MessageResponse struct {
+    Message string
 }
 ```
 
@@ -847,7 +919,7 @@ type NATSInfo struct {
 ```
 
 <a name="NetworkInterface"></a>
-## type [NetworkInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L57-L63>)
+## type [NetworkInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L68-L74>)
 
 NetworkInterface represents a network interface on an agent.
 
@@ -1018,7 +1090,7 @@ func (e *NotFoundError) Unwrap() error
 Unwrap returns the underlying APIError.
 
 <a name="OSInfo"></a>
-## type [OSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L80-L83>)
+## type [OSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L91-L94>)
 
 OSInfo represents operating system information.
 
@@ -1088,7 +1160,7 @@ type PingResult struct {
 ```
 
 <a name="QueueStats"></a>
-## type [QueueStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L81-L86>)
+## type [QueueStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L72-L77>)
 
 QueueStats represents job queue statistics.
 
@@ -1222,9 +1294,9 @@ type SystemStatus struct {
 ```
 
 <a name="TimelineEvent"></a>
-## type [TimelineEvent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L66-L72>)
+## type [TimelineEvent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/types.go#L25-L31>)
 
-TimelineEvent represents a job lifecycle event.
+TimelineEvent represents a lifecycle event. Used by both job timelines and agent state transition history.
 
 ```go
 type TimelineEvent struct {
@@ -1237,7 +1309,7 @@ type TimelineEvent struct {
 ```
 
 <a name="UnexpectedStatusError"></a>
-## type [UnexpectedStatusError](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/errors.go#L81-L83>)
+## type [UnexpectedStatusError](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/errors.go#L91-L93>)
 
 UnexpectedStatusError represents unexpected HTTP status codes.
 
@@ -1248,7 +1320,7 @@ type UnexpectedStatusError struct {
 ```
 
 <a name="UnexpectedStatusError.Unwrap"></a>
-### func \(\*UnexpectedStatusError\) [Unwrap](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/errors.go#L86>)
+### func \(\*UnexpectedStatusError\) [Unwrap](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/errors.go#L96>)
 
 ```go
 func (e *UnexpectedStatusError) Unwrap() error

@@ -114,6 +114,21 @@ func (suite *ErrorsPublicTestSuite) TestErrorFormat() {
 			},
 		},
 		{
+			name: "when ConflictError formats correctly",
+			err: &osapi.ConflictError{
+				APIError: osapi.APIError{
+					StatusCode: 409,
+					Message:    "already draining",
+				},
+			},
+			validateFunc: func(err error) {
+				suite.Equal(
+					"api error (status 409): already draining",
+					err.Error(),
+				)
+			},
+		},
+		{
 			name: "when UnexpectedStatusError formats correctly",
 			err: &osapi.UnexpectedStatusError{
 				APIError: osapi.APIError{
@@ -204,6 +219,21 @@ func (suite *ErrorsPublicTestSuite) TestErrorsAsUnwrap() {
 			},
 		},
 		{
+			name: "when ConflictError is unwrapped via errors.As",
+			err: fmt.Errorf("wrapped: %w", &osapi.ConflictError{
+				APIError: osapi.APIError{
+					StatusCode: 409,
+					Message:    "already draining",
+				},
+			}),
+			validateFunc: func(err error) {
+				var target *osapi.ConflictError
+				suite.True(errors.As(err, &target))
+				suite.Equal(409, target.StatusCode)
+				suite.Equal("already draining", target.Message)
+			},
+		},
+		{
 			name: "when UnexpectedStatusError is unwrapped via errors.As",
 			err: fmt.Errorf("wrapped: %w", &osapi.UnexpectedStatusError{
 				APIError: osapi.APIError{
@@ -291,6 +321,21 @@ func (suite *ErrorsPublicTestSuite) TestErrorsAsAPIError() {
 				suite.True(errors.As(err, &target))
 				suite.Equal(500, target.StatusCode)
 				suite.Equal("internal error", target.Message)
+			},
+		},
+		{
+			name: "when ConflictError is matchable as APIError",
+			err: fmt.Errorf("wrapped: %w", &osapi.ConflictError{
+				APIError: osapi.APIError{
+					StatusCode: 409,
+					Message:    "conflict",
+				},
+			}),
+			validateFunc: func(err error) {
+				var target *osapi.APIError
+				suite.True(errors.As(err, &target))
+				suite.Equal(409, target.StatusCode)
+				suite.Equal("conflict", target.Message)
 			},
 		},
 		{

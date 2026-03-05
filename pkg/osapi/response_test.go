@@ -151,6 +151,32 @@ func (suite *ResponseTestSuite) TestCheckErrorNotFound() {
 	}
 }
 
+func (suite *ResponseTestSuite) TestCheckErrorConflict() {
+	tests := []struct {
+		name         string
+		statusCode   int
+		validateFunc func(error)
+	}{
+		{
+			name:       "when status is 409",
+			statusCode: 409,
+			validateFunc: func(err error) {
+				var target *ConflictError
+				suite.True(errors.As(err, &target))
+				suite.Equal(409, target.StatusCode)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			err := checkError(tc.statusCode)
+			suite.Error(err)
+			tc.validateFunc(err)
+		})
+	}
+}
+
 func (suite *ResponseTestSuite) TestCheckErrorServer() {
 	tests := []struct {
 		name         string

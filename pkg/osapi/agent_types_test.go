@@ -58,6 +58,12 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 				ipv6 := "fe80::1"
 				mac := "00:11:22:33:44:55"
 				facts := map[string]interface{}{"custom_key": "custom_value"}
+				state := gen.AgentInfoStateReady
+				reason := "load avg 0.50 < 4.00"
+				condTime := now.Add(-30 * time.Minute)
+				hostname := "web-01"
+				message := "agent started"
+				errMsg := "connection lost"
 
 				return &gen.AgentInfo{
 					Hostname:      "web-01",
@@ -96,11 +102,35 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 					StartedAt:    &startedAt,
 					RegisteredAt: &now,
 					Facts:        &facts,
+					State:        &state,
+					Conditions: &[]gen.NodeCondition{
+						{
+							Type:               gen.HighLoad,
+							Status:             false,
+							Reason:             &reason,
+							LastTransitionTime: condTime,
+						},
+					},
+					Timeline: &[]gen.TimelineEvent{
+						{
+							Timestamp: startedAt,
+							Event:     "AgentStarted",
+							Hostname:  &hostname,
+							Message:   &message,
+						},
+						{
+							Timestamp: now,
+							Event:     "AgentFailed",
+							Hostname:  &hostname,
+							Error:     &errMsg,
+						},
+					},
 				}
 			}(),
 			validateFunc: func(a Agent) {
 				suite.Equal("web-01", a.Hostname)
 				suite.Equal("Ready", a.Status)
+				suite.Equal("Ready", a.State)
 				suite.Equal(map[string]string{"group": "web", "env": "prod"}, a.Labels)
 				suite.Equal("amd64", a.Architecture)
 				suite.Equal(8, a.CPUCount)
@@ -134,6 +164,28 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 				suite.Equal(startedAt, a.StartedAt)
 				suite.Equal(now, a.RegisteredAt)
 				suite.Equal(map[string]any{"custom_key": "custom_value"}, a.Facts)
+
+				suite.Require().Len(a.Conditions, 1)
+				suite.Equal("HighLoad", a.Conditions[0].Type)
+				suite.False(a.Conditions[0].Status)
+				suite.Equal("load avg 0.50 < 4.00", a.Conditions[0].Reason)
+				suite.Equal(
+					now.Add(-30*time.Minute),
+					a.Conditions[0].LastTransitionTime,
+				)
+
+				suite.Require().Len(a.Timeline, 2)
+				suite.Equal("AgentStarted", a.Timeline[0].Event)
+				suite.Equal(startedAt.Format(time.RFC3339), a.Timeline[0].Timestamp)
+				suite.Equal("web-01", a.Timeline[0].Hostname)
+				suite.Equal("agent started", a.Timeline[0].Message)
+				suite.Empty(a.Timeline[0].Error)
+
+				suite.Equal("AgentFailed", a.Timeline[1].Event)
+				suite.Equal(now.Format(time.RFC3339), a.Timeline[1].Timestamp)
+				suite.Equal("web-01", a.Timeline[1].Hostname)
+				suite.Empty(a.Timeline[1].Message)
+				suite.Equal("connection lost", a.Timeline[1].Error)
 			},
 		},
 		{
@@ -145,6 +197,7 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 			validateFunc: func(a Agent) {
 				suite.Equal("minimal-host", a.Hostname)
 				suite.Equal("Ready", a.Status)
+				suite.Empty(a.State)
 				suite.Nil(a.Labels)
 				suite.Empty(a.Architecture)
 				suite.Zero(a.CPUCount)
@@ -156,6 +209,8 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 				suite.Nil(a.Memory)
 				suite.Nil(a.OSInfo)
 				suite.Nil(a.Interfaces)
+				suite.Nil(a.Conditions)
+				suite.Nil(a.Timeline)
 				suite.Empty(a.Uptime)
 				suite.True(a.StartedAt.IsZero())
 				suite.True(a.RegisteredAt.IsZero())
