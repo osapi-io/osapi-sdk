@@ -13,6 +13,9 @@ to an OSAPI job type that agents execute.
 | --------------------------------------------- | ---------------------- | ---------- | -------- |
 | [`command.exec.execute`](command-exec.md)     | Execute a command      | No         | Command  |
 | [`command.shell.execute`](command-shell.md)   | Execute a shell string | No         | Command  |
+| [`file.deploy.execute`](file-deploy.md)       | Deploy file to agent   | Yes        | File     |
+| [`file.status.get`](file-status.md)           | Check file status      | Read-only  | File     |
+| [`file.upload`](file-upload.md)               | Upload to Object Store | Yes        | File     |
 | [`network.dns.get`](network-dns-get.md)       | Get DNS configuration  | Read-only  | Network  |
 | [`network.dns.update`](network-dns-update.md) | Update DNS servers     | Yes        | Network  |
 | [`network.ping.do`](network-ping.md)          | Ping a host            | Read-only  | Network  |

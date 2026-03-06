@@ -17,6 +17,7 @@ resp, err := client.Node.Hostname(ctx, "_any")
 | ----------------------- | ---------------------------------- | ------------ |
 | [`Agent`](agent.md)     | Agent discovery and details        | `agent.go`   |
 | [`Audit`](audit.md)     | Audit log operations               | `audit.go`   |
+| [`File`](file.md)       | File management (Object Store)     | `file.go`    |
 | [`Health`](health.md)   | Health check operations            | `health.go`  |
 | [`Job`](job.md)         | Async job queue operations         | `job.go`     |
 | [`Metrics`](metrics.md) | Prometheus metrics access          | `metrics.go` |

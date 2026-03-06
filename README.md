@@ -28,6 +28,7 @@ start.
 | ------- | ----------------------------------------------------- | ----------------------------- | ------------------------------------ |
 | Node    | Hostname, disk, memory, load, uptime, OS info, status | [docs](docs/osapi/node.md)    | [`node.go`](pkg/osapi/node.go)       |
 | Network | DNS get/update, ping                                  | [docs](docs/osapi/node.md)    | [`node.go`](pkg/osapi/node.go)       |
+| File    | Upload, list, get, delete, deploy, status             | [docs](docs/osapi/file.md)    | [`file.go`](pkg/osapi/file.go)       |
 | Command | exec, shell                                           | [docs](docs/osapi/node.md)    | [`node.go`](pkg/osapi/node.go)       |
 | Job     | Create, get, list, delete, retry, stats               | [docs](docs/osapi/job.md)     | [`job.go`](pkg/osapi/job.go)         |
 | Agent   | List, get (discovery + heartbeat data)                | [docs](docs/osapi/agent.md)   | [`agent.go`](pkg/osapi/agent.go)     |
@@ -80,6 +81,9 @@ strategies, and adding new operations.
 | `node.memory.get`       | Get memory stats       | Read-only  | [docs](docs/orchestration/node-memory.md)        |
 | `node.uptime.get`       | Get system uptime      | Read-only  | [docs](docs/orchestration/node-uptime.md)        |
 | `node.load.get`         | Get load averages      | Read-only  | [docs](docs/orchestration/node-load.md)          |
+| `file.deploy.execute`   | Deploy file to agent   | Yes        | [docs](docs/orchestration/file-deploy.md)        |
+| `file.status.get`       | Check file status      | Read-only  | [docs](docs/orchestration/file-status.md)        |
+| `file.upload`           | Upload to Object Store | Yes        | [docs](docs/orchestration/file-upload.md)        |
 | `network.dns.get`       | Get DNS configuration  | Read-only  | [docs](docs/orchestration/network-dns-get.md)    |
 | `network.dns.update`    | Update DNS servers     | Yes        | [docs](docs/orchestration/network-dns-update.md) |
 | `network.ping.do`       | Ping a host            | Read-only  | [docs](docs/orchestration/network-ping.md)       |
