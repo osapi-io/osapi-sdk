@@ -62,15 +62,6 @@ type AgentJobResponse struct {
 	Data     any
 }
 
-// TimelineEvent represents a job lifecycle event.
-type TimelineEvent struct {
-	Timestamp string
-	Event     string
-	Hostname  string
-	Message   string
-	Error     string
-}
-
 // JobList is a paginated list of jobs.
 type JobList struct {
 	Items      []JobDetail

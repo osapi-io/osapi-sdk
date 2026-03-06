@@ -30,6 +30,7 @@ import (
 type Agent struct {
 	Hostname      string
 	Status        string
+	State         string
 	Labels        map[string]string
 	Architecture  string
 	CPUCount      int
@@ -41,10 +42,20 @@ type Agent struct {
 	Memory        *Memory
 	OSInfo        *OSInfo
 	Interfaces    []NetworkInterface
+	Conditions    []Condition
+	Timeline      []TimelineEvent
 	Uptime        string
 	StartedAt     time.Time
 	RegisteredAt  time.Time
 	Facts         map[string]any
+}
+
+// Condition represents a node condition evaluated agent-side.
+type Condition struct {
+	Type               string
+	Status             bool
+	Reason             string
+	LastTransitionTime time.Time
 }
 
 // AgentList is a collection of agents.
@@ -166,6 +177,55 @@ func agentFromGen(
 
 	if g.Facts != nil {
 		a.Facts = *g.Facts
+	}
+
+	if g.State != nil {
+		a.State = string(*g.State)
+	}
+
+	if g.Conditions != nil {
+		conditions := make([]Condition, 0, len(*g.Conditions))
+		for _, c := range *g.Conditions {
+			cond := Condition{
+				Type:               string(c.Type),
+				Status:             c.Status,
+				LastTransitionTime: c.LastTransitionTime,
+			}
+
+			if c.Reason != nil {
+				cond.Reason = *c.Reason
+			}
+
+			conditions = append(conditions, cond)
+		}
+
+		a.Conditions = conditions
+	}
+
+	if g.Timeline != nil {
+		timeline := make([]TimelineEvent, 0, len(*g.Timeline))
+		for _, t := range *g.Timeline {
+			te := TimelineEvent{
+				Event:     t.Event,
+				Timestamp: t.Timestamp.Format(time.RFC3339),
+			}
+
+			if t.Hostname != nil {
+				te.Hostname = *t.Hostname
+			}
+
+			if t.Message != nil {
+				te.Message = *t.Message
+			}
+
+			if t.Error != nil {
+				te.Error = *t.Error
+			}
+
+			timeline = append(timeline, te)
+		}
+
+		a.Timeline = timeline
 	}
 
 	return a

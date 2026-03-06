@@ -65,6 +65,10 @@ go test -run TestName -v ./pkg/osapi/...  # Run a single test
   exported functions.
 - Use `testify/suite` with table-driven patterns.
 - Table-driven structure with `validateFunc` callbacks.
+- **One suite method per function under test.** All scenarios for a function
+  (success, error codes, transport failures, nil responses) belong as rows in a
+  single table — never split into separate `TestFoo`, `TestFooError`,
+  `TestFooNilResponse` methods.
 
 ## Branching
 

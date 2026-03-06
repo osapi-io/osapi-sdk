@@ -27,6 +27,11 @@ import (
 	"github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 )
 
+// MessageResponse represents a simple message response from the API.
+type MessageResponse struct {
+	Message string
+}
+
 // AgentService provides agent discovery and details operations.
 type AgentService struct {
 	client *gen.ClientWithResponses
@@ -77,4 +82,61 @@ func (s *AgentService) Get(
 	}
 
 	return NewResponse(agentFromGen(resp.JSON200), resp.Body), nil
+}
+
+// Drain initiates draining of an agent, stopping it from accepting
+// new jobs while allowing in-flight jobs to complete.
+func (s *AgentService) Drain(
+	ctx context.Context,
+	hostname string,
+) (*Response[MessageResponse], error) {
+	resp, err := s.client.DrainAgentWithResponse(ctx, hostname)
+	if err != nil {
+		return nil, fmt.Errorf("drain agent %s: %w", hostname, err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON401, resp.JSON403, resp.JSON404, resp.JSON409); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	msg := MessageResponse{
+		Message: resp.JSON200.Message,
+	}
+
+	return NewResponse(msg, resp.Body), nil
+}
+
+// Undrain resumes job acceptance on a drained agent.
+func (s *AgentService) Undrain(
+	ctx context.Context,
+	hostname string,
+) (*Response[MessageResponse], error) {
+	resp, err := s.client.UndrainAgentWithResponse(ctx, hostname)
+	if err != nil {
+		return nil, fmt.Errorf("undrain agent %s: %w", hostname, err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON401, resp.JSON403, resp.JSON404, resp.JSON409); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	msg := MessageResponse{
+		Message: resp.JSON200.Message,
+	}
+
+	return NewResponse(msg, resp.Body), nil
 }

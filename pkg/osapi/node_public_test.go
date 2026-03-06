@@ -46,12 +46,23 @@ func (suite *NodePublicTestSuite) SetupTest() {
 func (suite *NodePublicTestSuite) TestHostname() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		target       string
 		validateFunc func(*osapi.Response[osapi.Collection[osapi.HostnameResult]], error)
 	}{
 		{
 			name:   "when requesting hostname returns results",
 			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(
+					[]byte(
+						`{"job_id":"00000000-0000-0000-0000-000000000001","results":[{"hostname":"test-host"}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.HostnameResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -60,25 +71,70 @@ func (suite *NodePublicTestSuite) TestHostname() {
 				suite.Equal("test-host", resp.Data.Results[0].Hostname)
 			},
 		},
+		{
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.HostnameResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.AuthError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusForbidden, target.StatusCode)
+			},
+		},
+		{
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.HostnameResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+				suite.Contains(err.Error(), "get hostname")
+			},
+		},
+		{
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.HostnameResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.UnexpectedStatusError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusOK, target.StatusCode)
+				suite.Equal("nil response body", target.Message)
+			},
+		},
 	}
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write(
-						[]byte(
-							`{"job_id":"00000000-0000-0000-0000-000000000001","results":[{"hostname":"test-host"}]}`,
-						),
-					)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -89,48 +145,63 @@ func (suite *NodePublicTestSuite) TestHostname() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestHostnameClientError() {
+func (suite *NodePublicTestSuite) TestStatus() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.HostnameResult]], error)
+		handler      http.HandlerFunc
+		serverURL    string
+		target       string
+		validateFunc func(*osapi.Response[osapi.Collection[osapi.NodeStatus]], error)
 	}{
 		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.HostnameResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-				suite.Contains(err.Error(), "get hostname")
+			name:   "when requesting status returns results",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"results":[{"hostname":"web-01"}]}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Len(resp.Data.Results, 1)
+				suite.Equal("web-01", resp.Data.Results[0].Hostname)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Hostname(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestHostnameNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.HostnameResult]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.HostnameResult]], err error) {
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.AuthError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusForbidden, target.StatusCode)
+			},
+		},
+		{
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+				suite.Contains(err.Error(), "get status")
+			},
+		},
+		{
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -144,97 +215,23 @@ func (suite *NodePublicTestSuite) TestHostnameNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Hostname(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestHostnameError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.HostnameResult]], error)
-	}{
-		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.HostnameResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-
-				var target *osapi.AuthError
-				suite.True(errors.As(err, &target))
-				suite.Equal(http.StatusForbidden, target.StatusCode)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Hostname(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestStatus() {
-	tests := []struct {
-		name         string
-		target       string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.NodeStatus]], error)
-	}{
-		{
-			name:   "when requesting status returns results",
-			target: "_any",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
-				suite.NoError(err)
-				suite.NotNil(resp)
-				suite.Len(resp.Data.Results, 1)
-				suite.Equal("web-01", resp.Data.Results[0].Hostname)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"results":[{"hostname":"web-01"}]}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -245,14 +242,38 @@ func (suite *NodePublicTestSuite) TestStatus() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestStatusError() {
+func (suite *NodePublicTestSuite) TestDisk() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.NodeStatus]], error)
+		handler      http.HandlerFunc
+		serverURL    string
+		target       string
+		validateFunc func(*osapi.Response[osapi.Collection[osapi.DiskResult]], error)
 	}{
 		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
+			name:   "when requesting disk returns results",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"results":[{"hostname":"disk-host"}]}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Len(resp.Data.Results, 1)
+				suite.Equal("disk-host", resp.Data.Results[0].Hostname)
+			},
+		},
+		{
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -261,73 +282,23 @@ func (suite *NodePublicTestSuite) TestStatusError() {
 				suite.Equal(http.StatusForbidden, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Status(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestStatusClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.NodeStatus]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
-				suite.Contains(err.Error(), "get status")
+				suite.Contains(err.Error(), "get disk")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Status(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestStatusNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.NodeStatus]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.NodeStatus]], err error) {
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -341,56 +312,23 @@ func (suite *NodePublicTestSuite) TestStatusNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Status(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestDisk() {
-	tests := []struct {
-		name         string
-		target       string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DiskResult]], error)
-	}{
-		{
-			name:   "when requesting disk returns results",
-			target: "_any",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
-				suite.NoError(err)
-				suite.NotNil(resp)
-				suite.Len(resp.Data.Results, 1)
-				suite.Equal("disk-host", resp.Data.Results[0].Hostname)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"results":[{"hostname":"disk-host"}]}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -401,14 +339,38 @@ func (suite *NodePublicTestSuite) TestDisk() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestDiskError() {
+func (suite *NodePublicTestSuite) TestMemory() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DiskResult]], error)
+		handler      http.HandlerFunc
+		serverURL    string
+		target       string
+		validateFunc func(*osapi.Response[osapi.Collection[osapi.MemoryResult]], error)
 	}{
 		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
+			name:   "when requesting memory returns results",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"results":[{"hostname":"mem-host"}]}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Len(resp.Data.Results, 1)
+				suite.Equal("mem-host", resp.Data.Results[0].Hostname)
+			},
+		},
+		{
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -417,73 +379,23 @@ func (suite *NodePublicTestSuite) TestDiskError() {
 				suite.Equal(http.StatusForbidden, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Disk(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestDiskClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DiskResult]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
-				suite.Contains(err.Error(), "get disk")
+				suite.Contains(err.Error(), "get memory")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Disk(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestDiskNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DiskResult]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DiskResult]], err error) {
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -497,56 +409,23 @@ func (suite *NodePublicTestSuite) TestDiskNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Disk(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestMemory() {
-	tests := []struct {
-		name         string
-		target       string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.MemoryResult]], error)
-	}{
-		{
-			name:   "when requesting memory returns results",
-			target: "_any",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
-				suite.NoError(err)
-				suite.NotNil(resp)
-				suite.Len(resp.Data.Results, 1)
-				suite.Equal("mem-host", resp.Data.Results[0].Hostname)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"results":[{"hostname":"mem-host"}]}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -557,14 +436,38 @@ func (suite *NodePublicTestSuite) TestMemory() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestMemoryError() {
+func (suite *NodePublicTestSuite) TestLoad() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.MemoryResult]], error)
+		handler      http.HandlerFunc
+		serverURL    string
+		target       string
+		validateFunc func(*osapi.Response[osapi.Collection[osapi.LoadResult]], error)
 	}{
 		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
+			name:   "when requesting load returns results",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"results":[{"hostname":"load-host"}]}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Len(resp.Data.Results, 1)
+				suite.Equal("load-host", resp.Data.Results[0].Hostname)
+			},
+		},
+		{
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -573,73 +476,23 @@ func (suite *NodePublicTestSuite) TestMemoryError() {
 				suite.Equal(http.StatusForbidden, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Memory(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestMemoryClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.MemoryResult]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
-				suite.Contains(err.Error(), "get memory")
+				suite.Contains(err.Error(), "get load")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Memory(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestMemoryNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.MemoryResult]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.MemoryResult]], err error) {
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -653,56 +506,23 @@ func (suite *NodePublicTestSuite) TestMemoryNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Memory(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestLoad() {
-	tests := []struct {
-		name         string
-		target       string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.LoadResult]], error)
-	}{
-		{
-			name:   "when requesting load returns results",
-			target: "_any",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
-				suite.NoError(err)
-				suite.NotNil(resp)
-				suite.Len(resp.Data.Results, 1)
-				suite.Equal("load-host", resp.Data.Results[0].Hostname)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"results":[{"hostname":"load-host"}]}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -713,14 +533,38 @@ func (suite *NodePublicTestSuite) TestLoad() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestLoadError() {
+func (suite *NodePublicTestSuite) TestOS() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.LoadResult]], error)
+		handler      http.HandlerFunc
+		serverURL    string
+		target       string
+		validateFunc func(*osapi.Response[osapi.Collection[osapi.OSInfoResult]], error)
 	}{
 		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
+			name:   "when requesting OS info returns results",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"results":[{"hostname":"os-host"}]}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Len(resp.Data.Results, 1)
+				suite.Equal("os-host", resp.Data.Results[0].Hostname)
+			},
+		},
+		{
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -729,73 +573,23 @@ func (suite *NodePublicTestSuite) TestLoadError() {
 				suite.Equal(http.StatusForbidden, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Load(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestLoadClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.LoadResult]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
-				suite.Contains(err.Error(), "get load")
+				suite.Contains(err.Error(), "get os")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Load(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestLoadNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.LoadResult]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.LoadResult]], err error) {
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -809,56 +603,23 @@ func (suite *NodePublicTestSuite) TestLoadNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Load(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestOS() {
-	tests := []struct {
-		name         string
-		target       string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.OSInfoResult]], error)
-	}{
-		{
-			name:   "when requesting OS info returns results",
-			target: "_any",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
-				suite.NoError(err)
-				suite.NotNil(resp)
-				suite.Len(resp.Data.Results, 1)
-				suite.Equal("os-host", resp.Data.Results[0].Hostname)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"results":[{"hostname":"os-host"}]}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -869,14 +630,41 @@ func (suite *NodePublicTestSuite) TestOS() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestOSError() {
+func (suite *NodePublicTestSuite) TestUptime() {
 	tests := []struct {
 		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.OSInfoResult]], error)
+		handler      http.HandlerFunc
+		serverURL    string
+		target       string
+		validateFunc func(*osapi.Response[osapi.Collection[osapi.UptimeResult]], error)
 	}{
 		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
+			name:   "when requesting uptime returns results",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(
+					[]byte(`{"results":[{"hostname":"uptime-host","uptime":"2d3h"}]}`),
+				)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Len(resp.Data.Results, 1)
+				suite.Equal("uptime-host", resp.Data.Results[0].Hostname)
+				suite.Equal("2d3h", resp.Data.Results[0].Uptime)
+			},
+		},
+		{
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -885,73 +673,23 @@ func (suite *NodePublicTestSuite) TestOSError() {
 				suite.Equal(http.StatusForbidden, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.OS(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestOSClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.OSInfoResult]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
-				suite.Contains(err.Error(), "get os")
+				suite.Contains(err.Error(), "get uptime")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.OS(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestOSNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.OSInfoResult]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.OSInfoResult]], err error) {
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 
@@ -965,59 +703,23 @@ func (suite *NodePublicTestSuite) TestOSNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.OS(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestUptime() {
-	tests := []struct {
-		name         string
-		target       string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.UptimeResult]], error)
-	}{
-		{
-			name:   "when requesting uptime returns results",
-			target: "_any",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
-				suite.NoError(err)
-				suite.NotNil(resp)
-				suite.Len(resp.Data.Results, 1)
-				suite.Equal("uptime-host", resp.Data.Results[0].Hostname)
-				suite.Equal("2d3h", resp.Data.Results[0].Uptime)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write(
-						[]byte(`{"results":[{"hostname":"uptime-host","uptime":"2d3h"}]}`),
-					)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -1028,132 +730,26 @@ func (suite *NodePublicTestSuite) TestUptime() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestUptimeError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.UptimeResult]], error)
-	}{
-		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-
-				var target *osapi.AuthError
-				suite.True(errors.As(err, &target))
-				suite.Equal(http.StatusForbidden, target.StatusCode)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Uptime(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestUptimeClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.UptimeResult]], error)
-	}{
-		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-				suite.Contains(err.Error(), "get uptime")
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Uptime(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestUptimeNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.UptimeResult]], error)
-	}{
-		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.UptimeResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-
-				var target *osapi.UnexpectedStatusError
-				suite.True(errors.As(err, &target))
-				suite.Equal(http.StatusOK, target.StatusCode)
-				suite.Equal("nil response body", target.Message)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Uptime(suite.ctx, "_any")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
 func (suite *NodePublicTestSuite) TestGetDNS() {
 	tests := []struct {
-		name         string
-		target       string
-		iface        string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DNSConfig]], error)
+		name          string
+		handler       http.HandlerFunc
+		serverURL     string
+		target        string
+		interfaceName string
+		validateFunc  func(*osapi.Response[osapi.Collection[osapi.DNSConfig]], error)
 	}{
 		{
-			name:   "when requesting DNS returns results",
-			target: "_any",
-			iface:  "eth0",
+			name:          "when requesting DNS returns results",
+			target:        "_any",
+			interfaceName: "eth0",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(
+					[]byte(`{"results":[{"hostname":"dns-host","servers":["8.8.8.8"]}]}`),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSConfig]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -1162,40 +758,15 @@ func (suite *NodePublicTestSuite) TestGetDNS() {
 				suite.Equal([]string{"8.8.8.8"}, resp.Data.Results[0].Servers)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write(
-						[]byte(`{"results":[{"hostname":"dns-host","servers":["8.8.8.8"]}]}`),
-					)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.GetDNS(suite.ctx, tc.target, tc.iface)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestGetDNSError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DNSConfig]], error)
-	}{
 		{
-			name: "when server returns 403 returns AuthError",
+			name:          "when server returns 403 returns AuthError",
+			target:        "_any",
+			interfaceName: "eth0",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSConfig]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -1205,72 +776,24 @@ func (suite *NodePublicTestSuite) TestGetDNSError() {
 				suite.Equal(http.StatusForbidden, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.GetDNS(suite.ctx, "_any", "eth0")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestGetDNSClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DNSConfig]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
+			name:          "when client HTTP call fails returns error",
+			target:        "_any",
+			interfaceName: "eth0",
+			serverURL:     "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSConfig]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 				suite.Contains(err.Error(), "get dns")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.GetDNS(suite.ctx, "_any", "eth0")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestGetDNSNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DNSConfig]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			name:          "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target:        "_any",
+			interfaceName: "eth0",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSConfig]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -1285,20 +808,28 @@ func (suite *NodePublicTestSuite) TestGetDNSNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Node.GetDNS(suite.ctx, "_any", "eth0")
+			resp, err := sut.Node.GetDNS(suite.ctx, tc.target, tc.interfaceName)
 			tc.validateFunc(resp, err)
 		})
 	}
@@ -1307,6 +838,8 @@ func (suite *NodePublicTestSuite) TestGetDNSNilResponse() {
 func (suite *NodePublicTestSuite) TestUpdateDNS() {
 	tests := []struct {
 		name          string
+		handler       http.HandlerFunc
+		serverURL     string
 		target        string
 		iface         string
 		servers       []string
@@ -1319,6 +852,15 @@ func (suite *NodePublicTestSuite) TestUpdateDNS() {
 			iface:         "eth0",
 			servers:       []string{"8.8.8.8", "8.8.4.4"},
 			searchDomains: nil,
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"dns-host","status":"completed","changed":true}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -1334,6 +876,15 @@ func (suite *NodePublicTestSuite) TestUpdateDNS() {
 			iface:         "eth0",
 			servers:       nil,
 			searchDomains: []string{"example.com"},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"dns-host","status":"completed","changed":true}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -1345,6 +896,15 @@ func (suite *NodePublicTestSuite) TestUpdateDNS() {
 			iface:         "eth0",
 			servers:       []string{"8.8.8.8"},
 			searchDomains: []string{"example.com"},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"dns-host","status":"completed","changed":true}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -1356,30 +916,90 @@ func (suite *NodePublicTestSuite) TestUpdateDNS() {
 			iface:         "eth0",
 			servers:       nil,
 			searchDomains: nil,
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"dns-host","status":"completed","changed":true}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
+			},
+		},
+		{
+			name:    "when server returns 403 returns AuthError",
+			target:  "_any",
+			iface:   "eth0",
+			servers: []string{"8.8.8.8"},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.AuthError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusForbidden, target.StatusCode)
+			},
+		},
+		{
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			iface:     "eth0",
+			servers:   []string{"8.8.8.8"},
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+				suite.Contains(err.Error(), "update dns")
+			},
+		},
+		{
+			name:    "when server returns 202 with no JSON body returns UnexpectedStatusError",
+			target:  "_any",
+			iface:   "eth0",
+			servers: []string{"8.8.8.8"},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusAccepted)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.UnexpectedStatusError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusAccepted, target.StatusCode)
+				suite.Equal("nil response body", target.Message)
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusAccepted)
-					_, _ = w.Write(
-						[]byte(
-							`{"results":[{"hostname":"dns-host","status":"completed","changed":true}]}`,
-						),
-					)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -1396,124 +1016,11 @@ func (suite *NodePublicTestSuite) TestUpdateDNS() {
 	}
 }
 
-func (suite *NodePublicTestSuite) TestUpdateDNSError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], error)
-	}{
-		{
-			name: "when server returns 403 returns AuthError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-
-				var target *osapi.AuthError
-				suite.True(errors.As(err, &target))
-				suite.Equal(http.StatusForbidden, target.StatusCode)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.UpdateDNS(suite.ctx, "_any", "eth0", []string{"8.8.8.8"}, nil)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestUpdateDNSClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], error)
-	}{
-		{
-			name: "when client HTTP call fails returns error",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-				suite.Contains(err.Error(), "update dns")
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.UpdateDNS(suite.ctx, "_any", "eth0", []string{"8.8.8.8"}, nil)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestUpdateDNSNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], error)
-	}{
-		{
-			name: "when server returns 202 with no JSON body returns UnexpectedStatusError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.DNSUpdateResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-
-				var target *osapi.UnexpectedStatusError
-				suite.True(errors.As(err, &target))
-				suite.Equal(http.StatusAccepted, target.StatusCode)
-				suite.Equal("nil response body", target.Message)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusAccepted)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.UpdateDNS(suite.ctx, "_any", "eth0", []string{"8.8.8.8"}, nil)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
 func (suite *NodePublicTestSuite) TestPing() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		target       string
 		address      string
 		validateFunc func(*osapi.Response[osapi.Collection[osapi.PingResult]], error)
@@ -1522,6 +1029,15 @@ func (suite *NodePublicTestSuite) TestPing() {
 			name:    "when pinging address returns results",
 			target:  "_any",
 			address: "8.8.8.8",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"ping-host","packets_sent":4,"packets_received":4,"packet_loss":0.0}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.PingResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -1530,42 +1046,15 @@ func (suite *NodePublicTestSuite) TestPing() {
 				suite.Equal(4, resp.Data.Results[0].PacketsSent)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write(
-						[]byte(
-							`{"results":[{"hostname":"ping-host","packets_sent":4,"packets_received":4,"packet_loss":0.0}]}`,
-						),
-					)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Ping(suite.ctx, tc.target, tc.address)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestPingError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.PingResult]], error)
-	}{
 		{
-			name: "when server returns 403 returns AuthError",
+			name:    "when server returns 403 returns AuthError",
+			target:  "_any",
+			address: "8.8.8.8",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.PingResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -1575,72 +1064,24 @@ func (suite *NodePublicTestSuite) TestPingError() {
 				suite.Equal(http.StatusForbidden, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusForbidden)
-					_, _ = w.Write([]byte(`{"error":"forbidden"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Ping(suite.ctx, "_any", "8.8.8.8")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestPingClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.PingResult]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			address:   "8.8.8.8",
+			serverURL: "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.PingResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 				suite.Contains(err.Error(), "ping")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Ping(suite.ctx, "_any", "8.8.8.8")
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestPingNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.PingResult]], error)
-	}{
 		{
-			name: "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			name:    "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target:  "_any",
+			address: "8.8.8.8",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.PingResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -1655,20 +1096,28 @@ func (suite *NodePublicTestSuite) TestPingNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Node.Ping(suite.ctx, "_any", "8.8.8.8")
+			resp, err := sut.Node.Ping(suite.ctx, tc.target, tc.address)
 			tc.validateFunc(resp, err)
 		})
 	}
@@ -1677,6 +1126,8 @@ func (suite *NodePublicTestSuite) TestPingNilResponse() {
 func (suite *NodePublicTestSuite) TestExec() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		req          osapi.ExecRequest
 		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
 	}{
@@ -1685,6 +1136,15 @@ func (suite *NodePublicTestSuite) TestExec() {
 			req: osapi.ExecRequest{
 				Command: "whoami",
 				Target:  "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"exec-host","stdout":"root\n","exit_code":0,"changed":true}]}`,
+					),
+				)
 			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.NoError(err)
@@ -1704,84 +1164,61 @@ func (suite *NodePublicTestSuite) TestExec() {
 				Timeout: 10,
 				Target:  "_any",
 			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"exec-host","stdout":"root\n","exit_code":0,"changed":true}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusAccepted)
-					_, _ = w.Write(
-						[]byte(
-							`{"results":[{"hostname":"exec-host","stdout":"root\n","exit_code":0,"changed":true}]}`,
-						),
-					)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Exec(suite.ctx, tc.req)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestExecClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
+			name: "when server returns 400 returns ValidationError",
+			req: osapi.ExecRequest{
+				Target: "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = w.Write([]byte(`{"error":"command is required"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.ValidationError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusBadRequest, target.StatusCode)
+			},
+		},
+		{
+			name:      "when client HTTP call fails returns error",
+			serverURL: "http://127.0.0.1:0",
+			req: osapi.ExecRequest{
+				Command: "whoami",
+				Target:  "_any",
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 				suite.Contains(err.Error(), "exec command")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Exec(suite.ctx, osapi.ExecRequest{
-				Command: "whoami",
-				Target:  "_any",
-			})
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestExecNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
-	}{
 		{
 			name: "when server returns 202 with no JSON body returns UnexpectedStatusError",
+			req: osapi.ExecRequest{
+				Command: "whoami",
+				Target:  "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusAccepted)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -1796,66 +1233,28 @@ func (suite *NodePublicTestSuite) TestExecNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusAccepted)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Node.Exec(suite.ctx, osapi.ExecRequest{
-				Command: "whoami",
-				Target:  "_any",
-			})
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestExecError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
-	}{
-		{
-			name: "when server returns 400 returns ValidationError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-
-				var target *osapi.ValidationError
-				suite.True(errors.As(err, &target))
-				suite.Equal(http.StatusBadRequest, target.StatusCode)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusBadRequest)
-					_, _ = w.Write([]byte(`{"error":"command is required"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Exec(suite.ctx, osapi.ExecRequest{
-				Target: "_any",
-			})
+			resp, err := sut.Node.Exec(suite.ctx, tc.req)
 			tc.validateFunc(resp, err)
 		})
 	}
@@ -1864,6 +1263,8 @@ func (suite *NodePublicTestSuite) TestExecError() {
 func (suite *NodePublicTestSuite) TestShell() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		req          osapi.ShellRequest
 		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
 	}{
@@ -1872,6 +1273,15 @@ func (suite *NodePublicTestSuite) TestShell() {
 			req: osapi.ShellRequest{
 				Command: "uname -a",
 				Target:  "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"shell-host","exit_code":0,"changed":false}]}`,
+					),
+				)
 			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.NoError(err)
@@ -1888,84 +1298,61 @@ func (suite *NodePublicTestSuite) TestShell() {
 				Timeout: 15,
 				Target:  "_any",
 			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"results":[{"hostname":"shell-host","exit_code":0,"changed":false}]}`,
+					),
+				)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusAccepted)
-					_, _ = w.Write(
-						[]byte(
-							`{"results":[{"hostname":"shell-host","exit_code":0,"changed":false}]}`,
-						),
-					)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Shell(suite.ctx, tc.req)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestShellClientError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
-	}{
 		{
-			name: "when client HTTP call fails returns error",
+			name: "when server returns 400 returns ValidationError",
+			req: osapi.ShellRequest{
+				Target: "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = w.Write([]byte(`{"error":"command is required"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.ValidationError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusBadRequest, target.StatusCode)
+			},
+		},
+		{
+			name:      "when client HTTP call fails returns error",
+			serverURL: "http://127.0.0.1:0",
+			req: osapi.ShellRequest{
+				Command: "uname -a",
+				Target:  "_any",
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 				suite.Contains(err.Error(), "shell command")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-			)
-			server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Shell(suite.ctx, osapi.ShellRequest{
-				Command: "uname -a",
-				Target:  "_any",
-			})
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestShellNilResponse() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
-	}{
 		{
 			name: "when server returns 202 with no JSON body returns UnexpectedStatusError",
+			req: osapi.ShellRequest{
+				Command: "uname -a",
+				Target:  "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusAccepted)
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -1980,66 +1367,28 @@ func (suite *NodePublicTestSuite) TestShellNilResponse() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusAccepted)
-				}),
+			var (
+				serverURL string
+				cleanup   func()
 			)
-			defer server.Close()
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Node.Shell(suite.ctx, osapi.ShellRequest{
-				Command: "uname -a",
-				Target:  "_any",
-			})
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *NodePublicTestSuite) TestShellError() {
-	tests := []struct {
-		name         string
-		validateFunc func(*osapi.Response[osapi.Collection[osapi.CommandResult]], error)
-	}{
-		{
-			name: "when server returns 400 returns ValidationError",
-			validateFunc: func(resp *osapi.Response[osapi.Collection[osapi.CommandResult]], err error) {
-				suite.Error(err)
-				suite.Nil(resp)
-
-				var target *osapi.ValidationError
-				suite.True(errors.As(err, &target))
-				suite.Equal(http.StatusBadRequest, target.StatusCode)
-			},
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusBadRequest)
-					_, _ = w.Write([]byte(`{"error":"command is required"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Node.Shell(suite.ctx, osapi.ShellRequest{
-				Target: "_any",
-			})
+			resp, err := sut.Node.Shell(suite.ctx, tc.req)
 			tc.validateFunc(resp, err)
 		})
 	}

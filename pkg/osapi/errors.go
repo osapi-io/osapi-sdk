@@ -77,6 +77,16 @@ func (e *ServerError) Unwrap() error {
 	return &e.APIError
 }
 
+// ConflictError represents conflict errors (409).
+type ConflictError struct {
+	APIError
+}
+
+// Unwrap returns the underlying APIError.
+func (e *ConflictError) Unwrap() error {
+	return &e.APIError
+}
+
 // UnexpectedStatusError represents unexpected HTTP status codes.
 type UnexpectedStatusError struct {
 	APIError
