@@ -52,6 +52,10 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 				kernelVersion := "5.15.0-generic"
 				packageMgr := "apt"
 				serviceMgr := "systemd"
+				primaryIface := "eth0"
+				routeMask := "255.255.255.0"
+				routeFlags := "UG"
+				routeMetric := 100
 				uptime := "5d 3h 22m"
 				family := gen.NetworkInterfaceResponseFamily("inet")
 				ipv4 := "192.168.1.10"
@@ -89,6 +93,7 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 						Distribution: "Ubuntu",
 						Version:      "22.04",
 					},
+					PrimaryInterface: &primaryIface,
 					Interfaces: &[]gen.NetworkInterfaceResponse{
 						{
 							Name:   "eth0",
@@ -96,6 +101,16 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 							Ipv4:   &ipv4,
 							Ipv6:   &ipv6,
 							Mac:    &mac,
+						},
+					},
+					Routes: &[]gen.RouteResponse{
+						{
+							Destination: "0.0.0.0",
+							Gateway:     "192.168.1.1",
+							Interface:   "eth0",
+							Mask:        &routeMask,
+							Flags:       &routeFlags,
+							Metric:      &routeMetric,
 						},
 					},
 					Uptime:       &uptime,
@@ -153,12 +168,22 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 				suite.Equal("Ubuntu", a.OSInfo.Distribution)
 				suite.Equal("22.04", a.OSInfo.Version)
 
+				suite.Equal("eth0", a.PrimaryInterface)
+
 				suite.Require().Len(a.Interfaces, 1)
 				suite.Equal("eth0", a.Interfaces[0].Name)
 				suite.Equal("inet", a.Interfaces[0].Family)
 				suite.Equal("192.168.1.10", a.Interfaces[0].IPv4)
 				suite.Equal("fe80::1", a.Interfaces[0].IPv6)
 				suite.Equal("00:11:22:33:44:55", a.Interfaces[0].MAC)
+
+				suite.Require().Len(a.Routes, 1)
+				suite.Equal("0.0.0.0", a.Routes[0].Destination)
+				suite.Equal("192.168.1.1", a.Routes[0].Gateway)
+				suite.Equal("eth0", a.Routes[0].Interface)
+				suite.Equal("255.255.255.0", a.Routes[0].Mask)
+				suite.Equal("UG", a.Routes[0].Flags)
+				suite.Equal(100, a.Routes[0].Metric)
 
 				suite.Equal("5d 3h 22m", a.Uptime)
 				suite.Equal(startedAt, a.StartedAt)
@@ -208,7 +233,9 @@ func (suite *AgentTypesTestSuite) TestAgentFromGen() {
 				suite.Nil(a.LoadAverage)
 				suite.Nil(a.Memory)
 				suite.Nil(a.OSInfo)
+				suite.Empty(a.PrimaryInterface)
 				suite.Nil(a.Interfaces)
+				suite.Nil(a.Routes)
 				suite.Nil(a.Conditions)
 				suite.Nil(a.Timeline)
 				suite.Empty(a.Uptime)
