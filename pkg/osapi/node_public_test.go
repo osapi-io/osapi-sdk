@@ -1394,6 +1394,300 @@ func (suite *NodePublicTestSuite) TestShell() {
 	}
 }
 
+func (suite *NodePublicTestSuite) TestFileDeploy() {
+	tests := []struct {
+		name         string
+		handler      http.HandlerFunc
+		serverURL    string
+		req          osapi.FileDeployOpts
+		validateFunc func(*osapi.Response[osapi.FileDeployResult], error)
+	}{
+		{
+			name: "when deploying file returns result",
+			req: osapi.FileDeployOpts{
+				ObjectName:  "nginx.conf",
+				Path:        "/etc/nginx/nginx.conf",
+				ContentType: "raw",
+				Target:      "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"job_id":"job-123","hostname":"web-01","changed":true}`,
+					),
+				)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileDeployResult], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal("job-123", resp.Data.JobID)
+				suite.Equal("web-01", resp.Data.Hostname)
+				suite.True(resp.Data.Changed)
+			},
+		},
+		{
+			name: "when all options provided returns results",
+			req: osapi.FileDeployOpts{
+				ObjectName:  "app.conf.tmpl",
+				Path:        "/etc/app/app.conf",
+				ContentType: "template",
+				Mode:        "0644",
+				Owner:       "root",
+				Group:       "root",
+				Vars:        map[string]any{"port": 8080},
+				Target:      "web-01",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				_, _ = w.Write(
+					[]byte(
+						`{"job_id":"job-456","hostname":"web-01","changed":true}`,
+					),
+				)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileDeployResult], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+			},
+		},
+		{
+			name: "when server returns 400 returns ValidationError",
+			req: osapi.FileDeployOpts{
+				Target: "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = w.Write([]byte(`{"error":"object_name is required"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileDeployResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.ValidationError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusBadRequest, target.StatusCode)
+			},
+		},
+		{
+			name: "when server returns 403 returns AuthError",
+			req: osapi.FileDeployOpts{
+				ObjectName:  "nginx.conf",
+				Path:        "/etc/nginx/nginx.conf",
+				ContentType: "raw",
+				Target:      "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileDeployResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.AuthError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusForbidden, target.StatusCode)
+			},
+		},
+		{
+			name:      "when client HTTP call fails returns error",
+			serverURL: "http://127.0.0.1:0",
+			req: osapi.FileDeployOpts{
+				ObjectName:  "nginx.conf",
+				Path:        "/etc/nginx/nginx.conf",
+				ContentType: "raw",
+				Target:      "_any",
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileDeployResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+				suite.Contains(err.Error(), "file deploy")
+			},
+		},
+		{
+			name: "when server returns 202 with no JSON body returns UnexpectedStatusError",
+			req: osapi.FileDeployOpts{
+				ObjectName:  "nginx.conf",
+				Path:        "/etc/nginx/nginx.conf",
+				ContentType: "raw",
+				Target:      "_any",
+			},
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusAccepted)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileDeployResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.UnexpectedStatusError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusAccepted, target.StatusCode)
+				suite.Equal("nil response body", target.Message)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			var (
+				serverURL string
+				cleanup   func()
+			)
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
+
+			sut := osapi.New(
+				serverURL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Node.FileDeploy(suite.ctx, tc.req)
+			tc.validateFunc(resp, err)
+		})
+	}
+}
+
+func (suite *NodePublicTestSuite) TestFileStatus() {
+	tests := []struct {
+		name         string
+		handler      http.HandlerFunc
+		serverURL    string
+		target       string
+		path         string
+		validateFunc func(*osapi.Response[osapi.FileStatusResult], error)
+	}{
+		{
+			name:   "when checking file status returns result",
+			target: "_any",
+			path:   "/etc/nginx/nginx.conf",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(
+					[]byte(
+						`{"job_id":"job-789","hostname":"web-01","path":"/etc/nginx/nginx.conf","status":"in-sync","sha256":"abc123"}`,
+					),
+				)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileStatusResult], err error) {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal("job-789", resp.Data.JobID)
+				suite.Equal("web-01", resp.Data.Hostname)
+				suite.Equal("/etc/nginx/nginx.conf", resp.Data.Path)
+				suite.Equal("in-sync", resp.Data.Status)
+				suite.Equal("abc123", resp.Data.SHA256)
+			},
+		},
+		{
+			name:   "when server returns 400 returns ValidationError",
+			target: "_any",
+			path:   "",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = w.Write([]byte(`{"error":"path is required"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileStatusResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.ValidationError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusBadRequest, target.StatusCode)
+			},
+		},
+		{
+			name:   "when server returns 403 returns AuthError",
+			target: "_any",
+			path:   "/etc/nginx/nginx.conf",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"forbidden"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileStatusResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.AuthError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusForbidden, target.StatusCode)
+			},
+		},
+		{
+			name:      "when client HTTP call fails returns error",
+			target:    "_any",
+			path:      "/etc/nginx/nginx.conf",
+			serverURL: "http://127.0.0.1:0",
+			validateFunc: func(resp *osapi.Response[osapi.FileStatusResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+				suite.Contains(err.Error(), "file status")
+			},
+		},
+		{
+			name:   "when server returns 200 with no JSON body returns UnexpectedStatusError",
+			target: "_any",
+			path:   "/etc/nginx/nginx.conf",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileStatusResult], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.UnexpectedStatusError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusOK, target.StatusCode)
+				suite.Equal("nil response body", target.Message)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			var (
+				serverURL string
+				cleanup   func()
+			)
+
+			if tc.serverURL != "" {
+				serverURL = tc.serverURL
+				cleanup = func() {}
+			} else {
+				server := httptest.NewServer(tc.handler)
+				serverURL = server.URL
+				cleanup = server.Close
+			}
+			defer cleanup()
+
+			sut := osapi.New(
+				serverURL,
+				"test-token",
+				osapi.WithLogger(slog.Default()),
+			)
+
+			resp, err := sut.Node.FileStatus(suite.ctx, tc.target, tc.path)
+			tc.validateFunc(resp, err)
+		})
+	}
+}
+
 func TestNodePublicTestSuite(t *testing.T) {
 	suite.Run(t, new(NodePublicTestSuite))
 }

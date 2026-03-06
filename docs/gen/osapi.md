@@ -61,6 +61,19 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type Disk](<#Disk>)
 - [type DiskResult](<#DiskResult>)
 - [type ExecRequest](<#ExecRequest>)
+- [type FileDelete](<#FileDelete>)
+- [type FileDeployOpts](<#FileDeployOpts>)
+- [type FileDeployResult](<#FileDeployResult>)
+- [type FileItem](<#FileItem>)
+- [type FileList](<#FileList>)
+- [type FileMetadata](<#FileMetadata>)
+- [type FileService](<#FileService>)
+  - [func \(s \*FileService\) Delete\(ctx context.Context, name string\) \(\*Response\[FileDelete\], error\)](<#FileService.Delete>)
+  - [func \(s \*FileService\) Get\(ctx context.Context, name string\) \(\*Response\[FileMetadata\], error\)](<#FileService.Get>)
+  - [func \(s \*FileService\) List\(ctx context.Context\) \(\*Response\[FileList\], error\)](<#FileService.List>)
+  - [func \(s \*FileService\) Upload\(ctx context.Context, name string, content \[\]byte\) \(\*Response\[FileUpload\], error\)](<#FileService.Upload>)
+- [type FileStatusResult](<#FileStatusResult>)
+- [type FileUpload](<#FileUpload>)
 - [type HealthService](<#HealthService>)
   - [func \(s \*HealthService\) Liveness\(ctx context.Context\) \(\*Response\[HealthStatus\], error\)](<#HealthService.Liveness>)
   - [func \(s \*HealthService\) Ready\(ctx context.Context\) \(\*Response\[ReadyStatus\], error\)](<#HealthService.Ready>)
@@ -92,6 +105,8 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type NodeService](<#NodeService>)
   - [func \(s \*NodeService\) Disk\(ctx context.Context, target string\) \(\*Response\[Collection\[DiskResult\]\], error\)](<#NodeService.Disk>)
   - [func \(s \*NodeService\) Exec\(ctx context.Context, req ExecRequest\) \(\*Response\[Collection\[CommandResult\]\], error\)](<#NodeService.Exec>)
+  - [func \(s \*NodeService\) FileDeploy\(ctx context.Context, req FileDeployOpts\) \(\*Response\[FileDeployResult\], error\)](<#NodeService.FileDeploy>)
+  - [func \(s \*NodeService\) FileStatus\(ctx context.Context, target string, path string\) \(\*Response\[FileStatusResult\], error\)](<#NodeService.FileStatus>)
   - [func \(s \*NodeService\) GetDNS\(ctx context.Context, target string, interfaceName string\) \(\*Response\[Collection\[DNSConfig\]\], error\)](<#NodeService.GetDNS>)
   - [func \(s \*NodeService\) Hostname\(ctx context.Context, target string\) \(\*Response\[Collection\[HostnameResult\]\], error\)](<#NodeService.Hostname>)
   - [func \(s \*NodeService\) Load\(ctx context.Context, target string\) \(\*Response\[Collection\[LoadResult\]\], error\)](<#NodeService.Load>)
@@ -386,7 +401,7 @@ func (e *AuthError) Unwrap() error
 Unwrap returns the underlying APIError.
 
 <a name="Client"></a>
-## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L46-L70>)
+## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L46-L73>)
 
 Client is the top\-level OSAPI SDK client. Use New\(\) to create one.
 
@@ -410,12 +425,15 @@ type Client struct {
 
     // Metrics provides Prometheus metrics access.
     Metrics *MetricsService
+
+    // File provides file management operations (upload, list, get, delete).
+    File *FileService
     // contains filtered or unexported fields
 }
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L94-L98>)
+### func [New](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L97-L101>)
 
 ```go
 func New(baseURL string, bearerToken string, opts ...Option) *Client
@@ -601,6 +619,178 @@ type ExecRequest struct {
     // Target specifies the host: "_any", "_all", hostname, or
     // label ("group:web").
     Target string
+}
+```
+
+<a name="FileDelete"></a>
+## type [FileDelete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L53-L56>)
+
+FileDelete represents the result of a file deletion.
+
+```go
+type FileDelete struct {
+    Name    string
+    Deleted bool
+}
+```
+
+<a name="FileDeployOpts"></a>
+## type [FileDeployOpts](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L55-L80>)
+
+FileDeployOpts contains parameters for file deployment.
+
+```go
+type FileDeployOpts struct {
+    // ObjectName is the name of the file in the Object Store (required).
+    ObjectName string
+
+    // Path is the destination path on the target filesystem (required).
+    Path string
+
+    // ContentType is "raw" or "template" (required).
+    ContentType string
+
+    // Mode is the file permission mode (e.g., "0644"). Optional.
+    Mode string
+
+    // Owner is the file owner user. Optional.
+    Owner string
+
+    // Group is the file owner group. Optional.
+    Group string
+
+    // Vars are template variables when ContentType is "template". Optional.
+    Vars map[string]any
+
+    // Target specifies the host: "_any", "_all", hostname, or
+    // label ("group:web").
+    Target string
+}
+```
+
+<a name="FileDeployResult"></a>
+## type [FileDeployResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L59-L63>)
+
+FileDeployResult represents the result of a file deploy operation.
+
+```go
+type FileDeployResult struct {
+    JobID    string
+    Hostname string
+    Changed  bool
+}
+```
+
+<a name="FileItem"></a>
+## type [FileItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L33-L37>)
+
+FileItem represents file metadata in a list.
+
+```go
+type FileItem struct {
+    Name   string
+    SHA256 string
+    Size   int
+}
+```
+
+<a name="FileList"></a>
+## type [FileList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L40-L43>)
+
+FileList is a collection of files with total count.
+
+```go
+type FileList struct {
+    Files []FileItem
+    Total int
+}
+```
+
+<a name="FileMetadata"></a>
+## type [FileMetadata](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L46-L50>)
+
+FileMetadata represents metadata for a single file.
+
+```go
+type FileMetadata struct {
+    Name   string
+    SHA256 string
+    Size   int
+}
+```
+
+<a name="FileService"></a>
+## type [FileService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L31-L33>)
+
+FileService provides file management operations for the Object Store.
+
+```go
+type FileService struct {
+    // contains filtered or unexported fields
+}
+```
+
+<a name="FileService.Delete"></a>
+### func \(\*FileService\) [Delete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L130-L133>)
+
+```go
+func (s *FileService) Delete(ctx context.Context, name string) (*Response[FileDelete], error)
+```
+
+Delete removes a file from the Object Store.
+
+<a name="FileService.Get"></a>
+### func \(\*FileService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L100-L103>)
+
+```go
+func (s *FileService) Get(ctx context.Context, name string) (*Response[FileMetadata], error)
+```
+
+Get retrieves metadata for a specific file in the Object Store.
+
+<a name="FileService.List"></a>
+### func \(\*FileService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L72-L74>)
+
+```go
+func (s *FileService) List(ctx context.Context) (*Response[FileList], error)
+```
+
+List retrieves all files stored in the Object Store.
+
+<a name="FileService.Upload"></a>
+### func \(\*FileService\) [Upload](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L36-L40>)
+
+```go
+func (s *FileService) Upload(ctx context.Context, name string, content []byte) (*Response[FileUpload], error)
+```
+
+Upload uploads a file to the Object Store.
+
+<a name="FileStatusResult"></a>
+## type [FileStatusResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L66-L72>)
+
+FileStatusResult represents the result of a file status check.
+
+```go
+type FileStatusResult struct {
+    JobID    string
+    Hostname string
+    Path     string
+    Status   string
+    SHA256   string
+}
+```
+
+<a name="FileUpload"></a>
+## type [FileUpload](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L26-L30>)
+
+FileUpload represents a successfully uploaded file.
+
+```go
+type FileUpload struct {
+    Name   string
+    SHA256 string
+    Size   int
 }
 ```
 
@@ -948,7 +1138,7 @@ type NodeService struct {
 ```
 
 <a name="NodeService.Disk"></a>
-### func \(\*NodeService\) [Disk](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L120-L123>)
+### func \(\*NodeService\) [Disk](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L148-L151>)
 
 ```go
 func (s *NodeService) Disk(ctx context.Context, target string) (*Response[Collection[DiskResult]], error)
@@ -957,7 +1147,7 @@ func (s *NodeService) Disk(ctx context.Context, target string) (*Response[Collec
 Disk retrieves disk usage information from the target host.
 
 <a name="NodeService.Exec"></a>
-### func \(\*NodeService\) [Exec](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L335-L338>)
+### func \(\*NodeService\) [Exec](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L363-L366>)
 
 ```go
 func (s *NodeService) Exec(ctx context.Context, req ExecRequest) (*Response[Collection[CommandResult]], error)
@@ -965,8 +1155,26 @@ func (s *NodeService) Exec(ctx context.Context, req ExecRequest) (*Response[Coll
 
 Exec executes a command directly without a shell interpreter.
 
+<a name="NodeService.FileDeploy"></a>
+### func \(\*NodeService\) [FileDeploy](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L440-L443>)
+
+```go
+func (s *NodeService) FileDeploy(ctx context.Context, req FileDeployOpts) (*Response[FileDeployResult], error)
+```
+
+FileDeploy deploys a file from the Object Store to the target host.
+
+<a name="NodeService.FileStatus"></a>
+### func \(\*NodeService\) [FileStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L486-L490>)
+
+```go
+func (s *NodeService) FileStatus(ctx context.Context, target string, path string) (*Response[FileStatusResult], error)
+```
+
+FileStatus checks the deployment status of a file on the target host.
+
 <a name="NodeService.GetDNS"></a>
-### func \(\*NodeService\) [GetDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L241-L245>)
+### func \(\*NodeService\) [GetDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L269-L273>)
 
 ```go
 func (s *NodeService) GetDNS(ctx context.Context, target string, interfaceName string) (*Response[Collection[DNSConfig]], error)
@@ -975,7 +1183,7 @@ func (s *NodeService) GetDNS(ctx context.Context, target string, interfaceName s
 GetDNS retrieves DNS configuration for a network interface on the target host.
 
 <a name="NodeService.Hostname"></a>
-### func \(\*NodeService\) [Hostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L96-L99>)
+### func \(\*NodeService\) [Hostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L124-L127>)
 
 ```go
 func (s *NodeService) Hostname(ctx context.Context, target string) (*Response[Collection[HostnameResult]], error)
@@ -984,7 +1192,7 @@ func (s *NodeService) Hostname(ctx context.Context, target string) (*Response[Co
 Hostname retrieves the hostname from the target host.
 
 <a name="NodeService.Load"></a>
-### func \(\*NodeService\) [Load](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L168-L171>)
+### func \(\*NodeService\) [Load](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L196-L199>)
 
 ```go
 func (s *NodeService) Load(ctx context.Context, target string) (*Response[Collection[LoadResult]], error)
@@ -993,7 +1201,7 @@ func (s *NodeService) Load(ctx context.Context, target string) (*Response[Collec
 Load retrieves load average information from the target host.
 
 <a name="NodeService.Memory"></a>
-### func \(\*NodeService\) [Memory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L144-L147>)
+### func \(\*NodeService\) [Memory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L172-L175>)
 
 ```go
 func (s *NodeService) Memory(ctx context.Context, target string) (*Response[Collection[MemoryResult]], error)
@@ -1002,7 +1210,7 @@ func (s *NodeService) Memory(ctx context.Context, target string) (*Response[Coll
 Memory retrieves memory usage information from the target host.
 
 <a name="NodeService.OS"></a>
-### func \(\*NodeService\) [OS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L192-L195>)
+### func \(\*NodeService\) [OS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L220-L223>)
 
 ```go
 func (s *NodeService) OS(ctx context.Context, target string) (*Response[Collection[OSInfoResult]], error)
@@ -1011,7 +1219,7 @@ func (s *NodeService) OS(ctx context.Context, target string) (*Response[Collecti
 OS retrieves operating system information from the target host.
 
 <a name="NodeService.Ping"></a>
-### func \(\*NodeService\) [Ping](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L306-L310>)
+### func \(\*NodeService\) [Ping](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L334-L338>)
 
 ```go
 func (s *NodeService) Ping(ctx context.Context, target string, address string) (*Response[Collection[PingResult]], error)
@@ -1020,7 +1228,7 @@ func (s *NodeService) Ping(ctx context.Context, target string, address string) (
 Ping sends an ICMP ping to the specified address from the target host.
 
 <a name="NodeService.Shell"></a>
-### func \(\*NodeService\) [Shell](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L376-L379>)
+### func \(\*NodeService\) [Shell](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L404-L407>)
 
 ```go
 func (s *NodeService) Shell(ctx context.Context, req ShellRequest) (*Response[Collection[CommandResult]], error)
@@ -1029,7 +1237,7 @@ func (s *NodeService) Shell(ctx context.Context, req ShellRequest) (*Response[Co
 Shell executes a command through /bin/sh \-c with shell features \(pipes, redirects, variable expansion\).
 
 <a name="NodeService.Status"></a>
-### func \(\*NodeService\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L72-L75>)
+### func \(\*NodeService\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L100-L103>)
 
 ```go
 func (s *NodeService) Status(ctx context.Context, target string) (*Response[Collection[NodeStatus]], error)
@@ -1038,7 +1246,7 @@ func (s *NodeService) Status(ctx context.Context, target string) (*Response[Coll
 Status retrieves node status \(OS info, disk, memory, load\) from the target host.
 
 <a name="NodeService.UpdateDNS"></a>
-### func \(\*NodeService\) [UpdateDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L267-L273>)
+### func \(\*NodeService\) [UpdateDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L295-L301>)
 
 ```go
 func (s *NodeService) UpdateDNS(ctx context.Context, target string, interfaceName string, servers []string, searchDomains []string) (*Response[Collection[DNSUpdateResult]], error)
@@ -1047,7 +1255,7 @@ func (s *NodeService) UpdateDNS(ctx context.Context, target string, interfaceNam
 UpdateDNS updates DNS configuration for a network interface on the target host.
 
 <a name="NodeService.Uptime"></a>
-### func \(\*NodeService\) [Uptime](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L216-L219>)
+### func \(\*NodeService\) [Uptime](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L244-L247>)
 
 ```go
 func (s *NodeService) Uptime(ctx context.Context, target string) (*Response[Collection[UptimeResult]], error)
@@ -1118,7 +1326,7 @@ type OSInfoResult struct {
 ```
 
 <a name="Option"></a>
-## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L73>)
+## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L76>)
 
 Option configures the Client.
 
@@ -1127,7 +1335,7 @@ type Option func(*Client)
 ```
 
 <a name="WithHTTPTransport"></a>
-### func [WithHTTPTransport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L85-L87>)
+### func [WithHTTPTransport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L88-L90>)
 
 ```go
 func WithHTTPTransport(transport http.RoundTripper) Option
@@ -1136,7 +1344,7 @@ func WithHTTPTransport(transport http.RoundTripper) Option
 WithHTTPTransport sets a custom base HTTP transport.
 
 <a name="WithLogger"></a>
-### func [WithLogger](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L76-L78>)
+### func [WithLogger](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L79-L81>)
 
 ```go
 func WithLogger(logger *slog.Logger) Option
@@ -1256,7 +1464,7 @@ func (e *ServerError) Unwrap() error
 Unwrap returns the underlying APIError.
 
 <a name="ShellRequest"></a>
-## type [ShellRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L55-L68>)
+## type [ShellRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node.go#L83-L96>)
 
 ShellRequest contains parameters for shell command execution.
 
