@@ -46,6 +46,8 @@ func (suite *AuditPublicTestSuite) SetupTest() {
 func (suite *AuditPublicTestSuite) TestList() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		limit        int
 		offset       int
 		validateFunc func(*osapi.Response[osapi.AuditList], error)
@@ -54,6 +56,11 @@ func (suite *AuditPublicTestSuite) TestList() {
 			name:   "when listing audit entries returns audit list",
 			limit:  20,
 			offset: 0,
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"items":[],"total_items":0}`))
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -61,48 +68,15 @@ func (suite *AuditPublicTestSuite) TestList() {
 				suite.Empty(resp.Data.Items)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"items":[],"total_items":0}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Audit.List(suite.ctx, tc.limit, tc.offset)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *AuditPublicTestSuite) TestListError() {
-	tests := []struct {
-		name         string
-		setupServer  func() *httptest.Server
-		validateFunc func(*osapi.Response[osapi.AuditList], error)
-	}{
 		{
-			name: "when server returns 401 returns AuthError",
-			setupServer: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusUnauthorized)
-						_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
-					}),
-				)
-			},
+			name:   "when server returns 401 returns AuthError",
+			limit:  20,
+			offset: 0,
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -113,15 +87,10 @@ func (suite *AuditPublicTestSuite) TestListError() {
 			},
 		},
 		{
-			name: "when HTTP request fails returns error",
-			setupServer: func() *httptest.Server {
-				server := httptest.NewServer(
-					http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-				)
-				server.Close()
-
-				return server
-			},
+			name:      "when client HTTP request fails returns error",
+			limit:     20,
+			offset:    0,
+			serverURL: "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -129,15 +98,13 @@ func (suite *AuditPublicTestSuite) TestListError() {
 			},
 		},
 		{
-			name: "when response body is nil returns UnexpectedStatusError",
-			setupServer: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "text/plain")
-						w.WriteHeader(http.StatusOK)
-					}),
-				)
-			},
+			name:   "when response body is nil returns UnexpectedStatusError",
+			limit:  20,
+			offset: 0,
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -152,16 +119,20 @@ func (suite *AuditPublicTestSuite) TestListError() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := tc.setupServer()
-			defer server.Close()
+			serverURL := tc.serverURL
+			if tc.handler != nil {
+				server := httptest.NewServer(tc.handler)
+				defer server.Close()
+				serverURL = server.URL
+			}
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Audit.List(suite.ctx, 20, 0)
+			resp, err := sut.Audit.List(suite.ctx, tc.limit, tc.offset)
 			tc.validateFunc(resp, err)
 		})
 	}
@@ -170,12 +141,23 @@ func (suite *AuditPublicTestSuite) TestListError() {
 func (suite *AuditPublicTestSuite) TestGet() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		id           string
 		validateFunc func(*osapi.Response[osapi.AuditEntry], error)
 	}{
 		{
 			name: "when valid UUID returns audit entry",
 			id:   "550e8400-e29b-41d4-a716-446655440000",
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(
+					[]byte(
+						`{"entry":{"id":"550e8400-e29b-41d4-a716-446655440000","timestamp":"2026-01-01T00:00:00Z","user":"admin","roles":["admin"],"method":"GET","path":"/api/v1/health","response_code":200,"duration_ms":5,"source_ip":"127.0.0.1"}}`,
+					),
+				)
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditEntry], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -188,57 +170,28 @@ func (suite *AuditPublicTestSuite) TestGet() {
 		{
 			name: "when invalid UUID returns error",
 			id:   "not-a-uuid",
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(
+					[]byte(
+						`{"entry":{"id":"550e8400-e29b-41d4-a716-446655440000","timestamp":"2026-01-01T00:00:00Z","user":"admin","roles":["admin"],"method":"GET","path":"/api/v1/health","response_code":200,"duration_ms":5,"source_ip":"127.0.0.1"}}`,
+					),
+				)
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditEntry], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write(
-						[]byte(
-							`{"entry":{"id":"550e8400-e29b-41d4-a716-446655440000","timestamp":"2026-01-01T00:00:00Z","user":"admin","roles":["admin"],"method":"GET","path":"/api/v1/health","response_code":200,"duration_ms":5,"source_ip":"127.0.0.1"}}`,
-						),
-					)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Audit.Get(suite.ctx, tc.id)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *AuditPublicTestSuite) TestGetError() {
-	tests := []struct {
-		name         string
-		setupServer  func() *httptest.Server
-		validateFunc func(*osapi.Response[osapi.AuditEntry], error)
-	}{
 		{
 			name: "when server returns 404 returns NotFoundError",
-			setupServer: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusNotFound)
-						_, _ = w.Write([]byte(`{"error":"audit entry not found"}`))
-					}),
-				)
-			},
+			id:   "550e8400-e29b-41d4-a716-446655440000",
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"error":"audit entry not found"}`))
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditEntry], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -249,15 +202,9 @@ func (suite *AuditPublicTestSuite) TestGetError() {
 			},
 		},
 		{
-			name: "when HTTP request fails returns error",
-			setupServer: func() *httptest.Server {
-				server := httptest.NewServer(
-					http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-				)
-				server.Close()
-
-				return server
-			},
+			name:      "when client HTTP request fails returns error",
+			id:        "550e8400-e29b-41d4-a716-446655440000",
+			serverURL: "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.AuditEntry], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -266,14 +213,11 @@ func (suite *AuditPublicTestSuite) TestGetError() {
 		},
 		{
 			name: "when response body is nil returns UnexpectedStatusError",
-			setupServer: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "text/plain")
-						w.WriteHeader(http.StatusOK)
-					}),
-				)
-			},
+			id:   "550e8400-e29b-41d4-a716-446655440000",
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditEntry], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -288,16 +232,20 @@ func (suite *AuditPublicTestSuite) TestGetError() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := tc.setupServer()
-			defer server.Close()
+			serverURL := tc.serverURL
+			if tc.handler != nil {
+				server := httptest.NewServer(tc.handler)
+				defer server.Close()
+				serverURL = server.URL
+			}
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Audit.Get(suite.ctx, "550e8400-e29b-41d4-a716-446655440000")
+			resp, err := sut.Audit.Get(suite.ctx, tc.id)
 			tc.validateFunc(resp, err)
 		})
 	}
@@ -306,10 +254,17 @@ func (suite *AuditPublicTestSuite) TestGetError() {
 func (suite *AuditPublicTestSuite) TestExport() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		validateFunc func(*osapi.Response[osapi.AuditList], error)
 	}{
 		{
 			name: "when exporting audit entries returns audit list",
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"items":[],"total_items":0}`))
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -317,48 +272,13 @@ func (suite *AuditPublicTestSuite) TestExport() {
 				suite.Empty(resp.Data.Items)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"items":[],"total_items":0}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Audit.Export(suite.ctx)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *AuditPublicTestSuite) TestExportError() {
-	tests := []struct {
-		name         string
-		setupServer  func() *httptest.Server
-		validateFunc func(*osapi.Response[osapi.AuditList], error)
-	}{
 		{
 			name: "when server returns 401 returns AuthError",
-			setupServer: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusUnauthorized)
-						_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
-					}),
-				)
-			},
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -369,15 +289,8 @@ func (suite *AuditPublicTestSuite) TestExportError() {
 			},
 		},
 		{
-			name: "when HTTP request fails returns error",
-			setupServer: func() *httptest.Server {
-				server := httptest.NewServer(
-					http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}),
-				)
-				server.Close()
-
-				return server
-			},
+			name:      "when client HTTP request fails returns error",
+			serverURL: "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -386,14 +299,10 @@ func (suite *AuditPublicTestSuite) TestExportError() {
 		},
 		{
 			name: "when response body is nil returns UnexpectedStatusError",
-			setupServer: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "text/plain")
-						w.WriteHeader(http.StatusOK)
-					}),
-				)
-			},
+			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
+			}),
 			validateFunc: func(resp *osapi.Response[osapi.AuditList], err error) {
 				suite.Error(err)
 				suite.Nil(resp)
@@ -408,11 +317,15 @@ func (suite *AuditPublicTestSuite) TestExportError() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := tc.setupServer()
-			defer server.Close()
+			serverURL := tc.serverURL
+			if tc.handler != nil {
+				server := httptest.NewServer(tc.handler)
+				defer server.Close()
+				serverURL = server.URL
+			}
 
 			sut := osapi.New(
-				server.URL,
+				serverURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)

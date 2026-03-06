@@ -43,6 +43,19 @@ func (suite *HealthPublicTestSuite) SetupTest() {
 	suite.ctx = context.Background()
 }
 
+func (suite *HealthPublicTestSuite) runner(
+	handler http.HandlerFunc,
+	serverURL string,
+) string {
+	if handler != nil {
+		server := httptest.NewServer(handler)
+		suite.T().Cleanup(server.Close)
+		return server.URL
+	}
+
+	return serverURL
+}
+
 func (suite *HealthPublicTestSuite) TestLiveness() {
 	tests := []struct {
 		name         string
@@ -92,15 +105,8 @@ func (suite *HealthPublicTestSuite) TestLiveness() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			serverURL := tc.serverURL
-			if tc.handler != nil {
-				server := httptest.NewServer(tc.handler)
-				defer server.Close()
-				serverURL = server.URL
-			}
-
 			sut := osapi.New(
-				serverURL,
+				suite.runner(tc.handler, tc.serverURL),
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -173,35 +179,6 @@ func (suite *HealthPublicTestSuite) TestReady() {
 				suite.Contains(target.Message, "unexpected status")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			serverURL := tc.serverURL
-			if tc.handler != nil {
-				server := httptest.NewServer(tc.handler)
-				defer server.Close()
-				serverURL = server.URL
-			}
-
-			sut := osapi.New(
-				serverURL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Health.Ready(suite.ctx)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *HealthPublicTestSuite) TestReady503() {
-	tests := []struct {
-		name         string
-		handler      http.HandlerFunc
-		validateFunc func(*osapi.Response[osapi.ReadyStatus], error)
-	}{
 		{
 			name: "when server returns 503 returns ready status with ServiceUnavailable",
 			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -237,11 +214,8 @@ func (suite *HealthPublicTestSuite) TestReady503() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(tc.handler)
-			defer server.Close()
-
 			sut := osapi.New(
-				server.URL,
+				suite.runner(tc.handler, tc.serverURL),
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
@@ -316,35 +290,6 @@ func (suite *HealthPublicTestSuite) TestStatus() {
 				suite.Contains(target.Message, "unexpected status")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			serverURL := tc.serverURL
-			if tc.handler != nil {
-				server := httptest.NewServer(tc.handler)
-				defer server.Close()
-				serverURL = server.URL
-			}
-
-			sut := osapi.New(
-				serverURL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Health.Status(suite.ctx)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *HealthPublicTestSuite) TestStatus503() {
-	tests := []struct {
-		name         string
-		handler      http.HandlerFunc
-		validateFunc func(*osapi.Response[osapi.SystemStatus], error)
-	}{
 		{
 			name: "when server returns 503 returns status with ServiceUnavailable",
 			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -375,31 +320,6 @@ func (suite *HealthPublicTestSuite) TestStatus503() {
 				suite.Contains(target.Message, "nil response body")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(tc.handler)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Health.Status(suite.ctx)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *HealthPublicTestSuite) TestStatusAuthError() {
-	tests := []struct {
-		name         string
-		handler      http.HandlerFunc
-		validateFunc func(*osapi.Response[osapi.SystemStatus], error)
-	}{
 		{
 			name: "when server returns 401 returns AuthError",
 			handler: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -436,11 +356,8 @@ func (suite *HealthPublicTestSuite) TestStatusAuthError() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(tc.handler)
-			defer server.Close()
-
 			sut := osapi.New(
-				server.URL,
+				suite.runner(tc.handler, tc.serverURL),
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)

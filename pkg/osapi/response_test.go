@@ -33,73 +33,55 @@ type ResponseTestSuite struct {
 	suite.Suite
 }
 
-func (suite *ResponseTestSuite) TestCheckErrorSuccess() {
-	tests := []struct {
-		name       string
-		statusCode int
-	}{
-		{
-			name:       "when status is 200",
-			statusCode: 200,
-		},
-		{
-			name:       "when status is 201",
-			statusCode: 201,
-		},
-		{
-			name:       "when status is 202",
-			statusCode: 202,
-		},
-		{
-			name:       "when status is 204",
-			statusCode: 204,
-		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			err := checkError(tc.statusCode)
-			suite.NoError(err)
-		})
-	}
-}
-
-func (suite *ResponseTestSuite) TestCheckErrorValidation() {
+func (suite *ResponseTestSuite) TestCheckError() {
 	tests := []struct {
 		name         string
 		statusCode   int
 		validateFunc func(error)
 	}{
 		{
+			name:       "when status is 200",
+			statusCode: 200,
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name:       "when status is 201",
+			statusCode: 201,
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name:       "when status is 202",
+			statusCode: 202,
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
+			name:       "when status is 204",
+			statusCode: 204,
+			validateFunc: func(err error) {
+				suite.NoError(err)
+			},
+		},
+		{
 			name:       "when status is 400",
 			statusCode: 400,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				var target *ValidationError
 				suite.True(errors.As(err, &target))
 				suite.Equal(400, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			err := checkError(tc.statusCode)
-			suite.Error(err)
-			tc.validateFunc(err)
-		})
-	}
-}
-
-func (suite *ResponseTestSuite) TestCheckErrorAuth() {
-	tests := []struct {
-		name         string
-		statusCode   int
-		validateFunc func(error)
-	}{
 		{
 			name:       "when status is 401",
 			statusCode: 401,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				var target *AuthError
 				suite.True(errors.As(err, &target))
 				suite.Equal(401, target.StatusCode)
@@ -109,110 +91,47 @@ func (suite *ResponseTestSuite) TestCheckErrorAuth() {
 			name:       "when status is 403",
 			statusCode: 403,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				var target *AuthError
 				suite.True(errors.As(err, &target))
 				suite.Equal(403, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			err := checkError(tc.statusCode)
-			suite.Error(err)
-			tc.validateFunc(err)
-		})
-	}
-}
-
-func (suite *ResponseTestSuite) TestCheckErrorNotFound() {
-	tests := []struct {
-		name         string
-		statusCode   int
-		validateFunc func(error)
-	}{
 		{
 			name:       "when status is 404",
 			statusCode: 404,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				var target *NotFoundError
 				suite.True(errors.As(err, &target))
 				suite.Equal(404, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			err := checkError(tc.statusCode)
-			suite.Error(err)
-			tc.validateFunc(err)
-		})
-	}
-}
-
-func (suite *ResponseTestSuite) TestCheckErrorConflict() {
-	tests := []struct {
-		name         string
-		statusCode   int
-		validateFunc func(error)
-	}{
 		{
 			name:       "when status is 409",
 			statusCode: 409,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				var target *ConflictError
 				suite.True(errors.As(err, &target))
 				suite.Equal(409, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			err := checkError(tc.statusCode)
-			suite.Error(err)
-			tc.validateFunc(err)
-		})
-	}
-}
-
-func (suite *ResponseTestSuite) TestCheckErrorServer() {
-	tests := []struct {
-		name         string
-		statusCode   int
-		validateFunc func(error)
-	}{
 		{
 			name:       "when status is 500",
 			statusCode: 500,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				var target *ServerError
 				suite.True(errors.As(err, &target))
 				suite.Equal(500, target.StatusCode)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			err := checkError(tc.statusCode)
-			suite.Error(err)
-			tc.validateFunc(err)
-		})
-	}
-}
-
-func (suite *ResponseTestSuite) TestCheckErrorUnexpected() {
-	tests := []struct {
-		name         string
-		statusCode   int
-		validateFunc func(error)
-	}{
 		{
 			name:       "when status is 503",
 			statusCode: 503,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				var target *UnexpectedStatusError
 				suite.True(errors.As(err, &target))
 				suite.Equal(503, target.StatusCode)
@@ -223,13 +142,12 @@ func (suite *ResponseTestSuite) TestCheckErrorUnexpected() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			err := checkError(tc.statusCode)
-			suite.Error(err)
 			tc.validateFunc(err)
 		})
 	}
 }
 
-func (suite *ResponseTestSuite) TestCheckErrorWithMessage() {
+func (suite *ResponseTestSuite) TestCheckErrorMessages() {
 	tests := []struct {
 		name         string
 		statusCode   int
@@ -244,32 +162,16 @@ func (suite *ResponseTestSuite) TestCheckErrorWithMessage() {
 				return []*gen.ErrorResponse{{Error: &msg}}
 			}(),
 			validateFunc: func(err error) {
+				suite.Error(err)
 				suite.Contains(err.Error(), "field 'name' is required")
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			err := checkError(tc.statusCode, tc.responses...)
-			suite.Error(err)
-			tc.validateFunc(err)
-		})
-	}
-}
-
-func (suite *ResponseTestSuite) TestCheckErrorNilResponses() {
-	tests := []struct {
-		name         string
-		statusCode   int
-		responses    []*gen.ErrorResponse
-		validateFunc func(error)
-	}{
 		{
 			name:       "when all responses are nil",
 			statusCode: 400,
 			responses:  []*gen.ErrorResponse{nil, nil},
 			validateFunc: func(err error) {
+				suite.Error(err)
 				suite.Contains(err.Error(), "unexpected status 400")
 			},
 		},
@@ -278,6 +180,7 @@ func (suite *ResponseTestSuite) TestCheckErrorNilResponses() {
 			statusCode: 500,
 			responses:  nil,
 			validateFunc: func(err error) {
+				suite.Error(err)
 				suite.Contains(err.Error(), "unexpected status 500")
 			},
 		},
@@ -286,6 +189,7 @@ func (suite *ResponseTestSuite) TestCheckErrorNilResponses() {
 			statusCode: 404,
 			responses:  []*gen.ErrorResponse{{Error: nil}},
 			validateFunc: func(err error) {
+				suite.Error(err)
 				suite.Contains(err.Error(), "unexpected status 404")
 			},
 		},
@@ -294,7 +198,6 @@ func (suite *ResponseTestSuite) TestCheckErrorNilResponses() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			err := checkError(tc.statusCode, tc.responses...)
-			suite.Error(err)
 			tc.validateFunc(err)
 		})
 	}

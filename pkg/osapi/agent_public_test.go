@@ -46,10 +46,17 @@ func (suite *AgentPublicTestSuite) SetupTest() {
 func (suite *AgentPublicTestSuite) TestList() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		validateFunc func(*osapi.Response[osapi.AgentList], error)
 	}{
 		{
 			name: "when requesting agents returns no error",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"agents":[],"total":0}`))
+			},
 			validateFunc: func(resp *osapi.Response[osapi.AgentList], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -57,48 +64,12 @@ func (suite *AgentPublicTestSuite) TestList() {
 				suite.Empty(resp.Data.Agents)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"agents":[],"total":0}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Agent.List(suite.ctx)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *AgentPublicTestSuite) TestListError() {
-	tests := []struct {
-		name         string
-		serverURL    string
-		serverFunc   func() *httptest.Server
-		validateFunc func(*osapi.Response[osapi.AgentList], error)
-	}{
 		{
 			name: "when server returns 401 returns AuthError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusUnauthorized)
-						_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
-					}),
-				)
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = w.Write([]byte(`{"error":"unauthorized"}`))
 			},
 			validateFunc: func(resp *osapi.Response[osapi.AgentList], err error) {
 				suite.Error(err)
@@ -120,13 +91,9 @@ func (suite *AgentPublicTestSuite) TestListError() {
 		},
 		{
 			name: "when response JSON200 is nil returns UnexpectedStatusError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "text/plain")
-						w.WriteHeader(http.StatusOK)
-					}),
-				)
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
 			},
 			validateFunc: func(resp *osapi.Response[osapi.AgentList], err error) {
 				suite.Error(err)
@@ -143,8 +110,8 @@ func (suite *AgentPublicTestSuite) TestListError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			url := tc.serverURL
-			if tc.serverFunc != nil {
-				server := tc.serverFunc()
+			if tc.handler != nil {
+				server := httptest.NewServer(tc.handler)
 				defer server.Close()
 				url = server.URL
 			}
@@ -164,12 +131,19 @@ func (suite *AgentPublicTestSuite) TestListError() {
 func (suite *AgentPublicTestSuite) TestGet() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		hostname     string
 		validateFunc func(*osapi.Response[osapi.Agent], error)
 	}{
 		{
 			name:     "when requesting agent details returns no error",
 			hostname: "server1",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"hostname":"server1","status":"Ready"}`))
+			},
 			validateFunc: func(resp *osapi.Response[osapi.Agent], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -177,48 +151,13 @@ func (suite *AgentPublicTestSuite) TestGet() {
 				suite.Equal("Ready", resp.Data.Status)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"hostname":"server1","status":"Ready"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Agent.Get(suite.ctx, tc.hostname)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *AgentPublicTestSuite) TestGetError() {
-	tests := []struct {
-		name         string
-		serverURL    string
-		serverFunc   func() *httptest.Server
-		validateFunc func(*osapi.Response[osapi.Agent], error)
-	}{
 		{
-			name: "when server returns 404 returns NotFoundError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusNotFound)
-						_, _ = w.Write([]byte(`{"error":"agent not found"}`))
-					}),
-				)
+			name:     "when server returns 404 returns NotFoundError",
+			hostname: "unknown-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"error":"agent not found"}`))
 			},
 			validateFunc: func(resp *osapi.Response[osapi.Agent], err error) {
 				suite.Error(err)
@@ -232,6 +171,7 @@ func (suite *AgentPublicTestSuite) TestGetError() {
 		},
 		{
 			name:      "when client HTTP error returns wrapped error",
+			hostname:  "unknown-host",
 			serverURL: "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.Agent], err error) {
 				suite.Error(err)
@@ -240,14 +180,11 @@ func (suite *AgentPublicTestSuite) TestGetError() {
 			},
 		},
 		{
-			name: "when response JSON200 is nil returns UnexpectedStatusError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "text/plain")
-						w.WriteHeader(http.StatusOK)
-					}),
-				)
+			name:     "when response JSON200 is nil returns UnexpectedStatusError",
+			hostname: "unknown-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
 			},
 			validateFunc: func(resp *osapi.Response[osapi.Agent], err error) {
 				suite.Error(err)
@@ -264,8 +201,8 @@ func (suite *AgentPublicTestSuite) TestGetError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			url := tc.serverURL
-			if tc.serverFunc != nil {
-				server := tc.serverFunc()
+			if tc.handler != nil {
+				server := httptest.NewServer(tc.handler)
 				defer server.Close()
 				url = server.URL
 			}
@@ -276,7 +213,7 @@ func (suite *AgentPublicTestSuite) TestGetError() {
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Agent.Get(suite.ctx, "unknown-host")
+			resp, err := sut.Agent.Get(suite.ctx, tc.hostname)
 			tc.validateFunc(resp, err)
 		})
 	}
@@ -285,60 +222,32 @@ func (suite *AgentPublicTestSuite) TestGetError() {
 func (suite *AgentPublicTestSuite) TestDrain() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		hostname     string
 		validateFunc func(*osapi.Response[osapi.MessageResponse], error)
 	}{
 		{
 			name:     "when draining agent returns success",
 			hostname: "server1",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"message":"drain initiated for agent server1"}`))
+			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
 				suite.Equal("drain initiated for agent server1", resp.Data.Message)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"message":"drain initiated for agent server1"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Agent.Drain(suite.ctx, tc.hostname)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *AgentPublicTestSuite) TestDrainError() {
-	tests := []struct {
-		name         string
-		serverURL    string
-		serverFunc   func() *httptest.Server
-		validateFunc func(*osapi.Response[osapi.MessageResponse], error)
-	}{
 		{
-			name: "when server returns 409 returns ConflictError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusConflict)
-						_, _ = w.Write([]byte(`{"error":"agent already draining"}`))
-					}),
-				)
+			name:     "when server returns 409 returns ConflictError",
+			hostname: "test-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusConflict)
+				_, _ = w.Write([]byte(`{"error":"agent already draining"}`))
 			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -351,15 +260,12 @@ func (suite *AgentPublicTestSuite) TestDrainError() {
 			},
 		},
 		{
-			name: "when server returns 404 returns NotFoundError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusNotFound)
-						_, _ = w.Write([]byte(`{"error":"agent not found"}`))
-					}),
-				)
+			name:     "when server returns 404 returns NotFoundError",
+			hostname: "test-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"error":"agent not found"}`))
 			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -372,6 +278,7 @@ func (suite *AgentPublicTestSuite) TestDrainError() {
 		},
 		{
 			name:      "when client HTTP error returns wrapped error",
+			hostname:  "test-host",
 			serverURL: "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -380,14 +287,11 @@ func (suite *AgentPublicTestSuite) TestDrainError() {
 			},
 		},
 		{
-			name: "when response JSON200 is nil returns UnexpectedStatusError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "text/plain")
-						w.WriteHeader(http.StatusOK)
-					}),
-				)
+			name:     "when response JSON200 is nil returns UnexpectedStatusError",
+			hostname: "test-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
 			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -404,8 +308,8 @@ func (suite *AgentPublicTestSuite) TestDrainError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			url := tc.serverURL
-			if tc.serverFunc != nil {
-				server := tc.serverFunc()
+			if tc.handler != nil {
+				server := httptest.NewServer(tc.handler)
 				defer server.Close()
 				url = server.URL
 			}
@@ -416,7 +320,7 @@ func (suite *AgentPublicTestSuite) TestDrainError() {
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Agent.Drain(suite.ctx, "test-host")
+			resp, err := sut.Agent.Drain(suite.ctx, tc.hostname)
 			tc.validateFunc(resp, err)
 		})
 	}
@@ -425,60 +329,32 @@ func (suite *AgentPublicTestSuite) TestDrainError() {
 func (suite *AgentPublicTestSuite) TestUndrain() {
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
 		hostname     string
 		validateFunc func(*osapi.Response[osapi.MessageResponse], error)
 	}{
 		{
 			name:     "when undraining agent returns success",
 			hostname: "server1",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"message":"undrain initiated for agent server1"}`))
+			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.NoError(err)
 				suite.NotNil(resp)
 				suite.Equal("undrain initiated for agent server1", resp.Data.Message)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "application/json")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte(`{"message":"undrain initiated for agent server1"}`))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			resp, err := sut.Agent.Undrain(suite.ctx, tc.hostname)
-			tc.validateFunc(resp, err)
-		})
-	}
-}
-
-func (suite *AgentPublicTestSuite) TestUndrainError() {
-	tests := []struct {
-		name         string
-		serverURL    string
-		serverFunc   func() *httptest.Server
-		validateFunc func(*osapi.Response[osapi.MessageResponse], error)
-	}{
 		{
-			name: "when server returns 409 returns ConflictError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusConflict)
-						_, _ = w.Write([]byte(`{"error":"agent not in draining state"}`))
-					}),
-				)
+			name:     "when server returns 409 returns ConflictError",
+			hostname: "test-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusConflict)
+				_, _ = w.Write([]byte(`{"error":"agent not in draining state"}`))
 			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -491,15 +367,12 @@ func (suite *AgentPublicTestSuite) TestUndrainError() {
 			},
 		},
 		{
-			name: "when server returns 404 returns NotFoundError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "application/json")
-						w.WriteHeader(http.StatusNotFound)
-						_, _ = w.Write([]byte(`{"error":"agent not found"}`))
-					}),
-				)
+			name:     "when server returns 404 returns NotFoundError",
+			hostname: "test-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte(`{"error":"agent not found"}`))
 			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -512,6 +385,7 @@ func (suite *AgentPublicTestSuite) TestUndrainError() {
 		},
 		{
 			name:      "when client HTTP error returns wrapped error",
+			hostname:  "test-host",
 			serverURL: "http://127.0.0.1:0",
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -520,14 +394,11 @@ func (suite *AgentPublicTestSuite) TestUndrainError() {
 			},
 		},
 		{
-			name: "when response JSON200 is nil returns UnexpectedStatusError",
-			serverFunc: func() *httptest.Server {
-				return httptest.NewServer(
-					http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-						w.Header().Set("Content-Type", "text/plain")
-						w.WriteHeader(http.StatusOK)
-					}),
-				)
+			name:     "when response JSON200 is nil returns UnexpectedStatusError",
+			hostname: "test-host",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
 			},
 			validateFunc: func(resp *osapi.Response[osapi.MessageResponse], err error) {
 				suite.Error(err)
@@ -544,8 +415,8 @@ func (suite *AgentPublicTestSuite) TestUndrainError() {
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
 			url := tc.serverURL
-			if tc.serverFunc != nil {
-				server := tc.serverFunc()
+			if tc.handler != nil {
+				server := httptest.NewServer(tc.handler)
 				defer server.Close()
 				url = server.URL
 			}
@@ -556,7 +427,7 @@ func (suite *AgentPublicTestSuite) TestUndrainError() {
 				osapi.WithLogger(slog.Default()),
 			)
 
-			resp, err := sut.Agent.Undrain(suite.ctx, "test-host")
+			resp, err := sut.Agent.Undrain(suite.ctx, tc.hostname)
 			tc.validateFunc(resp, err)
 		})
 	}

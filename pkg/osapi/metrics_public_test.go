@@ -43,122 +43,62 @@ func (suite *MetricsPublicTestSuite) SetupTest() {
 }
 
 func (suite *MetricsPublicTestSuite) TestGet() {
+	closedServer := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}),
+	)
+	closedServerURL := closedServer.URL
+	closedServer.Close()
+
 	tests := []struct {
 		name         string
+		handler      http.HandlerFunc
+		serverURL    string
+		ctx          context.Context
 		validateFunc func(string, error)
 	}{
 		{
 			name: "when server returns metrics returns text body",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte("# HELP go_goroutines\n"))
+			},
+			ctx: suite.ctx,
 			validateFunc: func(body string, err error) {
 				suite.NoError(err)
 				suite.Equal("# HELP go_goroutines\n", body)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.Header().Set("Content-Type", "text/plain")
-					w.WriteHeader(http.StatusOK)
-					_, _ = w.Write([]byte("# HELP go_goroutines\n"))
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			body, err := sut.Metrics.Get(suite.ctx)
-			tc.validateFunc(body, err)
-		})
-	}
-}
-
-func (suite *MetricsPublicTestSuite) TestGetErrorStatus() {
-	tests := []struct {
-		name         string
-		validateFunc func(string, error)
-	}{
 		{
 			name: "when server returns non-200 returns error",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusInternalServerError)
+			},
+			ctx: suite.ctx,
 			validateFunc: func(body string, err error) {
 				suite.Error(err)
 				suite.Contains(err.Error(), "metrics endpoint returned status")
 				suite.Empty(body)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusInternalServerError)
-				}),
-			)
-			defer server.Close()
-
-			sut := osapi.New(
-				server.URL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			body, err := sut.Metrics.Get(suite.ctx)
-			tc.validateFunc(body, err)
-		})
-	}
-}
-
-func (suite *MetricsPublicTestSuite) TestGetRequestError() {
-	tests := []struct {
-		name         string
-		validateFunc func(string, error)
-	}{
 		{
-			name: "when server is unreachable returns error",
+			name:      "when server is unreachable returns error",
+			serverURL: closedServerURL,
+			ctx:       suite.ctx,
 			validateFunc: func(body string, err error) {
 				suite.Error(err)
 				suite.Contains(err.Error(), "fetching metrics")
 				suite.Empty(body)
 			},
 		},
-	}
-
-	for _, tc := range tests {
-		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
-			)
-			closedURL := server.URL
-			server.Close()
-
-			sut := osapi.New(
-				closedURL,
-				"test-token",
-				osapi.WithLogger(slog.Default()),
-			)
-
-			body, err := sut.Metrics.Get(suite.ctx)
-			tc.validateFunc(body, err)
-		})
-	}
-}
-
-func (suite *MetricsPublicTestSuite) TestGetCreateRequestError() {
-	tests := []struct {
-		name         string
-		validateFunc func(string, error)
-	}{
 		{
 			name: "when request creation fails returns error",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			},
+			ctx: nil,
 			validateFunc: func(body string, err error) {
 				suite.Error(err)
 				suite.Contains(err.Error(), "creating metrics request")
@@ -169,21 +109,24 @@ func (suite *MetricsPublicTestSuite) TestGetCreateRequestError() {
 
 	for _, tc := range tests {
 		suite.Run(tc.name, func() {
-			server := httptest.NewServer(
-				http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-					w.WriteHeader(http.StatusOK)
-				}),
-			)
-			defer server.Close()
+			var targetURL string
+
+			if tc.serverURL != "" {
+				targetURL = tc.serverURL
+			} else {
+				server := httptest.NewServer(tc.handler)
+				defer server.Close()
+				targetURL = server.URL
+			}
 
 			sut := osapi.New(
-				server.URL,
+				targetURL,
 				"test-token",
 				osapi.WithLogger(slog.Default()),
 			)
 
 			//nolint:staticcheck // nil context intentionally triggers NewRequestWithContext error
-			body, err := sut.Metrics.Get(nil)
+			body, err := sut.Metrics.Get(tc.ctx)
 			tc.validateFunc(body, err)
 		})
 	}

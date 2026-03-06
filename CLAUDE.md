@@ -65,6 +65,7 @@ func FunctionName(
 - Suite naming: `*_public_test.go` → `{Name}PublicTestSuite`,
   `*_test.go` → `{Name}TestSuite`
 - Use `testify/suite` with table-driven patterns
+- One suite method per function under test — all scenarios (success, errors, edge cases) as rows in one table
 
 ### Go Patterns
 
