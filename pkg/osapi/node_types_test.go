@@ -778,59 +778,195 @@ func (suite *NodeTypesTestSuite) TestPingCollectionFromGen() {
 	}
 }
 
-func (suite *NodeTypesTestSuite) TestDerefHelpers() {
-	suite.Run("derefString", func() {
-		s := "hello"
-		suite.Equal("hello", derefString(&s))
-		suite.Equal("", derefString(nil))
-	})
+func (suite *NodeTypesTestSuite) TestDerefString() {
+	s := "hello"
 
-	suite.Run("derefInt", func() {
-		i := 42
-		suite.Equal(42, derefInt(&i))
-		suite.Equal(0, derefInt(nil))
-	})
+	tests := []struct {
+		name         string
+		input        *string
+		validateFunc func(string)
+	}{
+		{
+			name:  "when pointer is non-nil",
+			input: &s,
+			validateFunc: func(result string) {
+				suite.Equal("hello", result)
+			},
+		},
+		{
+			name:  "when pointer is nil",
+			input: nil,
+			validateFunc: func(result string) {
+				suite.Empty(result)
+			},
+		},
+	}
 
-	suite.Run("derefInt64", func() {
-		i := int64(42)
-		suite.Equal(int64(42), derefInt64(&i))
-		suite.Equal(int64(0), derefInt64(nil))
-	})
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			tc.validateFunc(derefString(tc.input))
+		})
+	}
+}
 
-	suite.Run("derefFloat64", func() {
-		f := 3.14
-		suite.InDelta(3.14, derefFloat64(&f), 0.001)
-		suite.InDelta(0.0, derefFloat64(nil), 0.001)
-	})
+func (suite *NodeTypesTestSuite) TestDerefInt() {
+	i := 42
 
-	suite.Run("derefBool", func() {
-		b := true
-		suite.True(derefBool(&b))
-		suite.False(derefBool(nil))
-	})
+	tests := []struct {
+		name         string
+		input        *int
+		validateFunc func(int)
+	}{
+		{
+			name:  "when pointer is non-nil",
+			input: &i,
+			validateFunc: func(result int) {
+				suite.Equal(42, result)
+			},
+		},
+		{
+			name:  "when pointer is nil",
+			input: nil,
+			validateFunc: func(result int) {
+				suite.Zero(result)
+			},
+		},
+	}
 
-	suite.Run("jobIDFromGen", func() {
-		id := openapi_types.UUID{
-			0x55,
-			0x0e,
-			0x84,
-			0x00,
-			0xe2,
-			0x9b,
-			0x41,
-			0xd4,
-			0xa7,
-			0x16,
-			0x44,
-			0x66,
-			0x55,
-			0x44,
-			0x00,
-			0x00,
-		}
-		suite.Equal("550e8400-e29b-41d4-a716-446655440000", jobIDFromGen(&id))
-		suite.Equal("", jobIDFromGen(nil))
-	})
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			tc.validateFunc(derefInt(tc.input))
+		})
+	}
+}
+
+func (suite *NodeTypesTestSuite) TestDerefInt64() {
+	i := int64(42)
+
+	tests := []struct {
+		name         string
+		input        *int64
+		validateFunc func(int64)
+	}{
+		{
+			name:  "when pointer is non-nil",
+			input: &i,
+			validateFunc: func(result int64) {
+				suite.Equal(int64(42), result)
+			},
+		},
+		{
+			name:  "when pointer is nil",
+			input: nil,
+			validateFunc: func(result int64) {
+				suite.Zero(result)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			tc.validateFunc(derefInt64(tc.input))
+		})
+	}
+}
+
+func (suite *NodeTypesTestSuite) TestDerefFloat64() {
+	f := 3.14
+
+	tests := []struct {
+		name         string
+		input        *float64
+		validateFunc func(float64)
+	}{
+		{
+			name:  "when pointer is non-nil",
+			input: &f,
+			validateFunc: func(result float64) {
+				suite.InDelta(3.14, result, 0.001)
+			},
+		},
+		{
+			name:  "when pointer is nil",
+			input: nil,
+			validateFunc: func(result float64) {
+				suite.InDelta(0.0, result, 0.001)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			tc.validateFunc(derefFloat64(tc.input))
+		})
+	}
+}
+
+func (suite *NodeTypesTestSuite) TestDerefBool() {
+	b := true
+
+	tests := []struct {
+		name         string
+		input        *bool
+		validateFunc func(bool)
+	}{
+		{
+			name:  "when pointer is non-nil",
+			input: &b,
+			validateFunc: func(result bool) {
+				suite.True(result)
+			},
+		},
+		{
+			name:  "when pointer is nil",
+			input: nil,
+			validateFunc: func(result bool) {
+				suite.False(result)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			tc.validateFunc(derefBool(tc.input))
+		})
+	}
+}
+
+func (suite *NodeTypesTestSuite) TestJobIDFromGen() {
+	id := openapi_types.UUID{
+		0x55, 0x0e, 0x84, 0x00,
+		0xe2, 0x9b, 0x41, 0xd4,
+		0xa7, 0x16, 0x44, 0x66,
+		0x55, 0x44, 0x00, 0x00,
+	}
+
+	tests := []struct {
+		name         string
+		input        *openapi_types.UUID
+		validateFunc func(string)
+	}{
+		{
+			name:  "when pointer is non-nil",
+			input: &id,
+			validateFunc: func(result string) {
+				suite.Equal("550e8400-e29b-41d4-a716-446655440000", result)
+			},
+		},
+		{
+			name:  "when pointer is nil",
+			input: nil,
+			validateFunc: func(result string) {
+				suite.Empty(result)
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		suite.Run(tc.name, func() {
+			tc.validateFunc(jobIDFromGen(tc.input))
+		})
+	}
 }
 
 func TestNodeTypesTestSuite(t *testing.T) {
