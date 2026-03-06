@@ -731,7 +731,7 @@ type FileService struct {
 ```
 
 <a name="FileService.Delete"></a>
-### func \(\*FileService\) [Delete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L130-L133>)
+### func \(\*FileService\) [Delete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L131-L134>)
 
 ```go
 func (s *FileService) Delete(ctx context.Context, name string) (*Response[FileDelete], error)

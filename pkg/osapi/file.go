@@ -108,6 +108,7 @@ func (s *FileService) Get(
 
 	if err := checkError(
 		resp.StatusCode(),
+		resp.JSON400,
 		resp.JSON401,
 		resp.JSON403,
 		resp.JSON404,
@@ -138,6 +139,7 @@ func (s *FileService) Delete(
 
 	if err := checkError(
 		resp.StatusCode(),
+		resp.JSON400,
 		resp.JSON401,
 		resp.JSON403,
 		resp.JSON404,
