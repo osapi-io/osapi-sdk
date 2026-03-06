@@ -278,6 +278,23 @@ func (suite *FilePublicTestSuite) TestGet() {
 			},
 		},
 		{
+			name:     "when server returns 400 returns ValidationError",
+			fileName: "nginx.conf",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = w.Write([]byte(`{"error":"invalid file name"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileMetadata], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.ValidationError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusBadRequest, target.StatusCode)
+			},
+		},
+		{
 			name:     "when server returns 404 returns NotFoundError",
 			fileName: "missing.conf",
 			handler: func(w http.ResponseWriter, _ *http.Request) {
@@ -391,6 +408,23 @@ func (suite *FilePublicTestSuite) TestDelete() {
 				suite.NotNil(resp)
 				suite.Equal("old.conf", resp.Data.Name)
 				suite.True(resp.Data.Deleted)
+			},
+		},
+		{
+			name:     "when server returns 400 returns ValidationError",
+			fileName: "old.conf",
+			handler: func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = w.Write([]byte(`{"error":"invalid file name"}`))
+			},
+			validateFunc: func(resp *osapi.Response[osapi.FileDelete], err error) {
+				suite.Error(err)
+				suite.Nil(resp)
+
+				var target *osapi.ValidationError
+				suite.True(errors.As(err, &target))
+				suite.Equal(http.StatusBadRequest, target.StatusCode)
 			},
 		},
 		{
