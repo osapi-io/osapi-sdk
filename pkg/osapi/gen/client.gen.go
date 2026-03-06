@@ -115,8 +115,14 @@ type AgentInfo struct {
 	// PackageMgr Package manager.
 	PackageMgr *string `json:"package_mgr,omitempty"`
 
+	// PrimaryInterface Name of the interface used for the default route.
+	PrimaryInterface *string `json:"primary_interface,omitempty"`
+
 	// RegisteredAt When the agent last refreshed its heartbeat.
 	RegisteredAt *time.Time `json:"registered_at,omitempty"`
+
+	// Routes Network routing table entries.
+	Routes *[]RouteResponse `json:"routes,omitempty"`
 
 	// ServiceMgr Init system.
 	ServiceMgr *string `json:"service_mgr,omitempty"`
@@ -332,8 +338,8 @@ type DNSConfigResponse struct {
 
 // DNSConfigUpdateRequest defines model for DNSConfigUpdateRequest.
 type DNSConfigUpdateRequest struct {
-	// InterfaceName The name of the network interface to apply DNS configuration to. Must only contain letters and numbers.
-	InterfaceName string `json:"interface_name" validate:"required,alphanum"`
+	// InterfaceName The name of the network interface to apply DNS configuration to. Accepts alphanumeric names or @fact. references.
+	InterfaceName string `json:"interface_name" validate:"required,alphanum_or_fact"`
 
 	// SearchDomains New list of search domains to configure.
 	SearchDomains *[]string `json:"search_domains,omitempty" validate:"required_without=Servers,omitempty,dive,hostname,min=1"`
@@ -772,6 +778,27 @@ type RetryJobRequest struct {
 	TargetHostname *string `json:"target_hostname,omitempty" validate:"omitempty,min=1,valid_target"`
 }
 
+// RouteResponse A network routing table entry.
+type RouteResponse struct {
+	// Destination Destination network address.
+	Destination string `json:"destination"`
+
+	// Flags Route flags.
+	Flags *string `json:"flags,omitempty"`
+
+	// Gateway Gateway address.
+	Gateway string `json:"gateway"`
+
+	// Interface Network interface name.
+	Interface string `json:"interface"`
+
+	// Mask Network mask in CIDR notation.
+	Mask *string `json:"mask,omitempty"`
+
+	// Metric Route metric.
+	Metric *int `json:"metric,omitempty"`
+}
+
 // StatusResponse defines model for StatusResponse.
 type StatusResponse struct {
 	Agents *AgentStats `json:"agents,omitempty"`
@@ -870,8 +897,8 @@ type GetJobParamsStatus string
 
 // PostNodeNetworkPingJSONBody defines parameters for PostNodeNetworkPing.
 type PostNodeNetworkPingJSONBody struct {
-	// Address The IP address of the server to ping. Supports both IPv4 and IPv6.
-	Address string `json:"address" validate:"required,ip"`
+	// Address The IP address of the server to ping. Supports both IPv4 and IPv6. Also accepts @fact. references that are resolved agent-side.
+	Address string `json:"address" validate:"required,ip_or_fact"`
 }
 
 // PostJobJSONRequestBody defines body for PostJob for application/json ContentType.

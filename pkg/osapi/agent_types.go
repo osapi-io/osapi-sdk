@@ -28,26 +28,28 @@ import (
 
 // Agent represents a registered OSAPI agent.
 type Agent struct {
-	Hostname      string
-	Status        string
-	State         string
-	Labels        map[string]string
-	Architecture  string
-	CPUCount      int
-	Fqdn          string
-	KernelVersion string
-	PackageMgr    string
-	ServiceMgr    string
-	LoadAverage   *LoadAverage
-	Memory        *Memory
-	OSInfo        *OSInfo
-	Interfaces    []NetworkInterface
-	Conditions    []Condition
-	Timeline      []TimelineEvent
-	Uptime        string
-	StartedAt     time.Time
-	RegisteredAt  time.Time
-	Facts         map[string]any
+	Hostname         string
+	Status           string
+	State            string
+	Labels           map[string]string
+	Architecture     string
+	CPUCount         int
+	Fqdn             string
+	KernelVersion    string
+	PackageMgr       string
+	ServiceMgr       string
+	LoadAverage      *LoadAverage
+	Memory           *Memory
+	OSInfo           *OSInfo
+	PrimaryInterface string
+	Interfaces       []NetworkInterface
+	Routes           []Route
+	Conditions       []Condition
+	Timeline         []TimelineEvent
+	Uptime           string
+	StartedAt        time.Time
+	RegisteredAt     time.Time
+	Facts            map[string]any
 }
 
 // Condition represents a node condition evaluated agent-side.
@@ -71,6 +73,16 @@ type NetworkInterface struct {
 	IPv4   string
 	IPv6   string
 	MAC    string
+}
+
+// Route represents a network routing table entry.
+type Route struct {
+	Destination string
+	Gateway     string
+	Interface   string
+	Mask        string
+	Flags       string
+	Metric      int
 }
 
 // LoadAverage represents system load averages.
@@ -133,6 +145,37 @@ func agentFromGen(
 	a.LoadAverage = loadAverageFromGen(g.LoadAverage)
 	a.Memory = memoryFromGen(g.Memory)
 	a.OSInfo = osInfoFromGen(g.OsInfo)
+
+	if g.PrimaryInterface != nil {
+		a.PrimaryInterface = *g.PrimaryInterface
+	}
+
+	if g.Routes != nil {
+		routes := make([]Route, 0, len(*g.Routes))
+		for _, r := range *g.Routes {
+			route := Route{
+				Destination: r.Destination,
+				Gateway:     r.Gateway,
+				Interface:   r.Interface,
+			}
+
+			if r.Mask != nil {
+				route.Mask = *r.Mask
+			}
+
+			if r.Flags != nil {
+				route.Flags = *r.Flags
+			}
+
+			if r.Metric != nil {
+				route.Metric = *r.Metric
+			}
+
+			routes = append(routes, route)
+		}
+
+		a.Routes = routes
+	}
 
 	if g.Interfaces != nil {
 		ifaces := make([]NetworkInterface, 0, len(*g.Interfaces))

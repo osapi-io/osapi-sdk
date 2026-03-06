@@ -116,6 +116,7 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type Response](<#Response>)
   - [func NewResponse\[T any\]\(data T, rawJSON \[\]byte\) \*Response\[T\]](<#NewResponse>)
   - [func \(r \*Response\[T\]\) RawJSON\(\) \[\]byte](<#Response[T].RawJSON>)
+- [type Route](<#Route>)
 - [type ServerError](<#ServerError>)
   - [func \(e \*ServerError\) Unwrap\(\) error](<#ServerError.Unwrap>)
 - [type ShellRequest](<#ShellRequest>)
@@ -151,32 +152,34 @@ func (e *APIError) Error() string
 Error returns a formatted error string.
 
 <a name="Agent"></a>
-## type [Agent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L30-L51>)
+## type [Agent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L30-L53>)
 
 Agent represents a registered OSAPI agent.
 
 ```go
 type Agent struct {
-    Hostname      string
-    Status        string
-    State         string
-    Labels        map[string]string
-    Architecture  string
-    CPUCount      int
-    Fqdn          string
-    KernelVersion string
-    PackageMgr    string
-    ServiceMgr    string
-    LoadAverage   *LoadAverage
-    Memory        *Memory
-    OSInfo        *OSInfo
-    Interfaces    []NetworkInterface
-    Conditions    []Condition
-    Timeline      []TimelineEvent
-    Uptime        string
-    StartedAt     time.Time
-    RegisteredAt  time.Time
-    Facts         map[string]any
+    Hostname         string
+    Status           string
+    State            string
+    Labels           map[string]string
+    Architecture     string
+    CPUCount         int
+    Fqdn             string
+    KernelVersion    string
+    PackageMgr       string
+    ServiceMgr       string
+    LoadAverage      *LoadAverage
+    Memory           *Memory
+    OSInfo           *OSInfo
+    PrimaryInterface string
+    Interfaces       []NetworkInterface
+    Routes           []Route
+    Conditions       []Condition
+    Timeline         []TimelineEvent
+    Uptime           string
+    StartedAt        time.Time
+    RegisteredAt     time.Time
+    Facts            map[string]any
 }
 ```
 
@@ -195,7 +198,7 @@ type AgentJobResponse struct {
 ```
 
 <a name="AgentList"></a>
-## type [AgentList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L62-L65>)
+## type [AgentList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L64-L67>)
 
 AgentList is a collection of agents.
 
@@ -462,7 +465,7 @@ type ComponentHealth struct {
 ```
 
 <a name="Condition"></a>
-## type [Condition](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L54-L59>)
+## type [Condition](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L56-L61>)
 
 Condition represents a node condition evaluated agent\-side.
 
@@ -824,7 +827,7 @@ type ListParams struct {
 ```
 
 <a name="LoadAverage"></a>
-## type [LoadAverage](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L77-L81>)
+## type [LoadAverage](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L89-L93>)
 
 LoadAverage represents system load averages.
 
@@ -850,7 +853,7 @@ type LoadResult struct {
 ```
 
 <a name="Memory"></a>
-## type [Memory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L84-L88>)
+## type [Memory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L96-L100>)
 
 Memory represents memory usage information.
 
@@ -919,7 +922,7 @@ type NATSInfo struct {
 ```
 
 <a name="NetworkInterface"></a>
-## type [NetworkInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L68-L74>)
+## type [NetworkInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L70-L76>)
 
 NetworkInterface represents a network interface on an agent.
 
@@ -1090,7 +1093,7 @@ func (e *NotFoundError) Unwrap() error
 Unwrap returns the underlying APIError.
 
 <a name="OSInfo"></a>
-## type [OSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L91-L94>)
+## type [OSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L103-L106>)
 
 OSInfo represents operating system information.
 
@@ -1215,6 +1218,22 @@ func (r *Response[T]) RawJSON() []byte
 ```
 
 RawJSON returns the raw HTTP response body.
+
+<a name="Route"></a>
+## type [Route](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/agent_types.go#L79-L86>)
+
+Route represents a network routing table entry.
+
+```go
+type Route struct {
+    Destination string
+    Gateway     string
+    Interface   string
+    Mask        string
+    Flags       string
+    Metric      int
+}
+```
 
 <a name="ServerError"></a>
 ## type [ServerError](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/errors.go#L71-L73>)
