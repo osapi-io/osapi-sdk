@@ -30,9 +30,10 @@ just fetch / just deps / just test / just go::unit / just go::vet / just go::fmt
 - **`pkg/osapi/`** - Core SDK library
   - `osapi.go` - Client struct, New() factory, Option funcs
   - `transport.go` - HTTP transport with Bearer token and OTel tracing
-  - `node.go` - NodeService (hostname, status, agents)
+  - `node.go` - NodeService (hostname, status, agents, file deploy/status)
   - `network.go` - NetworkService (DNS get/update, ping)
   - `command.go` - CommandService (exec, shell)
+  - `file.go` - FileService (upload, list, get, delete)
   - `job.go` - JobService (create, get, list, delete, retry, stats)
   - `health.go` - HealthService (liveness, readiness, status)
   - `audit.go` - AuditService (list, get, export)

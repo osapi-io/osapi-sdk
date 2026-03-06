@@ -51,6 +51,34 @@ type ExecRequest struct {
 	Target string
 }
 
+// FileDeployOpts contains parameters for file deployment.
+type FileDeployOpts struct {
+	// ObjectName is the name of the file in the Object Store (required).
+	ObjectName string
+
+	// Path is the destination path on the target filesystem (required).
+	Path string
+
+	// ContentType is "raw" or "template" (required).
+	ContentType string
+
+	// Mode is the file permission mode (e.g., "0644"). Optional.
+	Mode string
+
+	// Owner is the file owner user. Optional.
+	Owner string
+
+	// Group is the file owner group. Optional.
+	Group string
+
+	// Vars are template variables when ContentType is "template". Optional.
+	Vars map[string]any
+
+	// Target specifies the host: "_any", "_all", hostname, or
+	// label ("group:web").
+	Target string
+}
+
 // ShellRequest contains parameters for shell command execution.
 type ShellRequest struct {
 	// Command is the shell command string passed to /bin/sh -c (required).
@@ -406,4 +434,79 @@ func (s *NodeService) Shell(
 	}
 
 	return NewResponse(commandCollectionFromGen(resp.JSON202), resp.Body), nil
+}
+
+// FileDeploy deploys a file from the Object Store to the target host.
+func (s *NodeService) FileDeploy(
+	ctx context.Context,
+	req FileDeployOpts,
+) (*Response[FileDeployResult], error) {
+	body := gen.FileDeployRequest{
+		ObjectName:  req.ObjectName,
+		Path:        req.Path,
+		ContentType: gen.FileDeployRequestContentType(req.ContentType),
+	}
+
+	if req.Mode != "" {
+		body.Mode = &req.Mode
+	}
+
+	if req.Owner != "" {
+		body.Owner = &req.Owner
+	}
+
+	if req.Group != "" {
+		body.Group = &req.Group
+	}
+
+	if len(req.Vars) > 0 {
+		body.Vars = &req.Vars
+	}
+
+	resp, err := s.client.PostNodeFileDeployWithResponse(ctx, req.Target, body)
+	if err != nil {
+		return nil, fmt.Errorf("file deploy: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON202 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(fileDeployResultFromGen(resp.JSON202), resp.Body), nil
+}
+
+// FileStatus checks the deployment status of a file on the target host.
+func (s *NodeService) FileStatus(
+	ctx context.Context,
+	target string,
+	path string,
+) (*Response[FileStatusResult], error) {
+	body := gen.FileStatusRequest{
+		Path: path,
+	}
+
+	resp, err := s.client.PostNodeFileStatusWithResponse(ctx, target, body)
+	if err != nil {
+		return nil, fmt.Errorf("file status: %w", err)
+	}
+
+	if err := checkError(resp.StatusCode(), resp.JSON400, resp.JSON401, resp.JSON403, resp.JSON500); err != nil {
+		return nil, err
+	}
+
+	if resp.JSON200 == nil {
+		return nil, &UnexpectedStatusError{APIError{
+			StatusCode: resp.StatusCode(),
+			Message:    "nil response body",
+		}}
+	}
+
+	return NewResponse(fileStatusResultFromGen(resp.JSON200), resp.Body), nil
 }

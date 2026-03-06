@@ -28,6 +28,7 @@ start.
 | ------- | ----------------------------------------------------- | ----------------------------- | ------------------------------------ |
 | Node    | Hostname, disk, memory, load, uptime, OS info, status | [docs](docs/osapi/node.md)    | [`node.go`](pkg/osapi/node.go)       |
 | Network | DNS get/update, ping                                  | [docs](docs/osapi/node.md)    | [`node.go`](pkg/osapi/node.go)       |
+| File    | Upload, list, get, delete, deploy, status             | [docs](docs/osapi/file.md)    | [`file.go`](pkg/osapi/file.go)       |
 | Command | exec, shell                                           | [docs](docs/osapi/node.md)    | [`node.go`](pkg/osapi/node.go)       |
 | Job     | Create, get, list, delete, retry, stats               | [docs](docs/osapi/job.md)     | [`job.go`](pkg/osapi/job.go)         |
 | Agent   | List, get (discovery + heartbeat data)                | [docs](docs/osapi/agent.md)   | [`agent.go`](pkg/osapi/agent.go)     |
@@ -80,6 +81,9 @@ strategies, and adding new operations.
 | `node.memory.get`       | Get memory stats       | Read-only  | [docs](docs/orchestration/node-memory.md)        |
 | `node.uptime.get`       | Get system uptime      | Read-only  | [docs](docs/orchestration/node-uptime.md)        |
 | `node.load.get`         | Get load averages      | Read-only  | [docs](docs/orchestration/node-load.md)          |
+| `file.deploy.execute`   | Deploy file to agent   | Yes        | [docs](docs/orchestration/file-deploy.md)        |
+| `file.status.get`       | Check file status      | Read-only  | [docs](docs/orchestration/file-status.md)        |
+| `file.upload`           | Upload to Object Store | Yes        | [docs](docs/orchestration/file-upload.md)        |
 | `network.dns.get`       | Get DNS configuration  | Read-only  | [docs](docs/orchestration/network-dns-get.md)    |
 | `network.dns.update`    | Update DNS servers     | Yes        | [docs](docs/orchestration/network-dns-update.md) |
 | `network.ping.do`       | Ping a host            | Read-only  | [docs](docs/orchestration/network-ping.md)       |
@@ -97,6 +101,7 @@ Each example is a standalone Go program you can read and run.
 | [agent](examples/osapi/agent/main.go)             | Agent discovery, details, and facts     |
 | [audit](examples/osapi/audit/main.go)             | Audit log listing, get, and export      |
 | [command](examples/osapi/command/main.go)          | Command exec and shell execution        |
+| [file](examples/osapi/file/main.go)                | File upload, deploy, status, and delete |
 | [health](examples/osapi/health/main.go)           | Liveness, readiness, and status checks  |
 | [job](examples/osapi/job/main.go)                 | Job create, get, list, delete, and retry |
 | [metrics](examples/osapi/metrics/main.go)         | Prometheus metrics retrieval            |
@@ -110,6 +115,7 @@ Each example is a standalone Go program you can read and run.
 | [basic](examples/orchestration/basic/main.go)                      | Simple DAG with dependencies                   |
 | [broadcast](examples/orchestration/broadcast/main.go)              | Multi-target operations with per-host results  |
 | [error-strategy](examples/orchestration/error-strategy/main.go)    | StopAll vs Continue error handling             |
+| [file-deploy](examples/orchestration/file-deploy/main.go)          | Upload, deploy template, verify status         |
 | [guards](examples/orchestration/guards/main.go)                    | When predicates for conditional execution      |
 | [hooks](examples/orchestration/hooks/main.go)                      | Lifecycle callbacks for logging and progress   |
 | [only-if-changed](examples/orchestration/only-if-changed/main.go)  | Skip tasks when dependencies report no changes |

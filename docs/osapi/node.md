@@ -33,6 +33,16 @@ all target a specific host.
 | `Exec(ctx, req)`  | Execute a command directly (no shell)       |
 | `Shell(ctx, req)` | Execute via `/bin/sh -c` (pipes, redirects) |
 
+### File
+
+| Method                          | Description                         |
+| ------------------------------- | ----------------------------------- |
+| `FileDeploy(ctx, opts)`         | Deploy file to agent with SHA check |
+| `FileStatus(ctx, target, path)` | Check deployed file status          |
+
+See [`FileService`](file.md) for Object Store operations (upload, list, get,
+delete) and `FileDeployOpts` details.
+
 ## Usage
 
 ```go
@@ -61,9 +71,24 @@ resp, err := client.Node.Shell(ctx, osapi.ShellRequest{
     Command: "ps aux | grep nginx",
     Target:  "_any",
 })
+
+// Deploy a file
+resp, err := client.Node.FileDeploy(ctx, osapi.FileDeployOpts{
+    ObjectName:  "nginx.conf",
+    Path:        "/etc/nginx/nginx.conf",
+    ContentType: "raw",
+    Mode:        "0644",
+    Target:      "web-01",
+})
+
+// Check file status
+resp, err := client.Node.FileStatus(
+    ctx, "web-01", "/etc/nginx/nginx.conf",
+)
 ```
 
 ## Permissions
 
 Node info requires `node:read`. Network read requires `network:read`. DNS
-updates require `network:write`. Commands require `command:execute`.
+updates require `network:write`. Commands require `command:execute`. File deploy
+requires `file:write`. File status requires `file:read`.

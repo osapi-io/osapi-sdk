@@ -63,6 +63,9 @@ type Client struct {
 	// Metrics provides Prometheus metrics access.
 	Metrics *MetricsService
 
+	// File provides file management operations (upload, list, get, delete).
+	File *FileService
+
 	httpClient    *gen.ClientWithResponses
 	baseURL       string
 	logger        *slog.Logger
@@ -131,6 +134,7 @@ func New(
 		client:  httpClient,
 		baseURL: baseURL,
 	}
+	c.File = &FileService{client: httpClient}
 
 	return c
 }
