@@ -43,8 +43,8 @@ const (
 
 // Defines values for FileDeployRequestContentType.
 const (
-	Raw      FileDeployRequestContentType = "raw"
-	Template FileDeployRequestContentType = "template"
+	FileDeployRequestContentTypeRaw      FileDeployRequestContentType = "raw"
+	FileDeployRequestContentTypeTemplate FileDeployRequestContentType = "template"
 )
 
 // Defines values for NetworkInterfaceResponseFamily.
@@ -59,6 +59,12 @@ const (
 	DiskPressure   NodeConditionType = "DiskPressure"
 	HighLoad       NodeConditionType = "HighLoad"
 	MemoryPressure NodeConditionType = "MemoryPressure"
+)
+
+// Defines values for PostFileMultipartBodyContentType.
+const (
+	PostFileMultipartBodyContentTypeRaw      PostFileMultipartBodyContentType = "raw"
+	PostFileMultipartBodyContentTypeTemplate PostFileMultipartBodyContentType = "template"
 )
 
 // Defines values for GetJobParamsStatus.
@@ -472,6 +478,9 @@ type FileDeployResponse struct {
 
 // FileInfo defines model for FileInfo.
 type FileInfo struct {
+	// ContentType How the file should be treated during deploy (raw or template).
+	ContentType string `json:"content_type"`
+
 	// Name The name of the file.
 	Name string `json:"name"`
 
@@ -484,6 +493,9 @@ type FileInfo struct {
 
 // FileInfoResponse defines model for FileInfoResponse.
 type FileInfoResponse struct {
+	// ContentType How the file should be treated during deploy (raw or template).
+	ContentType string `json:"content_type"`
+
 	// Name The name of the file.
 	Name string `json:"name"`
 
@@ -527,17 +539,14 @@ type FileStatusResponse struct {
 	Status string `json:"status"`
 }
 
-// FileUploadRequest defines model for FileUploadRequest.
-type FileUploadRequest struct {
-	// Content Base64-encoded file content.
-	Content []byte `json:"content" validate:"required"`
-
-	// Name The name of the file.
-	Name string `json:"name" validate:"required,min=1,max=255"`
-}
-
 // FileUploadResponse defines model for FileUploadResponse.
 type FileUploadResponse struct {
+	// Changed Whether the file content changed. False when the Object Store already held an object with the same SHA-256 digest.
+	Changed bool `json:"changed"`
+
+	// ContentType How the file should be treated during deploy (raw or template).
+	ContentType string `json:"content_type"`
+
 	// Name The name of the uploaded file.
 	Name string `json:"name"`
 
@@ -1015,6 +1024,27 @@ type GetAuditLogsParams struct {
 	Offset *int `form:"offset,omitempty" json:"offset,omitempty" validate:"omitempty,min=0"`
 }
 
+// PostFileMultipartBody defines parameters for PostFile.
+type PostFileMultipartBody struct {
+	// ContentType How the file should be treated during deploy. "raw" writes bytes as-is; "template" renders with Go text/template and agent facts.
+	ContentType *PostFileMultipartBodyContentType `json:"content_type,omitempty"`
+
+	// File The file content.
+	File openapi_types.File `json:"file"`
+
+	// Name The name of the file in the Object Store.
+	Name string `json:"name"`
+}
+
+// PostFileParams defines parameters for PostFile.
+type PostFileParams struct {
+	// Force When true, bypass the digest check and always write the file. Returns changed=true regardless of whether the content differs from the existing object.
+	Force *bool `form:"force,omitempty" json:"force,omitempty"`
+}
+
+// PostFileMultipartBodyContentType defines parameters for PostFile.
+type PostFileMultipartBodyContentType string
+
 // GetJobParams defines parameters for GetJob.
 type GetJobParams struct {
 	// Status Filter jobs by status.
@@ -1036,8 +1066,8 @@ type PostNodeNetworkPingJSONBody struct {
 	Address string `json:"address" validate:"required,ip_or_fact"`
 }
 
-// PostFileJSONRequestBody defines body for PostFile for application/json ContentType.
-type PostFileJSONRequestBody = FileUploadRequest
+// PostFileMultipartRequestBody defines body for PostFile for multipart/form-data ContentType.
+type PostFileMultipartRequestBody PostFileMultipartBody
 
 // PostJobJSONRequestBody defines body for PostJob for application/json ContentType.
 type PostJobJSONRequestBody = CreateJobRequest
@@ -1161,9 +1191,7 @@ type ClientInterface interface {
 	GetFiles(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// PostFileWithBody request with any body
-	PostFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PostFile(ctx context.Context, body PostFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	PostFileWithBody(ctx context.Context, params *PostFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeleteFileByName request
 	DeleteFileByName(ctx context.Context, name FileName, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1356,20 +1384,8 @@ func (c *Client) GetFiles(ctx context.Context, reqEditors ...RequestEditorFn) (*
 	return c.Client.Do(req)
 }
 
-func (c *Client) PostFileWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostFileRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PostFile(ctx context.Context, body PostFileJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPostFileRequest(c.Server, body)
+func (c *Client) PostFileWithBody(ctx context.Context, params *PostFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPostFileRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2070,19 +2086,8 @@ func NewGetFilesRequest(server string) (*http.Request, error) {
 	return req, nil
 }
 
-// NewPostFileRequest calls the generic PostFile builder with application/json body
-func NewPostFileRequest(server string, body PostFileJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPostFileRequestWithBody(server, "application/json", bodyReader)
-}
-
 // NewPostFileRequestWithBody generates requests for PostFile with any type of body
-func NewPostFileRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewPostFileRequestWithBody(server string, params *PostFileParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -2098,6 +2103,28 @@ func NewPostFileRequestWithBody(server string, contentType string, body io.Reade
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.Force != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "force", runtime.ParamLocationQuery, *params.Force); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("POST", queryURL.String(), body)
@@ -3178,9 +3205,7 @@ type ClientWithResponsesInterface interface {
 	GetFilesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFilesResponse, error)
 
 	// PostFileWithBodyWithResponse request with any body
-	PostFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostFileResponse, error)
-
-	PostFileWithResponse(ctx context.Context, body PostFileJSONRequestBody, reqEditors ...RequestEditorFn) (*PostFileResponse, error)
+	PostFileWithBodyWithResponse(ctx context.Context, params *PostFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostFileResponse, error)
 
 	// DeleteFileByNameWithResponse request
 	DeleteFileByNameWithResponse(ctx context.Context, name FileName, reqEditors ...RequestEditorFn) (*DeleteFileByNameResponse, error)
@@ -3493,6 +3518,7 @@ type PostFileResponse struct {
 	JSON400      *ErrorResponse
 	JSON401      *ErrorResponse
 	JSON403      *ErrorResponse
+	JSON409      *ErrorResponse
 	JSON500      *ErrorResponse
 }
 
@@ -4252,16 +4278,8 @@ func (c *ClientWithResponses) GetFilesWithResponse(ctx context.Context, reqEdito
 }
 
 // PostFileWithBodyWithResponse request with arbitrary body returning *PostFileResponse
-func (c *ClientWithResponses) PostFileWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostFileResponse, error) {
-	rsp, err := c.PostFileWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePostFileResponse(rsp)
-}
-
-func (c *ClientWithResponses) PostFileWithResponse(ctx context.Context, body PostFileJSONRequestBody, reqEditors ...RequestEditorFn) (*PostFileResponse, error) {
-	rsp, err := c.PostFile(ctx, body, reqEditors...)
+func (c *ClientWithResponses) PostFileWithBodyWithResponse(ctx context.Context, params *PostFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostFileResponse, error) {
+	rsp, err := c.PostFileWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -5022,6 +5040,13 @@ func ParsePostFileResponse(rsp *http.Response) (*PostFileResponse, error) {
 			return nil, err
 		}
 		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest ErrorResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest ErrorResponse

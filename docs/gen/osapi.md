@@ -61,6 +61,7 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type Disk](<#Disk>)
 - [type DiskResult](<#DiskResult>)
 - [type ExecRequest](<#ExecRequest>)
+- [type FileChanged](<#FileChanged>)
 - [type FileDelete](<#FileDelete>)
 - [type FileDeployOpts](<#FileDeployOpts>)
 - [type FileDeployResult](<#FileDeployResult>)
@@ -68,10 +69,11 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type FileList](<#FileList>)
 - [type FileMetadata](<#FileMetadata>)
 - [type FileService](<#FileService>)
+  - [func \(s \*FileService\) Changed\(ctx context.Context, name string, file io.Reader\) \(\*Response\[FileChanged\], error\)](<#FileService.Changed>)
   - [func \(s \*FileService\) Delete\(ctx context.Context, name string\) \(\*Response\[FileDelete\], error\)](<#FileService.Delete>)
   - [func \(s \*FileService\) Get\(ctx context.Context, name string\) \(\*Response\[FileMetadata\], error\)](<#FileService.Get>)
   - [func \(s \*FileService\) List\(ctx context.Context\) \(\*Response\[FileList\], error\)](<#FileService.List>)
-  - [func \(s \*FileService\) Upload\(ctx context.Context, name string, content \[\]byte\) \(\*Response\[FileUpload\], error\)](<#FileService.Upload>)
+  - [func \(s \*FileService\) Upload\(ctx context.Context, name string, contentType string, file io.Reader, opts ...UploadOption\) \(\*Response\[FileUpload\], error\)](<#FileService.Upload>)
 - [type FileStatusResult](<#FileStatusResult>)
 - [type FileUpload](<#FileUpload>)
 - [type HealthService](<#HealthService>)
@@ -140,6 +142,8 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
 - [type TimelineEvent](<#TimelineEvent>)
 - [type UnexpectedStatusError](<#UnexpectedStatusError>)
   - [func \(e \*UnexpectedStatusError\) Unwrap\(\) error](<#UnexpectedStatusError.Unwrap>)
+- [type UploadOption](<#UploadOption>)
+  - [func WithForce\(\) UploadOption](<#WithForce>)
 - [type UptimeResult](<#UptimeResult>)
 - [type ValidationError](<#ValidationError>)
   - [func \(e \*ValidationError\) Unwrap\(\) error](<#ValidationError.Unwrap>)
@@ -622,8 +626,21 @@ type ExecRequest struct {
 }
 ```
 
+<a name="FileChanged"></a>
+## type [FileChanged](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L63-L67>)
+
+FileChanged represents the result of a change detection check.
+
+```go
+type FileChanged struct {
+    Name    string
+    Changed bool
+    SHA256  string
+}
+```
+
 <a name="FileDelete"></a>
-## type [FileDelete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L53-L56>)
+## type [FileDelete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L57-L60>)
 
 FileDelete represents the result of a file deletion.
 
@@ -669,7 +686,7 @@ type FileDeployOpts struct {
 ```
 
 <a name="FileDeployResult"></a>
-## type [FileDeployResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L59-L63>)
+## type [FileDeployResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L70-L74>)
 
 FileDeployResult represents the result of a file deploy operation.
 
@@ -682,20 +699,21 @@ type FileDeployResult struct {
 ```
 
 <a name="FileItem"></a>
-## type [FileItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L33-L37>)
+## type [FileItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L35-L40>)
 
 FileItem represents file metadata in a list.
 
 ```go
 type FileItem struct {
-    Name   string
-    SHA256 string
-    Size   int
+    Name        string
+    SHA256      string
+    Size        int
+    ContentType string
 }
 ```
 
 <a name="FileList"></a>
-## type [FileList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L40-L43>)
+## type [FileList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L43-L46>)
 
 FileList is a collection of files with total count.
 
@@ -707,20 +725,21 @@ type FileList struct {
 ```
 
 <a name="FileMetadata"></a>
-## type [FileMetadata](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L46-L50>)
+## type [FileMetadata](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L49-L54>)
 
 FileMetadata represents metadata for a single file.
 
 ```go
 type FileMetadata struct {
-    Name   string
-    SHA256 string
-    Size   int
+    Name        string
+    SHA256      string
+    Size        int
+    ContentType string
 }
 ```
 
 <a name="FileService"></a>
-## type [FileService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L31-L33>)
+## type [FileService](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L49-L51>)
 
 FileService provides file management operations for the Object Store.
 
@@ -730,8 +749,17 @@ type FileService struct {
 }
 ```
 
+<a name="FileService.Changed"></a>
+### func \(\*FileService\) [Changed](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L236-L240>)
+
+```go
+func (s *FileService) Changed(ctx context.Context, name string, file io.Reader) (*Response[FileChanged], error)
+```
+
+Changed computes the SHA\-256 of the provided content and compares it against the stored hash in the Object Store. Returns true if the content differs or the file does not exist yet.
+
 <a name="FileService.Delete"></a>
-### func \(\*FileService\) [Delete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L131-L134>)
+### func \(\*FileService\) [Delete](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L203-L206>)
 
 ```go
 func (s *FileService) Delete(ctx context.Context, name string) (*Response[FileDelete], error)
@@ -740,7 +768,7 @@ func (s *FileService) Delete(ctx context.Context, name string) (*Response[FileDe
 Delete removes a file from the Object Store.
 
 <a name="FileService.Get"></a>
-### func \(\*FileService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L100-L103>)
+### func \(\*FileService\) [Get](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L172-L175>)
 
 ```go
 func (s *FileService) Get(ctx context.Context, name string) (*Response[FileMetadata], error)
@@ -749,7 +777,7 @@ func (s *FileService) Get(ctx context.Context, name string) (*Response[FileMetad
 Get retrieves metadata for a specific file in the Object Store.
 
 <a name="FileService.List"></a>
-### func \(\*FileService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L72-L74>)
+### func \(\*FileService\) [List](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L144-L146>)
 
 ```go
 func (s *FileService) List(ctx context.Context) (*Response[FileList], error)
@@ -758,16 +786,16 @@ func (s *FileService) List(ctx context.Context) (*Response[FileList], error)
 List retrieves all files stored in the Object Store.
 
 <a name="FileService.Upload"></a>
-### func \(\*FileService\) [Upload](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L36-L40>)
+### func \(\*FileService\) [Upload](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L57-L63>)
 
 ```go
-func (s *FileService) Upload(ctx context.Context, name string, content []byte) (*Response[FileUpload], error)
+func (s *FileService) Upload(ctx context.Context, name string, contentType string, file io.Reader, opts ...UploadOption) (*Response[FileUpload], error)
 ```
 
-Upload uploads a file to the Object Store.
+Upload uploads a file to the Object Store via multipart/form\-data. By default, it computes SHA\-256 locally and compares against the stored hash to skip the upload when content is unchanged. Use WithForce to bypass this check.
 
 <a name="FileStatusResult"></a>
-## type [FileStatusResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L66-L72>)
+## type [FileStatusResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L77-L83>)
 
 FileStatusResult represents the result of a file status check.
 
@@ -782,15 +810,17 @@ type FileStatusResult struct {
 ```
 
 <a name="FileUpload"></a>
-## type [FileUpload](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L26-L30>)
+## type [FileUpload](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file_types.go#L26-L32>)
 
 FileUpload represents a successfully uploaded file.
 
 ```go
 type FileUpload struct {
-    Name   string
-    SHA256 string
-    Size   int
+    Name        string
+    SHA256      string
+    Size        int
+    Changed     bool
+    ContentType string
 }
 ```
 
@@ -1554,6 +1584,24 @@ func (e *UnexpectedStatusError) Unwrap() error
 ```
 
 Unwrap returns the underlying APIError.
+
+<a name="UploadOption"></a>
+## type [UploadOption](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L36>)
+
+UploadOption configures Upload behavior.
+
+```go
+type UploadOption func(*uploadOptions)
+```
+
+<a name="WithForce"></a>
+### func [WithForce](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/file.go#L44>)
+
+```go
+func WithForce() UploadOption
+```
+
+WithForce bypasses both SDK\-side pre\-check and server\-side digest check. The file is always uploaded and changed is always true.
 
 <a name="UptimeResult"></a>
 ## type [UptimeResult](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/node_types.go#L90-L94>)

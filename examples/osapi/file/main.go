@@ -18,13 +18,15 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-// Package main demonstrates file management: upload, list, get metadata,
-// deploy to an agent, check status, and delete.
+// Package main demonstrates file management: upload, check for changes,
+// force upload, list, get metadata, deploy to an agent, check status,
+// and delete.
 //
 // Run with: OSAPI_TOKEN="<jwt>" go run main.go
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -47,15 +49,43 @@ func main() {
 	client := osapi.New(url, token)
 	ctx := context.Background()
 
-	// Upload a file to the Object Store.
+	// Upload a raw file to the Object Store.
 	content := []byte("listen_address = 0.0.0.0:8080\nworkers = 4\n")
-	upload, err := client.File.Upload(ctx, "app.conf", content)
+	upload, err := client.File.Upload(
+		ctx,
+		"app.conf",
+		"raw",
+		bytes.NewReader(content),
+	)
 	if err != nil {
 		log.Fatalf("upload: %v", err)
 	}
 
-	fmt.Printf("Uploaded: name=%s sha256=%s size=%d\n",
-		upload.Data.Name, upload.Data.SHA256, upload.Data.Size)
+	fmt.Printf("Uploaded: name=%s sha256=%s size=%d changed=%v\n",
+		upload.Data.Name, upload.Data.SHA256, upload.Data.Size, upload.Data.Changed)
+
+	// Check if the file has changed without uploading.
+	chk, err := client.File.Changed(ctx, "app.conf", bytes.NewReader(content))
+	if err != nil {
+		log.Fatalf("changed: %v", err)
+	}
+
+	fmt.Printf("Changed: name=%s changed=%v\n", chk.Data.Name, chk.Data.Changed)
+
+	// Force upload bypasses both SDK-side and server-side checks.
+	force, err := client.File.Upload(
+		ctx,
+		"app.conf",
+		"raw",
+		bytes.NewReader(content),
+		osapi.WithForce(),
+	)
+	if err != nil {
+		log.Fatalf("force upload: %v", err)
+	}
+
+	fmt.Printf("Force upload: name=%s changed=%v\n",
+		force.Data.Name, force.Data.Changed)
 
 	// List all stored files.
 	list, err := client.File.List(ctx)
@@ -80,7 +110,7 @@ func main() {
 	// Deploy the file to an agent.
 	deploy, err := client.Node.FileDeploy(ctx, osapi.FileDeployOpts{
 		ObjectName:  "app.conf",
-		Path:        "/etc/app/app.conf",
+		Path:        "/tmp/app.conf",
 		ContentType: "raw",
 		Mode:        "0644",
 		Target:      "_any",
@@ -93,7 +123,7 @@ func main() {
 		deploy.Data.JobID, deploy.Data.Hostname, deploy.Data.Changed)
 
 	// Check file status on the agent.
-	status, err := client.Node.FileStatus(ctx, "_any", "/etc/app/app.conf")
+	status, err := client.Node.FileStatus(ctx, "_any", "/tmp/app.conf")
 	if err != nil {
 		log.Fatalf("status: %v", err)
 	}

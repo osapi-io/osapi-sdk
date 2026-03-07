@@ -24,16 +24,19 @@ import "github.com/osapi-io/osapi-sdk/pkg/osapi/gen"
 
 // FileUpload represents a successfully uploaded file.
 type FileUpload struct {
-	Name   string
-	SHA256 string
-	Size   int
+	Name        string
+	SHA256      string
+	Size        int
+	Changed     bool
+	ContentType string
 }
 
 // FileItem represents file metadata in a list.
 type FileItem struct {
-	Name   string
-	SHA256 string
-	Size   int
+	Name        string
+	SHA256      string
+	Size        int
+	ContentType string
 }
 
 // FileList is a collection of files with total count.
@@ -44,15 +47,23 @@ type FileList struct {
 
 // FileMetadata represents metadata for a single file.
 type FileMetadata struct {
-	Name   string
-	SHA256 string
-	Size   int
+	Name        string
+	SHA256      string
+	Size        int
+	ContentType string
 }
 
 // FileDelete represents the result of a file deletion.
 type FileDelete struct {
 	Name    string
 	Deleted bool
+}
+
+// FileChanged represents the result of a change detection check.
+type FileChanged struct {
+	Name    string
+	Changed bool
+	SHA256  string
 }
 
 // FileDeployResult represents the result of a file deploy operation.
@@ -76,9 +87,11 @@ func fileUploadFromGen(
 	g *gen.FileUploadResponse,
 ) FileUpload {
 	return FileUpload{
-		Name:   g.Name,
-		SHA256: g.Sha256,
-		Size:   g.Size,
+		Name:        g.Name,
+		SHA256:      g.Sha256,
+		Size:        g.Size,
+		Changed:     g.Changed,
+		ContentType: g.ContentType,
 	}
 }
 
@@ -89,9 +102,10 @@ func fileListFromGen(
 	files := make([]FileItem, 0, len(g.Files))
 	for _, f := range g.Files {
 		files = append(files, FileItem{
-			Name:   f.Name,
-			SHA256: f.Sha256,
-			Size:   f.Size,
+			Name:        f.Name,
+			SHA256:      f.Sha256,
+			Size:        f.Size,
+			ContentType: f.ContentType,
 		})
 	}
 
@@ -106,9 +120,10 @@ func fileMetadataFromGen(
 	g *gen.FileInfoResponse,
 ) FileMetadata {
 	return FileMetadata{
-		Name:   g.Name,
-		SHA256: g.Sha256,
-		Size:   g.Size,
+		Name:        g.Name,
+		SHA256:      g.Sha256,
+		Size:        g.Size,
+		ContentType: g.ContentType,
 	}
 }
 
