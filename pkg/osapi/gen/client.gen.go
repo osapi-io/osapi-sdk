@@ -855,6 +855,15 @@ type OSInfoResultItem struct {
 	OsInfo *OSInfoResponse `json:"os_info,omitempty"`
 }
 
+// ObjectStoreInfo defines model for ObjectStoreInfo.
+type ObjectStoreInfo struct {
+	// Name Object Store bucket name.
+	Name string `json:"name"`
+
+	// Size Total bytes in the store.
+	Size int `json:"size"`
+}
+
 // PingCollectionResponse defines model for PingCollectionResponse.
 type PingCollectionResponse struct {
 	// JobId The job ID used to process this request.
@@ -952,6 +961,9 @@ type StatusResponse struct {
 	// KvBuckets KV bucket statistics.
 	KvBuckets *[]KVBucketInfo `json:"kv_buckets,omitempty"`
 	Nats      *NATSInfo       `json:"nats,omitempty"`
+
+	// ObjectStores Object Store statistics.
+	ObjectStores *[]ObjectStoreInfo `json:"object_stores,omitempty"`
 
 	// Status Overall health status.
 	Status string `json:"status"`

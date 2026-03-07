@@ -47,6 +47,7 @@ type SystemStatus struct {
 	Consumers          *ConsumerStats
 	Streams            []StreamInfo
 	KVBuckets          []KVBucketInfo
+	ObjectStores       []ObjectStoreInfo
 }
 
 // ComponentHealth represents a component's health.
@@ -112,6 +113,12 @@ type KVBucketInfo struct {
 	Name  string
 	Keys  int
 	Bytes int
+}
+
+// ObjectStoreInfo represents an Object Store bucket's info.
+type ObjectStoreInfo struct {
+	Name string
+	Size int
 }
 
 // healthStatusFromGen converts a gen.HealthResponse to a HealthStatus.
@@ -261,6 +268,18 @@ func systemStatusFromGen(
 		}
 
 		s.KVBuckets = buckets
+	}
+
+	if g.ObjectStores != nil {
+		stores := make([]ObjectStoreInfo, 0, len(*g.ObjectStores))
+		for _, o := range *g.ObjectStores {
+			stores = append(stores, ObjectStoreInfo{
+				Name: o.Name,
+				Size: o.Size,
+			})
+		}
+
+		s.ObjectStores = stores
 	}
 
 	return s
