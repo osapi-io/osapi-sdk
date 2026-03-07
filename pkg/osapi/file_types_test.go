@@ -41,14 +41,18 @@ func (suite *FileTypesTestSuite) TestFileUploadFromGen() {
 		{
 			name: "when all fields populated returns FileUpload",
 			input: &gen.FileUploadResponse{
-				Name:   "nginx.conf",
-				Sha256: "abc123",
-				Size:   1024,
+				Name:        "nginx.conf",
+				Sha256:      "abc123",
+				Size:        1024,
+				Changed:     true,
+				ContentType: "raw",
 			},
 			validateFunc: func(result FileUpload) {
 				suite.Equal("nginx.conf", result.Name)
 				suite.Equal("abc123", result.SHA256)
 				suite.Equal(1024, result.Size)
+				suite.True(result.Changed)
+				suite.Equal("raw", result.ContentType)
 			},
 		},
 	}
@@ -71,8 +75,8 @@ func (suite *FileTypesTestSuite) TestFileListFromGen() {
 			name: "when files exist returns FileList with items",
 			input: &gen.FileListResponse{
 				Files: []gen.FileInfo{
-					{Name: "file1.txt", Sha256: "aaa", Size: 100},
-					{Name: "file2.txt", Sha256: "bbb", Size: 200},
+					{Name: "file1.txt", Sha256: "aaa", Size: 100, ContentType: "raw"},
+					{Name: "file2.txt", Sha256: "bbb", Size: 200, ContentType: "template"},
 				},
 				Total: 2,
 			},
@@ -82,7 +86,9 @@ func (suite *FileTypesTestSuite) TestFileListFromGen() {
 				suite.Equal("file1.txt", result.Files[0].Name)
 				suite.Equal("aaa", result.Files[0].SHA256)
 				suite.Equal(100, result.Files[0].Size)
+				suite.Equal("raw", result.Files[0].ContentType)
 				suite.Equal("file2.txt", result.Files[1].Name)
+				suite.Equal("template", result.Files[1].ContentType)
 			},
 		},
 		{
@@ -115,14 +121,16 @@ func (suite *FileTypesTestSuite) TestFileMetadataFromGen() {
 		{
 			name: "when all fields populated returns FileMetadata",
 			input: &gen.FileInfoResponse{
-				Name:   "config.yaml",
-				Sha256: "def456",
-				Size:   512,
+				Name:        "config.yaml",
+				Sha256:      "def456",
+				Size:        512,
+				ContentType: "template",
 			},
 			validateFunc: func(result FileMetadata) {
 				suite.Equal("config.yaml", result.Name)
 				suite.Equal("def456", result.SHA256)
 				suite.Equal(512, result.Size)
+				suite.Equal("template", result.ContentType)
 			},
 		},
 	}

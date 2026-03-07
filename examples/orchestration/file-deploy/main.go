@@ -32,6 +32,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -74,15 +75,21 @@ func main() {
 listen_address = {{ .Vars.listen_address }}
 workers = {{ .Facts.cpu_count }}
 `)
-			resp, err := c.File.Upload(ctx, "app.conf.tmpl", tmpl)
+			resp, err := c.File.Upload(
+				ctx,
+				"app.conf.tmpl",
+				"template",
+				bytes.NewReader(tmpl),
+				osapi.WithForce(),
+			)
 			if err != nil {
 				return nil, fmt.Errorf("upload: %w", err)
 			}
 
-			fmt.Printf("    uploaded %s (sha256=%s)\n",
-				resp.Data.Name, resp.Data.SHA256)
+			fmt.Printf("    uploaded %s (sha256=%s changed=%v)\n",
+				resp.Data.Name, resp.Data.SHA256, resp.Data.Changed)
 
-			return &orchestrator.Result{Changed: true}, nil
+			return &orchestrator.Result{Changed: resp.Data.Changed}, nil
 		},
 	)
 
@@ -92,7 +99,7 @@ workers = {{ .Facts.cpu_count }}
 		Target:    "_all",
 		Params: map[string]any{
 			"object_name":  "app.conf.tmpl",
-			"path":         "/etc/app/app.conf",
+			"path":         "/tmp/app.conf",
 			"content_type": "template",
 			"mode":         "0644",
 			"vars": map[string]any{
@@ -107,7 +114,7 @@ workers = {{ .Facts.cpu_count }}
 		Operation: "file.status.get",
 		Target:    "_all",
 		Params: map[string]any{
-			"path": "/etc/app/app.conf",
+			"path": "/tmp/app.conf",
 		},
 	})
 	verify.DependsOn(deploy)
