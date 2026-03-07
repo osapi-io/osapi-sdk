@@ -241,6 +241,10 @@ func (suite *JobTypesTestSuite) TestJobListFromGen() {
 				id := openapi_types.UUID(uuid.MustParse("44444444-4444-4444-4444-444444444444"))
 				status := "pending"
 				totalItems := 1
+				statusCounts := map[string]int{
+					"pending":   1,
+					"completed": 0,
+				}
 				items := []gen.JobDetailResponse{
 					{
 						Id:     &id,
@@ -249,12 +253,17 @@ func (suite *JobTypesTestSuite) TestJobListFromGen() {
 				}
 
 				return &gen.ListJobsResponse{
-					Items:      &items,
-					TotalItems: &totalItems,
+					Items:        &items,
+					TotalItems:   &totalItems,
+					StatusCounts: &statusCounts,
 				}
 			}(),
 			validateFunc: func(jl JobList) {
 				suite.Equal(1, jl.TotalItems)
+				suite.Equal(map[string]int{
+					"pending":   1,
+					"completed": 0,
+				}, jl.StatusCounts)
 				suite.Len(jl.Items, 1)
 				suite.Equal("44444444-4444-4444-4444-444444444444", jl.Items[0].ID)
 				suite.Equal("pending", jl.Items[0].Status)
@@ -281,6 +290,7 @@ func (suite *JobTypesTestSuite) TestJobListFromGen() {
 			input: &gen.ListJobsResponse{},
 			validateFunc: func(jl JobList) {
 				suite.Equal(0, jl.TotalItems)
+				suite.Nil(jl.StatusCounts)
 				suite.Nil(jl.Items)
 			},
 		},
@@ -310,16 +320,11 @@ func (suite *JobTypesTestSuite) TestQueueStatsFromGen() {
 					"completed": 60,
 					"failed":    10,
 				}
-				operationCounts := map[string]int{
-					"node.hostname": 50,
-					"node.disk":     50,
-				}
 
 				return &gen.QueueStatsResponse{
-					TotalJobs:       &totalJobs,
-					DlqCount:        &dlqCount,
-					StatusCounts:    &statusCounts,
-					OperationCounts: &operationCounts,
+					TotalJobs:    &totalJobs,
+					DlqCount:     &dlqCount,
+					StatusCounts: &statusCounts,
 				}
 			}(),
 			validateFunc: func(qs QueueStats) {
@@ -330,10 +335,6 @@ func (suite *JobTypesTestSuite) TestQueueStatsFromGen() {
 					"completed": 60,
 					"failed":    10,
 				}, qs.StatusCounts)
-				suite.Equal(map[string]int{
-					"node.hostname": 50,
-					"node.disk":     50,
-				}, qs.OperationCounts)
 			},
 		},
 		{
@@ -343,7 +344,6 @@ func (suite *JobTypesTestSuite) TestQueueStatsFromGen() {
 				suite.Equal(0, qs.TotalJobs)
 				suite.Equal(0, qs.DlqCount)
 				suite.Nil(qs.StatusCounts)
-				suite.Nil(qs.OperationCounts)
 			},
 		},
 	}

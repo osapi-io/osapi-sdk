@@ -64,16 +64,16 @@ type AgentJobResponse struct {
 
 // JobList is a paginated list of jobs.
 type JobList struct {
-	Items      []JobDetail
-	TotalItems int
+	Items        []JobDetail
+	TotalItems   int
+	StatusCounts map[string]int
 }
 
 // QueueStats represents job queue statistics.
 type QueueStats struct {
-	TotalJobs       int
-	DlqCount        int
-	StatusCounts    map[string]int
-	OperationCounts map[string]int
+	TotalJobs    int
+	DlqCount     int
+	StatusCounts map[string]int
 }
 
 // jobCreatedFromGen converts a gen.CreateJobResponse to a JobCreated.
@@ -224,6 +224,10 @@ func jobListFromGen(
 		jl.TotalItems = *g.TotalItems
 	}
 
+	if g.StatusCounts != nil {
+		jl.StatusCounts = *g.StatusCounts
+	}
+
 	if g.Items != nil {
 		items := make([]JobDetail, 0, len(*g.Items))
 		for i := range *g.Items {
@@ -252,10 +256,6 @@ func queueStatsFromGen(
 
 	if g.StatusCounts != nil {
 		qs.StatusCounts = *g.StatusCounts
-	}
-
-	if g.OperationCounts != nil {
-		qs.OperationCounts = *g.OperationCounts
 	}
 
 	return qs

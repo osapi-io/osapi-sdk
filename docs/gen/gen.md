@@ -4008,7 +4008,7 @@ type ListAuditResponse struct {
 ```
 
 <a name="ListJobsResponse"></a>
-## type [ListJobsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L697-L702>)
+## type [ListJobsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L697-L705>)
 
 ListJobsResponse defines model for ListJobsResponse.
 
@@ -4016,13 +4016,16 @@ ListJobsResponse defines model for ListJobsResponse.
 type ListJobsResponse struct {
     Items *[]JobDetailResponse `json:"items,omitempty"`
 
+    // StatusCounts Count of all jobs by status (submitted, processing, completed, failed, partial_failure). Derived from key names during the listing pass — no extra reads.
+    StatusCounts *map[string]int `json:"status_counts,omitempty"`
+
     // TotalItems Total number of jobs matching the filter.
     TotalItems *int `json:"total_items,omitempty"`
 }
 ```
 
 <a name="LoadAverageResponse"></a>
-## type [LoadAverageResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L705-L714>)
+## type [LoadAverageResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L708-L717>)
 
 LoadAverageResponse The system load averages for 1, 5, and 15 minutes.
 
@@ -4040,7 +4043,7 @@ type LoadAverageResponse struct {
 ```
 
 <a name="LoadCollectionResponse"></a>
-## type [LoadCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L717-L721>)
+## type [LoadCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L720-L724>)
 
 LoadCollectionResponse defines model for LoadCollectionResponse.
 
@@ -4053,7 +4056,7 @@ type LoadCollectionResponse struct {
 ```
 
 <a name="LoadResultItem"></a>
-## type [LoadResultItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L724-L733>)
+## type [LoadResultItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L727-L736>)
 
 LoadResultItem defines model for LoadResultItem.
 
@@ -4071,7 +4074,7 @@ type LoadResultItem struct {
 ```
 
 <a name="MemoryCollectionResponse"></a>
-## type [MemoryCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L736-L740>)
+## type [MemoryCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L739-L743>)
 
 MemoryCollectionResponse defines model for MemoryCollectionResponse.
 
@@ -4084,7 +4087,7 @@ type MemoryCollectionResponse struct {
 ```
 
 <a name="MemoryResponse"></a>
-## type [MemoryResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L743-L752>)
+## type [MemoryResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L746-L755>)
 
 MemoryResponse Memory usage information.
 
@@ -4102,7 +4105,7 @@ type MemoryResponse struct {
 ```
 
 <a name="MemoryResultItem"></a>
-## type [MemoryResultItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L755-L764>)
+## type [MemoryResultItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L758-L767>)
 
 MemoryResultItem defines model for MemoryResultItem.
 
@@ -4120,7 +4123,7 @@ type MemoryResultItem struct {
 ```
 
 <a name="NATSInfo"></a>
-## type [NATSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L767-L773>)
+## type [NATSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L770-L776>)
 
 NATSInfo defines model for NATSInfo.
 
@@ -4135,7 +4138,7 @@ type NATSInfo struct {
 ```
 
 <a name="NetworkInterfaceResponse"></a>
-## type [NetworkInterfaceResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L776-L783>)
+## type [NetworkInterfaceResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L779-L786>)
 
 NetworkInterfaceResponse defines model for NetworkInterfaceResponse.
 
@@ -4151,7 +4154,7 @@ type NetworkInterfaceResponse struct {
 ```
 
 <a name="NetworkInterfaceResponseFamily"></a>
-## type [NetworkInterfaceResponseFamily](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L786>)
+## type [NetworkInterfaceResponseFamily](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L789>)
 
 NetworkInterfaceResponseFamily IP address family.
 
@@ -4170,7 +4173,7 @@ const (
 ```
 
 <a name="NodeCondition"></a>
-## type [NodeCondition](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L789-L794>)
+## type [NodeCondition](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L792-L797>)
 
 NodeCondition defines model for NodeCondition.
 
@@ -4184,7 +4187,7 @@ type NodeCondition struct {
 ```
 
 <a name="NodeConditionType"></a>
-## type [NodeConditionType](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L797>)
+## type [NodeConditionType](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L800>)
 
 NodeConditionType defines model for NodeCondition.Type.
 
@@ -4203,7 +4206,7 @@ const (
 ```
 
 <a name="NodeStatusCollectionResponse"></a>
-## type [NodeStatusCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L800-L804>)
+## type [NodeStatusCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L803-L807>)
 
 NodeStatusCollectionResponse defines model for NodeStatusCollectionResponse.
 
@@ -4216,7 +4219,7 @@ type NodeStatusCollectionResponse struct {
 ```
 
 <a name="NodeStatusResponse"></a>
-## type [NodeStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L807-L828>)
+## type [NodeStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L810-L831>)
 
 NodeStatusResponse defines model for NodeStatusResponse.
 
@@ -4246,7 +4249,7 @@ type NodeStatusResponse struct {
 ```
 
 <a name="OSInfoCollectionResponse"></a>
-## type [OSInfoCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L831-L835>)
+## type [OSInfoCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L834-L838>)
 
 OSInfoCollectionResponse defines model for OSInfoCollectionResponse.
 
@@ -4259,7 +4262,7 @@ type OSInfoCollectionResponse struct {
 ```
 
 <a name="OSInfoResponse"></a>
-## type [OSInfoResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L838-L844>)
+## type [OSInfoResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L841-L847>)
 
 OSInfoResponse Operating system information.
 
@@ -4274,7 +4277,7 @@ type OSInfoResponse struct {
 ```
 
 <a name="OSInfoResultItem"></a>
-## type [OSInfoResultItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L847-L856>)
+## type [OSInfoResultItem](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L850-L859>)
 
 OSInfoResultItem defines model for OSInfoResultItem.
 
@@ -4292,7 +4295,7 @@ type OSInfoResultItem struct {
 ```
 
 <a name="ObjectStoreInfo"></a>
-## type [ObjectStoreInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L859-L865>)
+## type [ObjectStoreInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L862-L868>)
 
 ObjectStoreInfo defines model for ObjectStoreInfo.
 
@@ -4307,7 +4310,7 @@ type ObjectStoreInfo struct {
 ```
 
 <a name="PingCollectionResponse"></a>
-## type [PingCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L868-L872>)
+## type [PingCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L871-L875>)
 
 PingCollectionResponse defines model for PingCollectionResponse.
 
@@ -4320,7 +4323,7 @@ type PingCollectionResponse struct {
 ```
 
 <a name="PingResponse"></a>
-## type [PingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L875-L899>)
+## type [PingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L878-L902>)
 
 PingResponse defines model for PingResponse.
 
@@ -4838,7 +4841,7 @@ func (r PutNodeNetworkDNSResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="QueueStatsResponse"></a>
-## type [QueueStatsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L902-L914>)
+## type [QueueStatsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L905-L914>)
 
 QueueStatsResponse defines model for QueueStatsResponse.
 
@@ -4846,9 +4849,6 @@ QueueStatsResponse defines model for QueueStatsResponse.
 type QueueStatsResponse struct {
     // DlqCount Number of jobs in the dead letter queue.
     DlqCount *int `json:"dlq_count,omitempty"`
-
-    // OperationCounts Count of jobs by operation type.
-    OperationCounts *map[string]int `json:"operation_counts,omitempty"`
 
     // StatusCounts Count of jobs by status.
     StatusCounts *map[string]int `json:"status_counts,omitempty"`
