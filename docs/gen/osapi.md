@@ -923,14 +923,15 @@ type JobDetail struct {
 ```
 
 <a name="JobList"></a>
-## type [JobList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L66-L69>)
+## type [JobList](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L66-L70>)
 
 JobList is a paginated list of jobs.
 
 ```go
 type JobList struct {
-    Items      []JobDetail
-    TotalItems int
+    Items        []JobDetail
+    TotalItems   int
+    StatusCounts map[string]int
 }
 ```
 
@@ -1414,16 +1415,15 @@ type PingResult struct {
 ```
 
 <a name="QueueStats"></a>
-## type [QueueStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L72-L77>)
+## type [QueueStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/job_types.go#L73-L77>)
 
 QueueStats represents job queue statistics.
 
 ```go
 type QueueStats struct {
-    TotalJobs       int
-    DlqCount        int
-    StatusCounts    map[string]int
-    OperationCounts map[string]int
+    TotalJobs    int
+    DlqCount     int
+    StatusCounts map[string]int
 }
 ```
 
