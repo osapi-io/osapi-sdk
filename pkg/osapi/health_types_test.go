@@ -187,6 +187,12 @@ func (suite *HealthTypesTestSuite) TestSystemStatusFromGen() {
 							Bytes: 2097152,
 						},
 					},
+					ObjectStores: &[]gen.ObjectStoreInfo{
+						{
+							Name: "file-objects",
+							Size: 5242880,
+						},
+					},
 				}
 			}(),
 			serviceUnavailable: false,
@@ -246,6 +252,10 @@ func (suite *HealthTypesTestSuite) TestSystemStatusFromGen() {
 				suite.Equal("audit-log", s.KVBuckets[1].Name)
 				suite.Equal(200, s.KVBuckets[1].Keys)
 				suite.Equal(2097152, s.KVBuckets[1].Bytes)
+
+				suite.Require().Len(s.ObjectStores, 1)
+				suite.Equal("file-objects", s.ObjectStores[0].Name)
+				suite.Equal(5242880, s.ObjectStores[0].Size)
 			},
 		},
 		{
@@ -269,6 +279,7 @@ func (suite *HealthTypesTestSuite) TestSystemStatusFromGen() {
 				suite.Nil(s.Consumers)
 				suite.Nil(s.Streams)
 				suite.Nil(s.KVBuckets)
+				suite.Nil(s.ObjectStores)
 			},
 		},
 		{

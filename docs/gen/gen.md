@@ -322,6 +322,7 @@ Package gen contains generated code for the OSAPI REST API client.
 - [type OSInfoCollectionResponse](<#OSInfoCollectionResponse>)
 - [type OSInfoResponse](<#OSInfoResponse>)
 - [type OSInfoResultItem](<#OSInfoResultItem>)
+- [type ObjectStoreInfo](<#ObjectStoreInfo>)
 - [type PingCollectionResponse](<#PingCollectionResponse>)
 - [type PingResponse](<#PingResponse>)
 - [type PostFileMultipartBody](<#PostFileMultipartBody>)
@@ -400,7 +401,7 @@ const (
 ```
 
 <a name="NewDeleteFileByNameRequest"></a>
-## func [NewDeleteFileByNameRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2141>)
+## func [NewDeleteFileByNameRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2153>)
 
 ```go
 func NewDeleteFileByNameRequest(server string, name FileName) (*http.Request, error)
@@ -409,7 +410,7 @@ func NewDeleteFileByNameRequest(server string, name FileName) (*http.Request, er
 NewDeleteFileByNameRequest generates requests for DeleteFileByName
 
 <a name="NewDeleteJobByIDRequest"></a>
-## func [NewDeleteJobByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2438>)
+## func [NewDeleteJobByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2450>)
 
 ```go
 func NewDeleteJobByIDRequest(server string, id openapi_types.UUID) (*http.Request, error)
@@ -418,7 +419,7 @@ func NewDeleteJobByIDRequest(server string, id openapi_types.UUID) (*http.Reques
 NewDeleteJobByIDRequest generates requests for DeleteJobByID
 
 <a name="NewDrainAgentRequest"></a>
-## func [NewDrainAgentRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1869>)
+## func [NewDrainAgentRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1881>)
 
 ```go
 func NewDrainAgentRequest(server string, hostname string) (*http.Request, error)
@@ -427,7 +428,7 @@ func NewDrainAgentRequest(server string, hostname string) (*http.Request, error)
 NewDrainAgentRequest generates requests for DrainAgent
 
 <a name="NewGetAgentDetailsRequest"></a>
-## func [NewGetAgentDetailsRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1835>)
+## func [NewGetAgentDetailsRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1847>)
 
 ```go
 func NewGetAgentDetailsRequest(server string, hostname string) (*http.Request, error)
@@ -436,7 +437,7 @@ func NewGetAgentDetailsRequest(server string, hostname string) (*http.Request, e
 NewGetAgentDetailsRequest generates requests for GetAgentDetails
 
 <a name="NewGetAgentRequest"></a>
-## func [NewGetAgentRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1808>)
+## func [NewGetAgentRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1820>)
 
 ```go
 func NewGetAgentRequest(server string) (*http.Request, error)
@@ -445,7 +446,7 @@ func NewGetAgentRequest(server string) (*http.Request, error)
 NewGetAgentRequest generates requests for GetAgent
 
 <a name="NewGetAuditExportRequest"></a>
-## func [NewGetAuditExportRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2002>)
+## func [NewGetAuditExportRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2014>)
 
 ```go
 func NewGetAuditExportRequest(server string) (*http.Request, error)
@@ -454,7 +455,7 @@ func NewGetAuditExportRequest(server string) (*http.Request, error)
 NewGetAuditExportRequest generates requests for GetAuditExport
 
 <a name="NewGetAuditLogByIDRequest"></a>
-## func [NewGetAuditLogByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2029>)
+## func [NewGetAuditLogByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2041>)
 
 ```go
 func NewGetAuditLogByIDRequest(server string, id openapi_types.UUID) (*http.Request, error)
@@ -463,7 +464,7 @@ func NewGetAuditLogByIDRequest(server string, id openapi_types.UUID) (*http.Requ
 NewGetAuditLogByIDRequest generates requests for GetAuditLogByID
 
 <a name="NewGetAuditLogsRequest"></a>
-## func [NewGetAuditLogsRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1937>)
+## func [NewGetAuditLogsRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1949>)
 
 ```go
 func NewGetAuditLogsRequest(server string, params *GetAuditLogsParams) (*http.Request, error)
@@ -472,7 +473,7 @@ func NewGetAuditLogsRequest(server string, params *GetAuditLogsParams) (*http.Re
 NewGetAuditLogsRequest generates requests for GetAuditLogs
 
 <a name="NewGetFileByNameRequest"></a>
-## func [NewGetFileByNameRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2175>)
+## func [NewGetFileByNameRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2187>)
 
 ```go
 func NewGetFileByNameRequest(server string, name FileName) (*http.Request, error)
@@ -481,7 +482,7 @@ func NewGetFileByNameRequest(server string, name FileName) (*http.Request, error
 NewGetFileByNameRequest generates requests for GetFileByName
 
 <a name="NewGetFilesRequest"></a>
-## func [NewGetFilesRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2063>)
+## func [NewGetFilesRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2075>)
 
 ```go
 func NewGetFilesRequest(server string) (*http.Request, error)
@@ -490,7 +491,7 @@ func NewGetFilesRequest(server string) (*http.Request, error)
 NewGetFilesRequest generates requests for GetFiles
 
 <a name="NewGetHealthReadyRequest"></a>
-## func [NewGetHealthReadyRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2236>)
+## func [NewGetHealthReadyRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2248>)
 
 ```go
 func NewGetHealthReadyRequest(server string) (*http.Request, error)
@@ -499,7 +500,7 @@ func NewGetHealthReadyRequest(server string) (*http.Request, error)
 NewGetHealthReadyRequest generates requests for GetHealthReady
 
 <a name="NewGetHealthRequest"></a>
-## func [NewGetHealthRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2209>)
+## func [NewGetHealthRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2221>)
 
 ```go
 func NewGetHealthRequest(server string) (*http.Request, error)
@@ -508,7 +509,7 @@ func NewGetHealthRequest(server string) (*http.Request, error)
 NewGetHealthRequest generates requests for GetHealth
 
 <a name="NewGetHealthStatusRequest"></a>
-## func [NewGetHealthStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2263>)
+## func [NewGetHealthStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2275>)
 
 ```go
 func NewGetHealthStatusRequest(server string) (*http.Request, error)
@@ -517,7 +518,7 @@ func NewGetHealthStatusRequest(server string) (*http.Request, error)
 NewGetHealthStatusRequest generates requests for GetHealthStatus
 
 <a name="NewGetJobByIDRequest"></a>
-## func [NewGetJobByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2472>)
+## func [NewGetJobByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2484>)
 
 ```go
 func NewGetJobByIDRequest(server string, id openapi_types.UUID) (*http.Request, error)
@@ -526,7 +527,7 @@ func NewGetJobByIDRequest(server string, id openapi_types.UUID) (*http.Request, 
 NewGetJobByIDRequest generates requests for GetJobByID
 
 <a name="NewGetJobRequest"></a>
-## func [NewGetJobRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2290>)
+## func [NewGetJobRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2302>)
 
 ```go
 func NewGetJobRequest(server string, params *GetJobParams) (*http.Request, error)
@@ -535,7 +536,7 @@ func NewGetJobRequest(server string, params *GetJobParams) (*http.Request, error
 NewGetJobRequest generates requests for GetJob
 
 <a name="NewGetJobStatusRequest"></a>
-## func [NewGetJobStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2411>)
+## func [NewGetJobStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2423>)
 
 ```go
 func NewGetJobStatusRequest(server string) (*http.Request, error)
@@ -544,7 +545,7 @@ func NewGetJobStatusRequest(server string) (*http.Request, error)
 NewGetJobStatusRequest generates requests for GetJobStatus
 
 <a name="NewGetNodeDiskRequest"></a>
-## func [NewGetNodeDiskRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2681>)
+## func [NewGetNodeDiskRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2693>)
 
 ```go
 func NewGetNodeDiskRequest(server string, hostname Hostname) (*http.Request, error)
@@ -553,7 +554,7 @@ func NewGetNodeDiskRequest(server string, hostname Hostname) (*http.Request, err
 NewGetNodeDiskRequest generates requests for GetNodeDisk
 
 <a name="NewGetNodeHostnameRequest"></a>
-## func [NewGetNodeHostnameRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2809>)
+## func [NewGetNodeHostnameRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2821>)
 
 ```go
 func NewGetNodeHostnameRequest(server string, hostname Hostname) (*http.Request, error)
@@ -562,7 +563,7 @@ func NewGetNodeHostnameRequest(server string, hostname Hostname) (*http.Request,
 NewGetNodeHostnameRequest generates requests for GetNodeHostname
 
 <a name="NewGetNodeLoadRequest"></a>
-## func [NewGetNodeLoadRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2843>)
+## func [NewGetNodeLoadRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2855>)
 
 ```go
 func NewGetNodeLoadRequest(server string, hostname Hostname) (*http.Request, error)
@@ -571,7 +572,7 @@ func NewGetNodeLoadRequest(server string, hostname Hostname) (*http.Request, err
 NewGetNodeLoadRequest generates requests for GetNodeLoad
 
 <a name="NewGetNodeMemoryRequest"></a>
-## func [NewGetNodeMemoryRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2877>)
+## func [NewGetNodeMemoryRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2889>)
 
 ```go
 func NewGetNodeMemoryRequest(server string, hostname Hostname) (*http.Request, error)
@@ -580,7 +581,7 @@ func NewGetNodeMemoryRequest(server string, hostname Hostname) (*http.Request, e
 NewGetNodeMemoryRequest generates requests for GetNodeMemory
 
 <a name="NewGetNodeNetworkDNSByInterfaceRequest"></a>
-## func [NewGetNodeNetworkDNSByInterfaceRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2958>)
+## func [NewGetNodeNetworkDNSByInterfaceRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2970>)
 
 ```go
 func NewGetNodeNetworkDNSByInterfaceRequest(server string, hostname Hostname, interfaceName string) (*http.Request, error)
@@ -589,7 +590,7 @@ func NewGetNodeNetworkDNSByInterfaceRequest(server string, hostname Hostname, in
 NewGetNodeNetworkDNSByInterfaceRequest generates requests for GetNodeNetworkDNSByInterface
 
 <a name="NewGetNodeOSRequest"></a>
-## func [NewGetNodeOSRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3046>)
+## func [NewGetNodeOSRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3058>)
 
 ```go
 func NewGetNodeOSRequest(server string, hostname Hostname) (*http.Request, error)
@@ -598,7 +599,7 @@ func NewGetNodeOSRequest(server string, hostname Hostname) (*http.Request, error
 NewGetNodeOSRequest generates requests for GetNodeOS
 
 <a name="NewGetNodeStatusRequest"></a>
-## func [NewGetNodeStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2553>)
+## func [NewGetNodeStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2565>)
 
 ```go
 func NewGetNodeStatusRequest(server string, hostname Hostname) (*http.Request, error)
@@ -607,7 +608,7 @@ func NewGetNodeStatusRequest(server string, hostname Hostname) (*http.Request, e
 NewGetNodeStatusRequest generates requests for GetNodeStatus
 
 <a name="NewGetNodeUptimeRequest"></a>
-## func [NewGetNodeUptimeRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3080>)
+## func [NewGetNodeUptimeRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3092>)
 
 ```go
 func NewGetNodeUptimeRequest(server string, hostname Hostname) (*http.Request, error)
@@ -616,7 +617,7 @@ func NewGetNodeUptimeRequest(server string, hostname Hostname) (*http.Request, e
 NewGetNodeUptimeRequest generates requests for GetNodeUptime
 
 <a name="NewGetVersionRequest"></a>
-## func [NewGetVersionRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3114>)
+## func [NewGetVersionRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3126>)
 
 ```go
 func NewGetVersionRequest(server string) (*http.Request, error)
@@ -625,7 +626,7 @@ func NewGetVersionRequest(server string) (*http.Request, error)
 NewGetVersionRequest generates requests for GetVersion
 
 <a name="NewPostFileRequestWithBody"></a>
-## func [NewPostFileRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2090>)
+## func [NewPostFileRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2102>)
 
 ```go
 func NewPostFileRequestWithBody(server string, params *PostFileParams, contentType string, body io.Reader) (*http.Request, error)
@@ -634,7 +635,7 @@ func NewPostFileRequestWithBody(server string, params *PostFileParams, contentTy
 NewPostFileRequestWithBody generates requests for PostFile with any type of body
 
 <a name="NewPostJobRequest"></a>
-## func [NewPostJobRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2371>)
+## func [NewPostJobRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2383>)
 
 ```go
 func NewPostJobRequest(server string, body PostJobJSONRequestBody) (*http.Request, error)
@@ -643,7 +644,7 @@ func NewPostJobRequest(server string, body PostJobJSONRequestBody) (*http.Reques
 NewPostJobRequest calls the generic PostJob builder with application/json body
 
 <a name="NewPostJobRequestWithBody"></a>
-## func [NewPostJobRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2382>)
+## func [NewPostJobRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2394>)
 
 ```go
 func NewPostJobRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error)
@@ -652,7 +653,7 @@ func NewPostJobRequestWithBody(server string, contentType string, body io.Reader
 NewPostJobRequestWithBody generates requests for PostJob with any type of body
 
 <a name="NewPostNodeCommandExecRequest"></a>
-## func [NewPostNodeCommandExecRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2587>)
+## func [NewPostNodeCommandExecRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2599>)
 
 ```go
 func NewPostNodeCommandExecRequest(server string, hostname Hostname, body PostNodeCommandExecJSONRequestBody) (*http.Request, error)
@@ -661,7 +662,7 @@ func NewPostNodeCommandExecRequest(server string, hostname Hostname, body PostNo
 NewPostNodeCommandExecRequest calls the generic PostNodeCommandExec builder with application/json body
 
 <a name="NewPostNodeCommandExecRequestWithBody"></a>
-## func [NewPostNodeCommandExecRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2598>)
+## func [NewPostNodeCommandExecRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2610>)
 
 ```go
 func NewPostNodeCommandExecRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error)
@@ -670,7 +671,7 @@ func NewPostNodeCommandExecRequestWithBody(server string, hostname Hostname, con
 NewPostNodeCommandExecRequestWithBody generates requests for PostNodeCommandExec with any type of body
 
 <a name="NewPostNodeCommandShellRequest"></a>
-## func [NewPostNodeCommandShellRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2634>)
+## func [NewPostNodeCommandShellRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2646>)
 
 ```go
 func NewPostNodeCommandShellRequest(server string, hostname Hostname, body PostNodeCommandShellJSONRequestBody) (*http.Request, error)
@@ -679,7 +680,7 @@ func NewPostNodeCommandShellRequest(server string, hostname Hostname, body PostN
 NewPostNodeCommandShellRequest calls the generic PostNodeCommandShell builder with application/json body
 
 <a name="NewPostNodeCommandShellRequestWithBody"></a>
-## func [NewPostNodeCommandShellRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2645>)
+## func [NewPostNodeCommandShellRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2657>)
 
 ```go
 func NewPostNodeCommandShellRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error)
@@ -688,7 +689,7 @@ func NewPostNodeCommandShellRequestWithBody(server string, hostname Hostname, co
 NewPostNodeCommandShellRequestWithBody generates requests for PostNodeCommandShell with any type of body
 
 <a name="NewPostNodeFileDeployRequest"></a>
-## func [NewPostNodeFileDeployRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2715>)
+## func [NewPostNodeFileDeployRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2727>)
 
 ```go
 func NewPostNodeFileDeployRequest(server string, hostname Hostname, body PostNodeFileDeployJSONRequestBody) (*http.Request, error)
@@ -697,7 +698,7 @@ func NewPostNodeFileDeployRequest(server string, hostname Hostname, body PostNod
 NewPostNodeFileDeployRequest calls the generic PostNodeFileDeploy builder with application/json body
 
 <a name="NewPostNodeFileDeployRequestWithBody"></a>
-## func [NewPostNodeFileDeployRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2726>)
+## func [NewPostNodeFileDeployRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2738>)
 
 ```go
 func NewPostNodeFileDeployRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error)
@@ -706,7 +707,7 @@ func NewPostNodeFileDeployRequestWithBody(server string, hostname Hostname, cont
 NewPostNodeFileDeployRequestWithBody generates requests for PostNodeFileDeploy with any type of body
 
 <a name="NewPostNodeFileStatusRequest"></a>
-## func [NewPostNodeFileStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2762>)
+## func [NewPostNodeFileStatusRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2774>)
 
 ```go
 func NewPostNodeFileStatusRequest(server string, hostname Hostname, body PostNodeFileStatusJSONRequestBody) (*http.Request, error)
@@ -715,7 +716,7 @@ func NewPostNodeFileStatusRequest(server string, hostname Hostname, body PostNod
 NewPostNodeFileStatusRequest calls the generic PostNodeFileStatus builder with application/json body
 
 <a name="NewPostNodeFileStatusRequestWithBody"></a>
-## func [NewPostNodeFileStatusRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2773>)
+## func [NewPostNodeFileStatusRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2785>)
 
 ```go
 func NewPostNodeFileStatusRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error)
@@ -724,7 +725,7 @@ func NewPostNodeFileStatusRequestWithBody(server string, hostname Hostname, cont
 NewPostNodeFileStatusRequestWithBody generates requests for PostNodeFileStatus with any type of body
 
 <a name="NewPostNodeNetworkPingRequest"></a>
-## func [NewPostNodeNetworkPingRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2999>)
+## func [NewPostNodeNetworkPingRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3011>)
 
 ```go
 func NewPostNodeNetworkPingRequest(server string, hostname Hostname, body PostNodeNetworkPingJSONRequestBody) (*http.Request, error)
@@ -733,7 +734,7 @@ func NewPostNodeNetworkPingRequest(server string, hostname Hostname, body PostNo
 NewPostNodeNetworkPingRequest calls the generic PostNodeNetworkPing builder with application/json body
 
 <a name="NewPostNodeNetworkPingRequestWithBody"></a>
-## func [NewPostNodeNetworkPingRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3010>)
+## func [NewPostNodeNetworkPingRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3022>)
 
 ```go
 func NewPostNodeNetworkPingRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error)
@@ -742,7 +743,7 @@ func NewPostNodeNetworkPingRequestWithBody(server string, hostname Hostname, con
 NewPostNodeNetworkPingRequestWithBody generates requests for PostNodeNetworkPing with any type of body
 
 <a name="NewPutNodeNetworkDNSRequest"></a>
-## func [NewPutNodeNetworkDNSRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2911>)
+## func [NewPutNodeNetworkDNSRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2923>)
 
 ```go
 func NewPutNodeNetworkDNSRequest(server string, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody) (*http.Request, error)
@@ -751,7 +752,7 @@ func NewPutNodeNetworkDNSRequest(server string, hostname Hostname, body PutNodeN
 NewPutNodeNetworkDNSRequest calls the generic PutNodeNetworkDNS builder with application/json body
 
 <a name="NewPutNodeNetworkDNSRequestWithBody"></a>
-## func [NewPutNodeNetworkDNSRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2922>)
+## func [NewPutNodeNetworkDNSRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2934>)
 
 ```go
 func NewPutNodeNetworkDNSRequestWithBody(server string, hostname Hostname, contentType string, body io.Reader) (*http.Request, error)
@@ -760,7 +761,7 @@ func NewPutNodeNetworkDNSRequestWithBody(server string, hostname Hostname, conte
 NewPutNodeNetworkDNSRequestWithBody generates requests for PutNodeNetworkDNS with any type of body
 
 <a name="NewRetryJobByIDRequest"></a>
-## func [NewRetryJobByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2506>)
+## func [NewRetryJobByIDRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2518>)
 
 ```go
 func NewRetryJobByIDRequest(server string, id openapi_types.UUID, body RetryJobByIDJSONRequestBody) (*http.Request, error)
@@ -769,7 +770,7 @@ func NewRetryJobByIDRequest(server string, id openapi_types.UUID, body RetryJobB
 NewRetryJobByIDRequest calls the generic RetryJobByID builder with application/json body
 
 <a name="NewRetryJobByIDRequestWithBody"></a>
-## func [NewRetryJobByIDRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2517>)
+## func [NewRetryJobByIDRequestWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L2529>)
 
 ```go
 func NewRetryJobByIDRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error)
@@ -778,7 +779,7 @@ func NewRetryJobByIDRequestWithBody(server string, id openapi_types.UUID, conten
 NewRetryJobByIDRequestWithBody generates requests for RetryJobByID with any type of body
 
 <a name="NewUndrainAgentRequest"></a>
-## func [NewUndrainAgentRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1903>)
+## func [NewUndrainAgentRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1915>)
 
 ```go
 func NewUndrainAgentRequest(server string, hostname string) (*http.Request, error)
@@ -983,7 +984,7 @@ type AuditEntryResponse struct {
 ```
 
 <a name="Client"></a>
-## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1107-L1121>)
+## type [Client](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1119-L1133>)
 
 Client which conforms to the OpenAPI3 specification for this service.
 
@@ -1006,7 +1007,7 @@ type Client struct {
 ```
 
 <a name="NewClient"></a>
-### func [NewClient](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1127>)
+### func [NewClient](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1139>)
 
 ```go
 func NewClient(server string, opts ...ClientOption) (*Client, error)
@@ -1015,7 +1016,7 @@ func NewClient(server string, opts ...ClientOption) (*Client, error)
 Creates a new Client, with reasonable defaults
 
 <a name="Client.DeleteFileByName"></a>
-### func \(\*Client\) [DeleteFileByName](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1399>)
+### func \(\*Client\) [DeleteFileByName](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1411>)
 
 ```go
 func (c *Client) DeleteFileByName(ctx context.Context, name FileName, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1024,7 +1025,7 @@ func (c *Client) DeleteFileByName(ctx context.Context, name FileName, reqEditors
 
 
 <a name="Client.DeleteJobByID"></a>
-### func \(\*Client\) [DeleteJobByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1507>)
+### func \(\*Client\) [DeleteJobByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1519>)
 
 ```go
 func (c *Client) DeleteJobByID(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1033,7 +1034,7 @@ func (c *Client) DeleteJobByID(ctx context.Context, id openapi_types.UUID, reqEd
 
 
 <a name="Client.DrainAgent"></a>
-### func \(\*Client\) [DrainAgent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1315>)
+### func \(\*Client\) [DrainAgent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1327>)
 
 ```go
 func (c *Client) DrainAgent(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1042,7 +1043,7 @@ func (c *Client) DrainAgent(ctx context.Context, hostname string, reqEditors ...
 
 
 <a name="Client.GetAgent"></a>
-### func \(\*Client\) [GetAgent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1291>)
+### func \(\*Client\) [GetAgent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1303>)
 
 ```go
 func (c *Client) GetAgent(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1051,7 +1052,7 @@ func (c *Client) GetAgent(ctx context.Context, reqEditors ...RequestEditorFn) (*
 
 
 <a name="Client.GetAgentDetails"></a>
-### func \(\*Client\) [GetAgentDetails](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1303>)
+### func \(\*Client\) [GetAgentDetails](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1315>)
 
 ```go
 func (c *Client) GetAgentDetails(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1060,7 +1061,7 @@ func (c *Client) GetAgentDetails(ctx context.Context, hostname string, reqEditor
 
 
 <a name="Client.GetAuditExport"></a>
-### func \(\*Client\) [GetAuditExport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1351>)
+### func \(\*Client\) [GetAuditExport](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1363>)
 
 ```go
 func (c *Client) GetAuditExport(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1069,7 +1070,7 @@ func (c *Client) GetAuditExport(ctx context.Context, reqEditors ...RequestEditor
 
 
 <a name="Client.GetAuditLogByID"></a>
-### func \(\*Client\) [GetAuditLogByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1363>)
+### func \(\*Client\) [GetAuditLogByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1375>)
 
 ```go
 func (c *Client) GetAuditLogByID(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1078,7 +1079,7 @@ func (c *Client) GetAuditLogByID(ctx context.Context, id openapi_types.UUID, req
 
 
 <a name="Client.GetAuditLogs"></a>
-### func \(\*Client\) [GetAuditLogs](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1339>)
+### func \(\*Client\) [GetAuditLogs](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1351>)
 
 ```go
 func (c *Client) GetAuditLogs(ctx context.Context, params *GetAuditLogsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1087,7 +1088,7 @@ func (c *Client) GetAuditLogs(ctx context.Context, params *GetAuditLogsParams, r
 
 
 <a name="Client.GetFileByName"></a>
-### func \(\*Client\) [GetFileByName](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1411>)
+### func \(\*Client\) [GetFileByName](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1423>)
 
 ```go
 func (c *Client) GetFileByName(ctx context.Context, name FileName, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1096,7 +1097,7 @@ func (c *Client) GetFileByName(ctx context.Context, name FileName, reqEditors ..
 
 
 <a name="Client.GetFiles"></a>
-### func \(\*Client\) [GetFiles](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1375>)
+### func \(\*Client\) [GetFiles](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1387>)
 
 ```go
 func (c *Client) GetFiles(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1105,7 +1106,7 @@ func (c *Client) GetFiles(ctx context.Context, reqEditors ...RequestEditorFn) (*
 
 
 <a name="Client.GetHealth"></a>
-### func \(\*Client\) [GetHealth](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1423>)
+### func \(\*Client\) [GetHealth](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1435>)
 
 ```go
 func (c *Client) GetHealth(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1114,7 +1115,7 @@ func (c *Client) GetHealth(ctx context.Context, reqEditors ...RequestEditorFn) (
 
 
 <a name="Client.GetHealthReady"></a>
-### func \(\*Client\) [GetHealthReady](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1435>)
+### func \(\*Client\) [GetHealthReady](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1447>)
 
 ```go
 func (c *Client) GetHealthReady(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1123,7 +1124,7 @@ func (c *Client) GetHealthReady(ctx context.Context, reqEditors ...RequestEditor
 
 
 <a name="Client.GetHealthStatus"></a>
-### func \(\*Client\) [GetHealthStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1447>)
+### func \(\*Client\) [GetHealthStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1459>)
 
 ```go
 func (c *Client) GetHealthStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1132,7 +1133,7 @@ func (c *Client) GetHealthStatus(ctx context.Context, reqEditors ...RequestEdito
 
 
 <a name="Client.GetJob"></a>
-### func \(\*Client\) [GetJob](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1459>)
+### func \(\*Client\) [GetJob](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1471>)
 
 ```go
 func (c *Client) GetJob(ctx context.Context, params *GetJobParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1141,7 +1142,7 @@ func (c *Client) GetJob(ctx context.Context, params *GetJobParams, reqEditors ..
 
 
 <a name="Client.GetJobByID"></a>
-### func \(\*Client\) [GetJobByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1519>)
+### func \(\*Client\) [GetJobByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1531>)
 
 ```go
 func (c *Client) GetJobByID(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1150,7 +1151,7 @@ func (c *Client) GetJobByID(ctx context.Context, id openapi_types.UUID, reqEdito
 
 
 <a name="Client.GetJobStatus"></a>
-### func \(\*Client\) [GetJobStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1495>)
+### func \(\*Client\) [GetJobStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1507>)
 
 ```go
 func (c *Client) GetJobStatus(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1159,7 +1160,7 @@ func (c *Client) GetJobStatus(ctx context.Context, reqEditors ...RequestEditorFn
 
 
 <a name="Client.GetNodeDisk"></a>
-### func \(\*Client\) [GetNodeDisk](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1615>)
+### func \(\*Client\) [GetNodeDisk](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1627>)
 
 ```go
 func (c *Client) GetNodeDisk(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1168,7 +1169,7 @@ func (c *Client) GetNodeDisk(ctx context.Context, hostname Hostname, reqEditors 
 
 
 <a name="Client.GetNodeHostname"></a>
-### func \(\*Client\) [GetNodeHostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1675>)
+### func \(\*Client\) [GetNodeHostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1687>)
 
 ```go
 func (c *Client) GetNodeHostname(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1177,7 +1178,7 @@ func (c *Client) GetNodeHostname(ctx context.Context, hostname Hostname, reqEdit
 
 
 <a name="Client.GetNodeLoad"></a>
-### func \(\*Client\) [GetNodeLoad](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1687>)
+### func \(\*Client\) [GetNodeLoad](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1699>)
 
 ```go
 func (c *Client) GetNodeLoad(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1186,7 +1187,7 @@ func (c *Client) GetNodeLoad(ctx context.Context, hostname Hostname, reqEditors 
 
 
 <a name="Client.GetNodeMemory"></a>
-### func \(\*Client\) [GetNodeMemory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1699>)
+### func \(\*Client\) [GetNodeMemory](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1711>)
 
 ```go
 func (c *Client) GetNodeMemory(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1195,7 +1196,7 @@ func (c *Client) GetNodeMemory(ctx context.Context, hostname Hostname, reqEditor
 
 
 <a name="Client.GetNodeNetworkDNSByInterface"></a>
-### func \(\*Client\) [GetNodeNetworkDNSByInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1735>)
+### func \(\*Client\) [GetNodeNetworkDNSByInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1747>)
 
 ```go
 func (c *Client) GetNodeNetworkDNSByInterface(ctx context.Context, hostname Hostname, interfaceName string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1204,7 +1205,7 @@ func (c *Client) GetNodeNetworkDNSByInterface(ctx context.Context, hostname Host
 
 
 <a name="Client.GetNodeOS"></a>
-### func \(\*Client\) [GetNodeOS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1771>)
+### func \(\*Client\) [GetNodeOS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1783>)
 
 ```go
 func (c *Client) GetNodeOS(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1213,7 +1214,7 @@ func (c *Client) GetNodeOS(ctx context.Context, hostname Hostname, reqEditors ..
 
 
 <a name="Client.GetNodeStatus"></a>
-### func \(\*Client\) [GetNodeStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1555>)
+### func \(\*Client\) [GetNodeStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1567>)
 
 ```go
 func (c *Client) GetNodeStatus(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1222,7 +1223,7 @@ func (c *Client) GetNodeStatus(ctx context.Context, hostname Hostname, reqEditor
 
 
 <a name="Client.GetNodeUptime"></a>
-### func \(\*Client\) [GetNodeUptime](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1783>)
+### func \(\*Client\) [GetNodeUptime](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1795>)
 
 ```go
 func (c *Client) GetNodeUptime(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1231,7 +1232,7 @@ func (c *Client) GetNodeUptime(ctx context.Context, hostname Hostname, reqEditor
 
 
 <a name="Client.GetVersion"></a>
-### func \(\*Client\) [GetVersion](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1795>)
+### func \(\*Client\) [GetVersion](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1807>)
 
 ```go
 func (c *Client) GetVersion(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1240,7 +1241,7 @@ func (c *Client) GetVersion(ctx context.Context, reqEditors ...RequestEditorFn) 
 
 
 <a name="Client.PostFileWithBody"></a>
-### func \(\*Client\) [PostFileWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1387>)
+### func \(\*Client\) [PostFileWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1399>)
 
 ```go
 func (c *Client) PostFileWithBody(ctx context.Context, params *PostFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1249,7 +1250,7 @@ func (c *Client) PostFileWithBody(ctx context.Context, params *PostFileParams, c
 
 
 <a name="Client.PostJob"></a>
-### func \(\*Client\) [PostJob](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1483>)
+### func \(\*Client\) [PostJob](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1495>)
 
 ```go
 func (c *Client) PostJob(ctx context.Context, body PostJobJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1258,7 +1259,7 @@ func (c *Client) PostJob(ctx context.Context, body PostJobJSONRequestBody, reqEd
 
 
 <a name="Client.PostJobWithBody"></a>
-### func \(\*Client\) [PostJobWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1471>)
+### func \(\*Client\) [PostJobWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1483>)
 
 ```go
 func (c *Client) PostJobWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1267,7 +1268,7 @@ func (c *Client) PostJobWithBody(ctx context.Context, contentType string, body i
 
 
 <a name="Client.PostNodeCommandExec"></a>
-### func \(\*Client\) [PostNodeCommandExec](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1579>)
+### func \(\*Client\) [PostNodeCommandExec](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1591>)
 
 ```go
 func (c *Client) PostNodeCommandExec(ctx context.Context, hostname Hostname, body PostNodeCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1276,7 +1277,7 @@ func (c *Client) PostNodeCommandExec(ctx context.Context, hostname Hostname, bod
 
 
 <a name="Client.PostNodeCommandExecWithBody"></a>
-### func \(\*Client\) [PostNodeCommandExecWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1567>)
+### func \(\*Client\) [PostNodeCommandExecWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1579>)
 
 ```go
 func (c *Client) PostNodeCommandExecWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1285,7 +1286,7 @@ func (c *Client) PostNodeCommandExecWithBody(ctx context.Context, hostname Hostn
 
 
 <a name="Client.PostNodeCommandShell"></a>
-### func \(\*Client\) [PostNodeCommandShell](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1603>)
+### func \(\*Client\) [PostNodeCommandShell](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1615>)
 
 ```go
 func (c *Client) PostNodeCommandShell(ctx context.Context, hostname Hostname, body PostNodeCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1294,7 +1295,7 @@ func (c *Client) PostNodeCommandShell(ctx context.Context, hostname Hostname, bo
 
 
 <a name="Client.PostNodeCommandShellWithBody"></a>
-### func \(\*Client\) [PostNodeCommandShellWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1591>)
+### func \(\*Client\) [PostNodeCommandShellWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1603>)
 
 ```go
 func (c *Client) PostNodeCommandShellWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1303,7 +1304,7 @@ func (c *Client) PostNodeCommandShellWithBody(ctx context.Context, hostname Host
 
 
 <a name="Client.PostNodeFileDeploy"></a>
-### func \(\*Client\) [PostNodeFileDeploy](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1639>)
+### func \(\*Client\) [PostNodeFileDeploy](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1651>)
 
 ```go
 func (c *Client) PostNodeFileDeploy(ctx context.Context, hostname Hostname, body PostNodeFileDeployJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1312,7 +1313,7 @@ func (c *Client) PostNodeFileDeploy(ctx context.Context, hostname Hostname, body
 
 
 <a name="Client.PostNodeFileDeployWithBody"></a>
-### func \(\*Client\) [PostNodeFileDeployWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1627>)
+### func \(\*Client\) [PostNodeFileDeployWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1639>)
 
 ```go
 func (c *Client) PostNodeFileDeployWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1321,7 +1322,7 @@ func (c *Client) PostNodeFileDeployWithBody(ctx context.Context, hostname Hostna
 
 
 <a name="Client.PostNodeFileStatus"></a>
-### func \(\*Client\) [PostNodeFileStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1663>)
+### func \(\*Client\) [PostNodeFileStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1675>)
 
 ```go
 func (c *Client) PostNodeFileStatus(ctx context.Context, hostname Hostname, body PostNodeFileStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1330,7 +1331,7 @@ func (c *Client) PostNodeFileStatus(ctx context.Context, hostname Hostname, body
 
 
 <a name="Client.PostNodeFileStatusWithBody"></a>
-### func \(\*Client\) [PostNodeFileStatusWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1651>)
+### func \(\*Client\) [PostNodeFileStatusWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1663>)
 
 ```go
 func (c *Client) PostNodeFileStatusWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1339,7 +1340,7 @@ func (c *Client) PostNodeFileStatusWithBody(ctx context.Context, hostname Hostna
 
 
 <a name="Client.PostNodeNetworkPing"></a>
-### func \(\*Client\) [PostNodeNetworkPing](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1759>)
+### func \(\*Client\) [PostNodeNetworkPing](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1771>)
 
 ```go
 func (c *Client) PostNodeNetworkPing(ctx context.Context, hostname Hostname, body PostNodeNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1348,7 +1349,7 @@ func (c *Client) PostNodeNetworkPing(ctx context.Context, hostname Hostname, bod
 
 
 <a name="Client.PostNodeNetworkPingWithBody"></a>
-### func \(\*Client\) [PostNodeNetworkPingWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1747>)
+### func \(\*Client\) [PostNodeNetworkPingWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1759>)
 
 ```go
 func (c *Client) PostNodeNetworkPingWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1357,7 +1358,7 @@ func (c *Client) PostNodeNetworkPingWithBody(ctx context.Context, hostname Hostn
 
 
 <a name="Client.PutNodeNetworkDNS"></a>
-### func \(\*Client\) [PutNodeNetworkDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1723>)
+### func \(\*Client\) [PutNodeNetworkDNS](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1735>)
 
 ```go
 func (c *Client) PutNodeNetworkDNS(ctx context.Context, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1366,7 +1367,7 @@ func (c *Client) PutNodeNetworkDNS(ctx context.Context, hostname Hostname, body 
 
 
 <a name="Client.PutNodeNetworkDNSWithBody"></a>
-### func \(\*Client\) [PutNodeNetworkDNSWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1711>)
+### func \(\*Client\) [PutNodeNetworkDNSWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1723>)
 
 ```go
 func (c *Client) PutNodeNetworkDNSWithBody(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1375,7 +1376,7 @@ func (c *Client) PutNodeNetworkDNSWithBody(ctx context.Context, hostname Hostnam
 
 
 <a name="Client.RetryJobByID"></a>
-### func \(\*Client\) [RetryJobByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1543>)
+### func \(\*Client\) [RetryJobByID](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1555>)
 
 ```go
 func (c *Client) RetryJobByID(ctx context.Context, id openapi_types.UUID, body RetryJobByIDJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1384,7 +1385,7 @@ func (c *Client) RetryJobByID(ctx context.Context, id openapi_types.UUID, body R
 
 
 <a name="Client.RetryJobByIDWithBody"></a>
-### func \(\*Client\) [RetryJobByIDWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1531>)
+### func \(\*Client\) [RetryJobByIDWithBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1543>)
 
 ```go
 func (c *Client) RetryJobByIDWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1393,7 +1394,7 @@ func (c *Client) RetryJobByIDWithBody(ctx context.Context, id openapi_types.UUID
 
 
 <a name="Client.UndrainAgent"></a>
-### func \(\*Client\) [UndrainAgent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1327>)
+### func \(\*Client\) [UndrainAgent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1339>)
 
 ```go
 func (c *Client) UndrainAgent(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1402,7 +1403,7 @@ func (c *Client) UndrainAgent(ctx context.Context, hostname string, reqEditors .
 
 
 <a name="ClientInterface"></a>
-## type [ClientInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1168-L1289>)
+## type [ClientInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1180-L1301>)
 
 The interface specification for the client above.
 
@@ -1532,7 +1533,7 @@ type ClientInterface interface {
 ```
 
 <a name="ClientOption"></a>
-## type [ClientOption](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1124>)
+## type [ClientOption](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1136>)
 
 ClientOption allows setting custom parameters during construction
 
@@ -1541,7 +1542,7 @@ type ClientOption func(*Client) error
 ```
 
 <a name="WithBaseURL"></a>
-### func [WithBaseURL](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3170>)
+### func [WithBaseURL](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3182>)
 
 ```go
 func WithBaseURL(baseURL string) ClientOption
@@ -1550,7 +1551,7 @@ func WithBaseURL(baseURL string) ClientOption
 WithBaseURL overrides the baseURL.
 
 <a name="WithHTTPClient"></a>
-### func [WithHTTPClient](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1151>)
+### func [WithHTTPClient](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1163>)
 
 ```go
 func WithHTTPClient(doer HttpRequestDoer) ClientOption
@@ -1559,7 +1560,7 @@ func WithHTTPClient(doer HttpRequestDoer) ClientOption
 WithHTTPClient allows overriding the default Doer, which is automatically created using http.Client. This is useful for tests.
 
 <a name="WithRequestEditorFn"></a>
-### func [WithRequestEditorFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1160>)
+### func [WithRequestEditorFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1172>)
 
 ```go
 func WithRequestEditorFn(fn RequestEditorFn) ClientOption
@@ -1568,7 +1569,7 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption
 WithRequestEditorFn allows setting up a callback function, which will be called right before sending the request. This can be used to mutate the request.
 
 <a name="ClientWithResponses"></a>
-## type [ClientWithResponses](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3155-L3157>)
+## type [ClientWithResponses](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3167-L3169>)
 
 ClientWithResponses builds on ClientInterface to offer response payloads
 
@@ -1579,7 +1580,7 @@ type ClientWithResponses struct {
 ```
 
 <a name="NewClientWithResponses"></a>
-### func [NewClientWithResponses](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3161>)
+### func [NewClientWithResponses](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3173>)
 
 ```go
 func NewClientWithResponses(server string, opts ...ClientOption) (*ClientWithResponses, error)
@@ -1588,7 +1589,7 @@ func NewClientWithResponses(server string, opts ...ClientOption) (*ClientWithRes
 NewClientWithResponses creates a new ClientWithResponses, which wraps Client with return type handling
 
 <a name="ClientWithResponses.DeleteFileByNameWithResponse"></a>
-### func \(\*ClientWithResponses\) [DeleteFileByNameWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4290>)
+### func \(\*ClientWithResponses\) [DeleteFileByNameWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4302>)
 
 ```go
 func (c *ClientWithResponses) DeleteFileByNameWithResponse(ctx context.Context, name FileName, reqEditors ...RequestEditorFn) (*DeleteFileByNameResponse, error)
@@ -1597,7 +1598,7 @@ func (c *ClientWithResponses) DeleteFileByNameWithResponse(ctx context.Context, 
 DeleteFileByNameWithResponse request returning \*DeleteFileByNameResponse
 
 <a name="ClientWithResponses.DeleteJobByIDWithResponse"></a>
-### func \(\*ClientWithResponses\) [DeleteJobByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4370>)
+### func \(\*ClientWithResponses\) [DeleteJobByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4382>)
 
 ```go
 func (c *ClientWithResponses) DeleteJobByIDWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteJobByIDResponse, error)
@@ -1606,7 +1607,7 @@ func (c *ClientWithResponses) DeleteJobByIDWithResponse(ctx context.Context, id 
 DeleteJobByIDWithResponse request returning \*DeleteJobByIDResponse
 
 <a name="ClientWithResponses.DrainAgentWithResponse"></a>
-### func \(\*ClientWithResponses\) [DrainAgentWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4227>)
+### func \(\*ClientWithResponses\) [DrainAgentWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4239>)
 
 ```go
 func (c *ClientWithResponses) DrainAgentWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*DrainAgentResponse, error)
@@ -1615,7 +1616,7 @@ func (c *ClientWithResponses) DrainAgentWithResponse(ctx context.Context, hostna
 DrainAgentWithResponse request returning \*DrainAgentResponse
 
 <a name="ClientWithResponses.GetAgentDetailsWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetAgentDetailsWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4218>)
+### func \(\*ClientWithResponses\) [GetAgentDetailsWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4230>)
 
 ```go
 func (c *ClientWithResponses) GetAgentDetailsWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*GetAgentDetailsResponse, error)
@@ -1624,7 +1625,7 @@ func (c *ClientWithResponses) GetAgentDetailsWithResponse(ctx context.Context, h
 GetAgentDetailsWithResponse request returning \*GetAgentDetailsResponse
 
 <a name="ClientWithResponses.GetAgentWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetAgentWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4209>)
+### func \(\*ClientWithResponses\) [GetAgentWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4221>)
 
 ```go
 func (c *ClientWithResponses) GetAgentWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAgentResponse, error)
@@ -1633,7 +1634,7 @@ func (c *ClientWithResponses) GetAgentWithResponse(ctx context.Context, reqEdito
 GetAgentWithResponse request returning \*GetAgentResponse
 
 <a name="ClientWithResponses.GetAuditExportWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetAuditExportWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4254>)
+### func \(\*ClientWithResponses\) [GetAuditExportWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4266>)
 
 ```go
 func (c *ClientWithResponses) GetAuditExportWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetAuditExportResponse, error)
@@ -1642,7 +1643,7 @@ func (c *ClientWithResponses) GetAuditExportWithResponse(ctx context.Context, re
 GetAuditExportWithResponse request returning \*GetAuditExportResponse
 
 <a name="ClientWithResponses.GetAuditLogByIDWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetAuditLogByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4263>)
+### func \(\*ClientWithResponses\) [GetAuditLogByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4275>)
 
 ```go
 func (c *ClientWithResponses) GetAuditLogByIDWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetAuditLogByIDResponse, error)
@@ -1651,7 +1652,7 @@ func (c *ClientWithResponses) GetAuditLogByIDWithResponse(ctx context.Context, i
 GetAuditLogByIDWithResponse request returning \*GetAuditLogByIDResponse
 
 <a name="ClientWithResponses.GetAuditLogsWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetAuditLogsWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4245>)
+### func \(\*ClientWithResponses\) [GetAuditLogsWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4257>)
 
 ```go
 func (c *ClientWithResponses) GetAuditLogsWithResponse(ctx context.Context, params *GetAuditLogsParams, reqEditors ...RequestEditorFn) (*GetAuditLogsResponse, error)
@@ -1660,7 +1661,7 @@ func (c *ClientWithResponses) GetAuditLogsWithResponse(ctx context.Context, para
 GetAuditLogsWithResponse request returning \*GetAuditLogsResponse
 
 <a name="ClientWithResponses.GetFileByNameWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetFileByNameWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4299>)
+### func \(\*ClientWithResponses\) [GetFileByNameWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4311>)
 
 ```go
 func (c *ClientWithResponses) GetFileByNameWithResponse(ctx context.Context, name FileName, reqEditors ...RequestEditorFn) (*GetFileByNameResponse, error)
@@ -1669,7 +1670,7 @@ func (c *ClientWithResponses) GetFileByNameWithResponse(ctx context.Context, nam
 GetFileByNameWithResponse request returning \*GetFileByNameResponse
 
 <a name="ClientWithResponses.GetFilesWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetFilesWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4272>)
+### func \(\*ClientWithResponses\) [GetFilesWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4284>)
 
 ```go
 func (c *ClientWithResponses) GetFilesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetFilesResponse, error)
@@ -1678,7 +1679,7 @@ func (c *ClientWithResponses) GetFilesWithResponse(ctx context.Context, reqEdito
 GetFilesWithResponse request returning \*GetFilesResponse
 
 <a name="ClientWithResponses.GetHealthReadyWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetHealthReadyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4317>)
+### func \(\*ClientWithResponses\) [GetHealthReadyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4329>)
 
 ```go
 func (c *ClientWithResponses) GetHealthReadyWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHealthReadyResponse, error)
@@ -1687,7 +1688,7 @@ func (c *ClientWithResponses) GetHealthReadyWithResponse(ctx context.Context, re
 GetHealthReadyWithResponse request returning \*GetHealthReadyResponse
 
 <a name="ClientWithResponses.GetHealthStatusWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetHealthStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4326>)
+### func \(\*ClientWithResponses\) [GetHealthStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4338>)
 
 ```go
 func (c *ClientWithResponses) GetHealthStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHealthStatusResponse, error)
@@ -1696,7 +1697,7 @@ func (c *ClientWithResponses) GetHealthStatusWithResponse(ctx context.Context, r
 GetHealthStatusWithResponse request returning \*GetHealthStatusResponse
 
 <a name="ClientWithResponses.GetHealthWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetHealthWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4308>)
+### func \(\*ClientWithResponses\) [GetHealthWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4320>)
 
 ```go
 func (c *ClientWithResponses) GetHealthWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetHealthResponse, error)
@@ -1705,7 +1706,7 @@ func (c *ClientWithResponses) GetHealthWithResponse(ctx context.Context, reqEdit
 GetHealthWithResponse request returning \*GetHealthResponse
 
 <a name="ClientWithResponses.GetJobByIDWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetJobByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4379>)
+### func \(\*ClientWithResponses\) [GetJobByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4391>)
 
 ```go
 func (c *ClientWithResponses) GetJobByIDWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetJobByIDResponse, error)
@@ -1714,7 +1715,7 @@ func (c *ClientWithResponses) GetJobByIDWithResponse(ctx context.Context, id ope
 GetJobByIDWithResponse request returning \*GetJobByIDResponse
 
 <a name="ClientWithResponses.GetJobStatusWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetJobStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4361>)
+### func \(\*ClientWithResponses\) [GetJobStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4373>)
 
 ```go
 func (c *ClientWithResponses) GetJobStatusWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetJobStatusResponse, error)
@@ -1723,7 +1724,7 @@ func (c *ClientWithResponses) GetJobStatusWithResponse(ctx context.Context, reqE
 GetJobStatusWithResponse request returning \*GetJobStatusResponse
 
 <a name="ClientWithResponses.GetJobWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetJobWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4335>)
+### func \(\*ClientWithResponses\) [GetJobWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4347>)
 
 ```go
 func (c *ClientWithResponses) GetJobWithResponse(ctx context.Context, params *GetJobParams, reqEditors ...RequestEditorFn) (*GetJobResponse, error)
@@ -1732,7 +1733,7 @@ func (c *ClientWithResponses) GetJobWithResponse(ctx context.Context, params *Ge
 GetJobWithResponse request returning \*GetJobResponse
 
 <a name="ClientWithResponses.GetNodeDiskWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeDiskWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4448>)
+### func \(\*ClientWithResponses\) [GetNodeDiskWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4460>)
 
 ```go
 func (c *ClientWithResponses) GetNodeDiskWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeDiskResponse, error)
@@ -1741,7 +1742,7 @@ func (c *ClientWithResponses) GetNodeDiskWithResponse(ctx context.Context, hostn
 GetNodeDiskWithResponse request returning \*GetNodeDiskResponse
 
 <a name="ClientWithResponses.GetNodeHostnameWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeHostnameWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4491>)
+### func \(\*ClientWithResponses\) [GetNodeHostnameWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4503>)
 
 ```go
 func (c *ClientWithResponses) GetNodeHostnameWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeHostnameResponse, error)
@@ -1750,7 +1751,7 @@ func (c *ClientWithResponses) GetNodeHostnameWithResponse(ctx context.Context, h
 GetNodeHostnameWithResponse request returning \*GetNodeHostnameResponse
 
 <a name="ClientWithResponses.GetNodeLoadWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeLoadWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4500>)
+### func \(\*ClientWithResponses\) [GetNodeLoadWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4512>)
 
 ```go
 func (c *ClientWithResponses) GetNodeLoadWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeLoadResponse, error)
@@ -1759,7 +1760,7 @@ func (c *ClientWithResponses) GetNodeLoadWithResponse(ctx context.Context, hostn
 GetNodeLoadWithResponse request returning \*GetNodeLoadResponse
 
 <a name="ClientWithResponses.GetNodeMemoryWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeMemoryWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4509>)
+### func \(\*ClientWithResponses\) [GetNodeMemoryWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4521>)
 
 ```go
 func (c *ClientWithResponses) GetNodeMemoryWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeMemoryResponse, error)
@@ -1768,7 +1769,7 @@ func (c *ClientWithResponses) GetNodeMemoryWithResponse(ctx context.Context, hos
 GetNodeMemoryWithResponse request returning \*GetNodeMemoryResponse
 
 <a name="ClientWithResponses.GetNodeNetworkDNSByInterfaceWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeNetworkDNSByInterfaceWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4535>)
+### func \(\*ClientWithResponses\) [GetNodeNetworkDNSByInterfaceWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4547>)
 
 ```go
 func (c *ClientWithResponses) GetNodeNetworkDNSByInterfaceWithResponse(ctx context.Context, hostname Hostname, interfaceName string, reqEditors ...RequestEditorFn) (*GetNodeNetworkDNSByInterfaceResponse, error)
@@ -1777,7 +1778,7 @@ func (c *ClientWithResponses) GetNodeNetworkDNSByInterfaceWithResponse(ctx conte
 GetNodeNetworkDNSByInterfaceWithResponse request returning \*GetNodeNetworkDNSByInterfaceResponse
 
 <a name="ClientWithResponses.GetNodeOSWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeOSWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4561>)
+### func \(\*ClientWithResponses\) [GetNodeOSWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4573>)
 
 ```go
 func (c *ClientWithResponses) GetNodeOSWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeOSResponse, error)
@@ -1786,7 +1787,7 @@ func (c *ClientWithResponses) GetNodeOSWithResponse(ctx context.Context, hostnam
 GetNodeOSWithResponse request returning \*GetNodeOSResponse
 
 <a name="ClientWithResponses.GetNodeStatusWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4405>)
+### func \(\*ClientWithResponses\) [GetNodeStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4417>)
 
 ```go
 func (c *ClientWithResponses) GetNodeStatusWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeStatusResponse, error)
@@ -1795,7 +1796,7 @@ func (c *ClientWithResponses) GetNodeStatusWithResponse(ctx context.Context, hos
 GetNodeStatusWithResponse request returning \*GetNodeStatusResponse
 
 <a name="ClientWithResponses.GetNodeUptimeWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetNodeUptimeWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4570>)
+### func \(\*ClientWithResponses\) [GetNodeUptimeWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4582>)
 
 ```go
 func (c *ClientWithResponses) GetNodeUptimeWithResponse(ctx context.Context, hostname Hostname, reqEditors ...RequestEditorFn) (*GetNodeUptimeResponse, error)
@@ -1804,7 +1805,7 @@ func (c *ClientWithResponses) GetNodeUptimeWithResponse(ctx context.Context, hos
 GetNodeUptimeWithResponse request returning \*GetNodeUptimeResponse
 
 <a name="ClientWithResponses.GetVersionWithResponse"></a>
-### func \(\*ClientWithResponses\) [GetVersionWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4579>)
+### func \(\*ClientWithResponses\) [GetVersionWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4591>)
 
 ```go
 func (c *ClientWithResponses) GetVersionWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetVersionResponse, error)
@@ -1813,7 +1814,7 @@ func (c *ClientWithResponses) GetVersionWithResponse(ctx context.Context, reqEdi
 GetVersionWithResponse request returning \*GetVersionResponse
 
 <a name="ClientWithResponses.PostFileWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostFileWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4281>)
+### func \(\*ClientWithResponses\) [PostFileWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4293>)
 
 ```go
 func (c *ClientWithResponses) PostFileWithBodyWithResponse(ctx context.Context, params *PostFileParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostFileResponse, error)
@@ -1822,7 +1823,7 @@ func (c *ClientWithResponses) PostFileWithBodyWithResponse(ctx context.Context, 
 PostFileWithBodyWithResponse request with arbitrary body returning \*PostFileResponse
 
 <a name="ClientWithResponses.PostJobWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostJobWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4344>)
+### func \(\*ClientWithResponses\) [PostJobWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4356>)
 
 ```go
 func (c *ClientWithResponses) PostJobWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostJobResponse, error)
@@ -1831,7 +1832,7 @@ func (c *ClientWithResponses) PostJobWithBodyWithResponse(ctx context.Context, c
 PostJobWithBodyWithResponse request with arbitrary body returning \*PostJobResponse
 
 <a name="ClientWithResponses.PostJobWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostJobWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4352>)
+### func \(\*ClientWithResponses\) [PostJobWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4364>)
 
 ```go
 func (c *ClientWithResponses) PostJobWithResponse(ctx context.Context, body PostJobJSONRequestBody, reqEditors ...RequestEditorFn) (*PostJobResponse, error)
@@ -1840,7 +1841,7 @@ func (c *ClientWithResponses) PostJobWithResponse(ctx context.Context, body Post
 
 
 <a name="ClientWithResponses.PostNodeCommandExecWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeCommandExecWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4414>)
+### func \(\*ClientWithResponses\) [PostNodeCommandExecWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4426>)
 
 ```go
 func (c *ClientWithResponses) PostNodeCommandExecWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeCommandExecResponse, error)
@@ -1849,7 +1850,7 @@ func (c *ClientWithResponses) PostNodeCommandExecWithBodyWithResponse(ctx contex
 PostNodeCommandExecWithBodyWithResponse request with arbitrary body returning \*PostNodeCommandExecResponse
 
 <a name="ClientWithResponses.PostNodeCommandExecWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeCommandExecWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4422>)
+### func \(\*ClientWithResponses\) [PostNodeCommandExecWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4434>)
 
 ```go
 func (c *ClientWithResponses) PostNodeCommandExecWithResponse(ctx context.Context, hostname Hostname, body PostNodeCommandExecJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeCommandExecResponse, error)
@@ -1858,7 +1859,7 @@ func (c *ClientWithResponses) PostNodeCommandExecWithResponse(ctx context.Contex
 
 
 <a name="ClientWithResponses.PostNodeCommandShellWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeCommandShellWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4431>)
+### func \(\*ClientWithResponses\) [PostNodeCommandShellWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4443>)
 
 ```go
 func (c *ClientWithResponses) PostNodeCommandShellWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeCommandShellResponse, error)
@@ -1867,7 +1868,7 @@ func (c *ClientWithResponses) PostNodeCommandShellWithBodyWithResponse(ctx conte
 PostNodeCommandShellWithBodyWithResponse request with arbitrary body returning \*PostNodeCommandShellResponse
 
 <a name="ClientWithResponses.PostNodeCommandShellWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeCommandShellWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4439>)
+### func \(\*ClientWithResponses\) [PostNodeCommandShellWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4451>)
 
 ```go
 func (c *ClientWithResponses) PostNodeCommandShellWithResponse(ctx context.Context, hostname Hostname, body PostNodeCommandShellJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeCommandShellResponse, error)
@@ -1876,7 +1877,7 @@ func (c *ClientWithResponses) PostNodeCommandShellWithResponse(ctx context.Conte
 
 
 <a name="ClientWithResponses.PostNodeFileDeployWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeFileDeployWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4457>)
+### func \(\*ClientWithResponses\) [PostNodeFileDeployWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4469>)
 
 ```go
 func (c *ClientWithResponses) PostNodeFileDeployWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeFileDeployResponse, error)
@@ -1885,7 +1886,7 @@ func (c *ClientWithResponses) PostNodeFileDeployWithBodyWithResponse(ctx context
 PostNodeFileDeployWithBodyWithResponse request with arbitrary body returning \*PostNodeFileDeployResponse
 
 <a name="ClientWithResponses.PostNodeFileDeployWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeFileDeployWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4465>)
+### func \(\*ClientWithResponses\) [PostNodeFileDeployWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4477>)
 
 ```go
 func (c *ClientWithResponses) PostNodeFileDeployWithResponse(ctx context.Context, hostname Hostname, body PostNodeFileDeployJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeFileDeployResponse, error)
@@ -1894,7 +1895,7 @@ func (c *ClientWithResponses) PostNodeFileDeployWithResponse(ctx context.Context
 
 
 <a name="ClientWithResponses.PostNodeFileStatusWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeFileStatusWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4474>)
+### func \(\*ClientWithResponses\) [PostNodeFileStatusWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4486>)
 
 ```go
 func (c *ClientWithResponses) PostNodeFileStatusWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeFileStatusResponse, error)
@@ -1903,7 +1904,7 @@ func (c *ClientWithResponses) PostNodeFileStatusWithBodyWithResponse(ctx context
 PostNodeFileStatusWithBodyWithResponse request with arbitrary body returning \*PostNodeFileStatusResponse
 
 <a name="ClientWithResponses.PostNodeFileStatusWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeFileStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4482>)
+### func \(\*ClientWithResponses\) [PostNodeFileStatusWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4494>)
 
 ```go
 func (c *ClientWithResponses) PostNodeFileStatusWithResponse(ctx context.Context, hostname Hostname, body PostNodeFileStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeFileStatusResponse, error)
@@ -1912,7 +1913,7 @@ func (c *ClientWithResponses) PostNodeFileStatusWithResponse(ctx context.Context
 
 
 <a name="ClientWithResponses.PostNodeNetworkPingWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeNetworkPingWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4544>)
+### func \(\*ClientWithResponses\) [PostNodeNetworkPingWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4556>)
 
 ```go
 func (c *ClientWithResponses) PostNodeNetworkPingWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PostNodeNetworkPingResponse, error)
@@ -1921,7 +1922,7 @@ func (c *ClientWithResponses) PostNodeNetworkPingWithBodyWithResponse(ctx contex
 PostNodeNetworkPingWithBodyWithResponse request with arbitrary body returning \*PostNodeNetworkPingResponse
 
 <a name="ClientWithResponses.PostNodeNetworkPingWithResponse"></a>
-### func \(\*ClientWithResponses\) [PostNodeNetworkPingWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4552>)
+### func \(\*ClientWithResponses\) [PostNodeNetworkPingWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4564>)
 
 ```go
 func (c *ClientWithResponses) PostNodeNetworkPingWithResponse(ctx context.Context, hostname Hostname, body PostNodeNetworkPingJSONRequestBody, reqEditors ...RequestEditorFn) (*PostNodeNetworkPingResponse, error)
@@ -1930,7 +1931,7 @@ func (c *ClientWithResponses) PostNodeNetworkPingWithResponse(ctx context.Contex
 
 
 <a name="ClientWithResponses.PutNodeNetworkDNSWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [PutNodeNetworkDNSWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4518>)
+### func \(\*ClientWithResponses\) [PutNodeNetworkDNSWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4530>)
 
 ```go
 func (c *ClientWithResponses) PutNodeNetworkDNSWithBodyWithResponse(ctx context.Context, hostname Hostname, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PutNodeNetworkDNSResponse, error)
@@ -1939,7 +1940,7 @@ func (c *ClientWithResponses) PutNodeNetworkDNSWithBodyWithResponse(ctx context.
 PutNodeNetworkDNSWithBodyWithResponse request with arbitrary body returning \*PutNodeNetworkDNSResponse
 
 <a name="ClientWithResponses.PutNodeNetworkDNSWithResponse"></a>
-### func \(\*ClientWithResponses\) [PutNodeNetworkDNSWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4526>)
+### func \(\*ClientWithResponses\) [PutNodeNetworkDNSWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4538>)
 
 ```go
 func (c *ClientWithResponses) PutNodeNetworkDNSWithResponse(ctx context.Context, hostname Hostname, body PutNodeNetworkDNSJSONRequestBody, reqEditors ...RequestEditorFn) (*PutNodeNetworkDNSResponse, error)
@@ -1948,7 +1949,7 @@ func (c *ClientWithResponses) PutNodeNetworkDNSWithResponse(ctx context.Context,
 
 
 <a name="ClientWithResponses.RetryJobByIDWithBodyWithResponse"></a>
-### func \(\*ClientWithResponses\) [RetryJobByIDWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4388>)
+### func \(\*ClientWithResponses\) [RetryJobByIDWithBodyWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4400>)
 
 ```go
 func (c *ClientWithResponses) RetryJobByIDWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RetryJobByIDResponse, error)
@@ -1957,7 +1958,7 @@ func (c *ClientWithResponses) RetryJobByIDWithBodyWithResponse(ctx context.Conte
 RetryJobByIDWithBodyWithResponse request with arbitrary body returning \*RetryJobByIDResponse
 
 <a name="ClientWithResponses.RetryJobByIDWithResponse"></a>
-### func \(\*ClientWithResponses\) [RetryJobByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4396>)
+### func \(\*ClientWithResponses\) [RetryJobByIDWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4408>)
 
 ```go
 func (c *ClientWithResponses) RetryJobByIDWithResponse(ctx context.Context, id openapi_types.UUID, body RetryJobByIDJSONRequestBody, reqEditors ...RequestEditorFn) (*RetryJobByIDResponse, error)
@@ -1966,7 +1967,7 @@ func (c *ClientWithResponses) RetryJobByIDWithResponse(ctx context.Context, id o
 
 
 <a name="ClientWithResponses.UndrainAgentWithResponse"></a>
-### func \(\*ClientWithResponses\) [UndrainAgentWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4236>)
+### func \(\*ClientWithResponses\) [UndrainAgentWithResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4248>)
 
 ```go
 func (c *ClientWithResponses) UndrainAgentWithResponse(ctx context.Context, hostname string, reqEditors ...RequestEditorFn) (*UndrainAgentResponse, error)
@@ -1975,7 +1976,7 @@ func (c *ClientWithResponses) UndrainAgentWithResponse(ctx context.Context, host
 UndrainAgentWithResponse request returning \*UndrainAgentResponse
 
 <a name="ClientWithResponsesInterface"></a>
-## type [ClientWithResponsesInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3182-L3303>)
+## type [ClientWithResponsesInterface](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3194-L3315>)
 
 ClientWithResponsesInterface is the interface specification for the client with responses above.
 
@@ -2372,7 +2373,7 @@ const (
 ```
 
 <a name="DeleteFileByNameResponse"></a>
-## type [DeleteFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3541-L3550>)
+## type [DeleteFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3553-L3562>)
 
 
 
@@ -2390,7 +2391,7 @@ type DeleteFileByNameResponse struct {
 ```
 
 <a name="ParseDeleteFileByNameResponse"></a>
-### func [ParseDeleteFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5064>)
+### func [ParseDeleteFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5076>)
 
 ```go
 func ParseDeleteFileByNameResponse(rsp *http.Response) (*DeleteFileByNameResponse, error)
@@ -2399,7 +2400,7 @@ func ParseDeleteFileByNameResponse(rsp *http.Response) (*DeleteFileByNameRespons
 ParseDeleteFileByNameResponse parses an HTTP response from a DeleteFileByNameWithResponse call
 
 <a name="DeleteFileByNameResponse.Status"></a>
-### func \(DeleteFileByNameResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3553>)
+### func \(DeleteFileByNameResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3565>)
 
 ```go
 func (r DeleteFileByNameResponse) Status() string
@@ -2408,7 +2409,7 @@ func (r DeleteFileByNameResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="DeleteFileByNameResponse.StatusCode"></a>
-### func \(DeleteFileByNameResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3561>)
+### func \(DeleteFileByNameResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3573>)
 
 ```go
 func (r DeleteFileByNameResponse) StatusCode() int
@@ -2417,7 +2418,7 @@ func (r DeleteFileByNameResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="DeleteJobByIDResponse"></a>
-## type [DeleteJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3742-L3750>)
+## type [DeleteJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3754-L3762>)
 
 
 
@@ -2434,7 +2435,7 @@ type DeleteJobByIDResponse struct {
 ```
 
 <a name="ParseDeleteJobByIDResponse"></a>
-### func [ParseDeleteJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5447>)
+### func [ParseDeleteJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5459>)
 
 ```go
 func ParseDeleteJobByIDResponse(rsp *http.Response) (*DeleteJobByIDResponse, error)
@@ -2443,7 +2444,7 @@ func ParseDeleteJobByIDResponse(rsp *http.Response) (*DeleteJobByIDResponse, err
 ParseDeleteJobByIDResponse parses an HTTP response from a DeleteJobByIDWithResponse call
 
 <a name="DeleteJobByIDResponse.Status"></a>
-### func \(DeleteJobByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3753>)
+### func \(DeleteJobByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3765>)
 
 ```go
 func (r DeleteJobByIDResponse) Status() string
@@ -2452,7 +2453,7 @@ func (r DeleteJobByIDResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="DeleteJobByIDResponse.StatusCode"></a>
-### func \(DeleteJobByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3761>)
+### func \(DeleteJobByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3773>)
 
 ```go
 func (r DeleteJobByIDResponse) StatusCode() int
@@ -2522,7 +2523,7 @@ type DisksResponse = []DiskResponse
 ```
 
 <a name="DrainAgentResponse"></a>
-## type [DrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3356-L3366>)
+## type [DrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3368-L3378>)
 
 
 
@@ -2541,7 +2542,7 @@ type DrainAgentResponse struct {
 ```
 
 <a name="ParseDrainAgentResponse"></a>
-### func [ParseDrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4689>)
+### func [ParseDrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4701>)
 
 ```go
 func ParseDrainAgentResponse(rsp *http.Response) (*DrainAgentResponse, error)
@@ -2550,7 +2551,7 @@ func ParseDrainAgentResponse(rsp *http.Response) (*DrainAgentResponse, error)
 ParseDrainAgentResponse parses an HTTP response from a DrainAgentWithResponse call
 
 <a name="DrainAgentResponse.Status"></a>
-### func \(DrainAgentResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3369>)
+### func \(DrainAgentResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3381>)
 
 ```go
 func (r DrainAgentResponse) Status() string
@@ -2559,7 +2560,7 @@ func (r DrainAgentResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="DrainAgentResponse.StatusCode"></a>
-### func \(DrainAgentResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3377>)
+### func \(DrainAgentResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3389>)
 
 ```go
 func (r DrainAgentResponse) StatusCode() int
@@ -2724,7 +2725,7 @@ type FileListResponse struct {
 ```
 
 <a name="FileName"></a>
-## type [FileName](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1013>)
+## type [FileName](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1025>)
 
 FileName defines model for FileName.
 
@@ -2793,7 +2794,7 @@ type FileUploadResponse struct {
 ```
 
 <a name="GetAgentDetailsResponse"></a>
-## type [GetAgentDetailsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3330-L3338>)
+## type [GetAgentDetailsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3342-L3350>)
 
 
 
@@ -2810,7 +2811,7 @@ type GetAgentDetailsResponse struct {
 ```
 
 <a name="ParseGetAgentDetailsResponse"></a>
-### func [ParseGetAgentDetailsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4635>)
+### func [ParseGetAgentDetailsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4647>)
 
 ```go
 func ParseGetAgentDetailsResponse(rsp *http.Response) (*GetAgentDetailsResponse, error)
@@ -2819,7 +2820,7 @@ func ParseGetAgentDetailsResponse(rsp *http.Response) (*GetAgentDetailsResponse,
 ParseGetAgentDetailsResponse parses an HTTP response from a GetAgentDetailsWithResponse call
 
 <a name="GetAgentDetailsResponse.Status"></a>
-### func \(GetAgentDetailsResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3341>)
+### func \(GetAgentDetailsResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3353>)
 
 ```go
 func (r GetAgentDetailsResponse) Status() string
@@ -2828,7 +2829,7 @@ func (r GetAgentDetailsResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetAgentDetailsResponse.StatusCode"></a>
-### func \(GetAgentDetailsResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3349>)
+### func \(GetAgentDetailsResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3361>)
 
 ```go
 func (r GetAgentDetailsResponse) StatusCode() int
@@ -2837,7 +2838,7 @@ func (r GetAgentDetailsResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetAgentResponse"></a>
-## type [GetAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3305-L3312>)
+## type [GetAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3317-L3324>)
 
 
 
@@ -2853,7 +2854,7 @@ type GetAgentResponse struct {
 ```
 
 <a name="ParseGetAgentResponse"></a>
-### func [ParseGetAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4588>)
+### func [ParseGetAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4600>)
 
 ```go
 func ParseGetAgentResponse(rsp *http.Response) (*GetAgentResponse, error)
@@ -2862,7 +2863,7 @@ func ParseGetAgentResponse(rsp *http.Response) (*GetAgentResponse, error)
 ParseGetAgentResponse parses an HTTP response from a GetAgentWithResponse call
 
 <a name="GetAgentResponse.Status"></a>
-### func \(GetAgentResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3315>)
+### func \(GetAgentResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3327>)
 
 ```go
 func (r GetAgentResponse) Status() string
@@ -2871,7 +2872,7 @@ func (r GetAgentResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetAgentResponse.StatusCode"></a>
-### func \(GetAgentResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3323>)
+### func \(GetAgentResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3335>)
 
 ```go
 func (r GetAgentResponse) StatusCode() int
@@ -2880,7 +2881,7 @@ func (r GetAgentResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetAuditExportResponse"></a>
-## type [GetAuditExportResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3438-L3445>)
+## type [GetAuditExportResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3450-L3457>)
 
 
 
@@ -2896,7 +2897,7 @@ type GetAuditExportResponse struct {
 ```
 
 <a name="ParseGetAuditExportResponse"></a>
-### func [ParseGetAuditExportResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4855>)
+### func [ParseGetAuditExportResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4867>)
 
 ```go
 func ParseGetAuditExportResponse(rsp *http.Response) (*GetAuditExportResponse, error)
@@ -2905,7 +2906,7 @@ func ParseGetAuditExportResponse(rsp *http.Response) (*GetAuditExportResponse, e
 ParseGetAuditExportResponse parses an HTTP response from a GetAuditExportWithResponse call
 
 <a name="GetAuditExportResponse.Status"></a>
-### func \(GetAuditExportResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3448>)
+### func \(GetAuditExportResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3460>)
 
 ```go
 func (r GetAuditExportResponse) Status() string
@@ -2914,7 +2915,7 @@ func (r GetAuditExportResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetAuditExportResponse.StatusCode"></a>
-### func \(GetAuditExportResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3456>)
+### func \(GetAuditExportResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3468>)
 
 ```go
 func (r GetAuditExportResponse) StatusCode() int
@@ -2923,7 +2924,7 @@ func (r GetAuditExportResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetAuditLogByIDResponse"></a>
-## type [GetAuditLogByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3463-L3471>)
+## type [GetAuditLogByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3475-L3483>)
 
 
 
@@ -2940,7 +2941,7 @@ type GetAuditLogByIDResponse struct {
 ```
 
 <a name="ParseGetAuditLogByIDResponse"></a>
-### func [ParseGetAuditLogByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4902>)
+### func [ParseGetAuditLogByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4914>)
 
 ```go
 func ParseGetAuditLogByIDResponse(rsp *http.Response) (*GetAuditLogByIDResponse, error)
@@ -2949,7 +2950,7 @@ func ParseGetAuditLogByIDResponse(rsp *http.Response) (*GetAuditLogByIDResponse,
 ParseGetAuditLogByIDResponse parses an HTTP response from a GetAuditLogByIDWithResponse call
 
 <a name="GetAuditLogByIDResponse.Status"></a>
-### func \(GetAuditLogByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3474>)
+### func \(GetAuditLogByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3486>)
 
 ```go
 func (r GetAuditLogByIDResponse) Status() string
@@ -2958,7 +2959,7 @@ func (r GetAuditLogByIDResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetAuditLogByIDResponse.StatusCode"></a>
-### func \(GetAuditLogByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3482>)
+### func \(GetAuditLogByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3494>)
 
 ```go
 func (r GetAuditLogByIDResponse) StatusCode() int
@@ -2967,7 +2968,7 @@ func (r GetAuditLogByIDResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetAuditLogsParams"></a>
-## type [GetAuditLogsParams](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1019-L1025>)
+## type [GetAuditLogsParams](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1031-L1037>)
 
 GetAuditLogsParams defines parameters for GetAuditLogs.
 
@@ -2982,7 +2983,7 @@ type GetAuditLogsParams struct {
 ```
 
 <a name="GetAuditLogsResponse"></a>
-## type [GetAuditLogsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3412-L3420>)
+## type [GetAuditLogsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3424-L3432>)
 
 
 
@@ -2999,7 +3000,7 @@ type GetAuditLogsResponse struct {
 ```
 
 <a name="ParseGetAuditLogsResponse"></a>
-### func [ParseGetAuditLogsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4801>)
+### func [ParseGetAuditLogsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4813>)
 
 ```go
 func ParseGetAuditLogsResponse(rsp *http.Response) (*GetAuditLogsResponse, error)
@@ -3008,7 +3009,7 @@ func ParseGetAuditLogsResponse(rsp *http.Response) (*GetAuditLogsResponse, error
 ParseGetAuditLogsResponse parses an HTTP response from a GetAuditLogsWithResponse call
 
 <a name="GetAuditLogsResponse.Status"></a>
-### func \(GetAuditLogsResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3423>)
+### func \(GetAuditLogsResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3435>)
 
 ```go
 func (r GetAuditLogsResponse) Status() string
@@ -3017,7 +3018,7 @@ func (r GetAuditLogsResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetAuditLogsResponse.StatusCode"></a>
-### func \(GetAuditLogsResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3431>)
+### func \(GetAuditLogsResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3443>)
 
 ```go
 func (r GetAuditLogsResponse) StatusCode() int
@@ -3026,7 +3027,7 @@ func (r GetAuditLogsResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetFileByNameResponse"></a>
-## type [GetFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3568-L3577>)
+## type [GetFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3580-L3589>)
 
 
 
@@ -3044,7 +3045,7 @@ type GetFileByNameResponse struct {
 ```
 
 <a name="ParseGetFileByNameResponse"></a>
-### func [ParseGetFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5125>)
+### func [ParseGetFileByNameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5137>)
 
 ```go
 func ParseGetFileByNameResponse(rsp *http.Response) (*GetFileByNameResponse, error)
@@ -3053,7 +3054,7 @@ func ParseGetFileByNameResponse(rsp *http.Response) (*GetFileByNameResponse, err
 ParseGetFileByNameResponse parses an HTTP response from a GetFileByNameWithResponse call
 
 <a name="GetFileByNameResponse.Status"></a>
-### func \(GetFileByNameResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3580>)
+### func \(GetFileByNameResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3592>)
 
 ```go
 func (r GetFileByNameResponse) Status() string
@@ -3062,7 +3063,7 @@ func (r GetFileByNameResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetFileByNameResponse.StatusCode"></a>
-### func \(GetFileByNameResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3588>)
+### func \(GetFileByNameResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3600>)
 
 ```go
 func (r GetFileByNameResponse) StatusCode() int
@@ -3071,7 +3072,7 @@ func (r GetFileByNameResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetFilesResponse"></a>
-## type [GetFilesResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3489-L3496>)
+## type [GetFilesResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3501-L3508>)
 
 
 
@@ -3087,7 +3088,7 @@ type GetFilesResponse struct {
 ```
 
 <a name="ParseGetFilesResponse"></a>
-### func [ParseGetFilesResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4956>)
+### func [ParseGetFilesResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4968>)
 
 ```go
 func ParseGetFilesResponse(rsp *http.Response) (*GetFilesResponse, error)
@@ -3096,7 +3097,7 @@ func ParseGetFilesResponse(rsp *http.Response) (*GetFilesResponse, error)
 ParseGetFilesResponse parses an HTTP response from a GetFilesWithResponse call
 
 <a name="GetFilesResponse.Status"></a>
-### func \(GetFilesResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3499>)
+### func \(GetFilesResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3511>)
 
 ```go
 func (r GetFilesResponse) Status() string
@@ -3105,7 +3106,7 @@ func (r GetFilesResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetFilesResponse.StatusCode"></a>
-### func \(GetFilesResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3507>)
+### func \(GetFilesResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3519>)
 
 ```go
 func (r GetFilesResponse) StatusCode() int
@@ -3114,7 +3115,7 @@ func (r GetFilesResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetHealthReadyResponse"></a>
-## type [GetHealthReadyResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3617-L3622>)
+## type [GetHealthReadyResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3629-L3634>)
 
 
 
@@ -3128,7 +3129,7 @@ type GetHealthReadyResponse struct {
 ```
 
 <a name="ParseGetHealthReadyResponse"></a>
-### func [ParseGetHealthReadyResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5212>)
+### func [ParseGetHealthReadyResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5224>)
 
 ```go
 func ParseGetHealthReadyResponse(rsp *http.Response) (*GetHealthReadyResponse, error)
@@ -3137,7 +3138,7 @@ func ParseGetHealthReadyResponse(rsp *http.Response) (*GetHealthReadyResponse, e
 ParseGetHealthReadyResponse parses an HTTP response from a GetHealthReadyWithResponse call
 
 <a name="GetHealthReadyResponse.Status"></a>
-### func \(GetHealthReadyResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3625>)
+### func \(GetHealthReadyResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3637>)
 
 ```go
 func (r GetHealthReadyResponse) Status() string
@@ -3146,7 +3147,7 @@ func (r GetHealthReadyResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetHealthReadyResponse.StatusCode"></a>
-### func \(GetHealthReadyResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3633>)
+### func \(GetHealthReadyResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3645>)
 
 ```go
 func (r GetHealthReadyResponse) StatusCode() int
@@ -3155,7 +3156,7 @@ func (r GetHealthReadyResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetHealthResponse"></a>
-## type [GetHealthResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3595-L3599>)
+## type [GetHealthResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3607-L3611>)
 
 
 
@@ -3168,7 +3169,7 @@ type GetHealthResponse struct {
 ```
 
 <a name="ParseGetHealthResponse"></a>
-### func [ParseGetHealthResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5186>)
+### func [ParseGetHealthResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5198>)
 
 ```go
 func ParseGetHealthResponse(rsp *http.Response) (*GetHealthResponse, error)
@@ -3177,7 +3178,7 @@ func ParseGetHealthResponse(rsp *http.Response) (*GetHealthResponse, error)
 ParseGetHealthResponse parses an HTTP response from a GetHealthWithResponse call
 
 <a name="GetHealthResponse.Status"></a>
-### func \(GetHealthResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3602>)
+### func \(GetHealthResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3614>)
 
 ```go
 func (r GetHealthResponse) Status() string
@@ -3186,7 +3187,7 @@ func (r GetHealthResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetHealthResponse.StatusCode"></a>
-### func \(GetHealthResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3610>)
+### func \(GetHealthResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3622>)
 
 ```go
 func (r GetHealthResponse) StatusCode() int
@@ -3195,7 +3196,7 @@ func (r GetHealthResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetHealthStatusResponse"></a>
-## type [GetHealthStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3640-L3647>)
+## type [GetHealthStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3652-L3659>)
 
 
 
@@ -3211,7 +3212,7 @@ type GetHealthStatusResponse struct {
 ```
 
 <a name="ParseGetHealthStatusResponse"></a>
-### func [ParseGetHealthStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5245>)
+### func [ParseGetHealthStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5257>)
 
 ```go
 func ParseGetHealthStatusResponse(rsp *http.Response) (*GetHealthStatusResponse, error)
@@ -3220,7 +3221,7 @@ func ParseGetHealthStatusResponse(rsp *http.Response) (*GetHealthStatusResponse,
 ParseGetHealthStatusResponse parses an HTTP response from a GetHealthStatusWithResponse call
 
 <a name="GetHealthStatusResponse.Status"></a>
-### func \(GetHealthStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3650>)
+### func \(GetHealthStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3662>)
 
 ```go
 func (r GetHealthStatusResponse) Status() string
@@ -3229,7 +3230,7 @@ func (r GetHealthStatusResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetHealthStatusResponse.StatusCode"></a>
-### func \(GetHealthStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3658>)
+### func \(GetHealthStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3670>)
 
 ```go
 func (r GetHealthStatusResponse) StatusCode() int
@@ -3238,7 +3239,7 @@ func (r GetHealthStatusResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetJobByIDResponse"></a>
-## type [GetJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3768-L3777>)
+## type [GetJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3780-L3789>)
 
 
 
@@ -3256,7 +3257,7 @@ type GetJobByIDResponse struct {
 ```
 
 <a name="ParseGetJobByIDResponse"></a>
-### func [ParseGetJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5501>)
+### func [ParseGetJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5513>)
 
 ```go
 func ParseGetJobByIDResponse(rsp *http.Response) (*GetJobByIDResponse, error)
@@ -3265,7 +3266,7 @@ func ParseGetJobByIDResponse(rsp *http.Response) (*GetJobByIDResponse, error)
 ParseGetJobByIDResponse parses an HTTP response from a GetJobByIDWithResponse call
 
 <a name="GetJobByIDResponse.Status"></a>
-### func \(GetJobByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3780>)
+### func \(GetJobByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3792>)
 
 ```go
 func (r GetJobByIDResponse) Status() string
@@ -3274,7 +3275,7 @@ func (r GetJobByIDResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetJobByIDResponse.StatusCode"></a>
-### func \(GetJobByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3788>)
+### func \(GetJobByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3800>)
 
 ```go
 func (r GetJobByIDResponse) StatusCode() int
@@ -3283,7 +3284,7 @@ func (r GetJobByIDResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetJobParams"></a>
-## type [GetJobParams](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1049-L1058>)
+## type [GetJobParams](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1061-L1070>)
 
 GetJobParams defines parameters for GetJob.
 
@@ -3301,7 +3302,7 @@ type GetJobParams struct {
 ```
 
 <a name="GetJobParamsStatus"></a>
-## type [GetJobParamsStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1061>)
+## type [GetJobParamsStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1073>)
 
 GetJobParamsStatus defines parameters for GetJob.
 
@@ -3322,7 +3323,7 @@ const (
 ```
 
 <a name="GetJobResponse"></a>
-## type [GetJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3665-L3673>)
+## type [GetJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3677-L3685>)
 
 
 
@@ -3339,7 +3340,7 @@ type GetJobResponse struct {
 ```
 
 <a name="ParseGetJobResponse"></a>
-### func [ParseGetJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5292>)
+### func [ParseGetJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5304>)
 
 ```go
 func ParseGetJobResponse(rsp *http.Response) (*GetJobResponse, error)
@@ -3348,7 +3349,7 @@ func ParseGetJobResponse(rsp *http.Response) (*GetJobResponse, error)
 ParseGetJobResponse parses an HTTP response from a GetJobWithResponse call
 
 <a name="GetJobResponse.Status"></a>
-### func \(GetJobResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3676>)
+### func \(GetJobResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3688>)
 
 ```go
 func (r GetJobResponse) Status() string
@@ -3357,7 +3358,7 @@ func (r GetJobResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetJobResponse.StatusCode"></a>
-### func \(GetJobResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3684>)
+### func \(GetJobResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3696>)
 
 ```go
 func (r GetJobResponse) StatusCode() int
@@ -3366,7 +3367,7 @@ func (r GetJobResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetJobStatusResponse"></a>
-## type [GetJobStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3717-L3724>)
+## type [GetJobStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3729-L3736>)
 
 
 
@@ -3382,7 +3383,7 @@ type GetJobStatusResponse struct {
 ```
 
 <a name="ParseGetJobStatusResponse"></a>
-### func [ParseGetJobStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5400>)
+### func [ParseGetJobStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5412>)
 
 ```go
 func ParseGetJobStatusResponse(rsp *http.Response) (*GetJobStatusResponse, error)
@@ -3391,7 +3392,7 @@ func ParseGetJobStatusResponse(rsp *http.Response) (*GetJobStatusResponse, error
 ParseGetJobStatusResponse parses an HTTP response from a GetJobStatusWithResponse call
 
 <a name="GetJobStatusResponse.Status"></a>
-### func \(GetJobStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3727>)
+### func \(GetJobStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3739>)
 
 ```go
 func (r GetJobStatusResponse) Status() string
@@ -3400,7 +3401,7 @@ func (r GetJobStatusResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetJobStatusResponse.StatusCode"></a>
-### func \(GetJobStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3735>)
+### func \(GetJobStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3747>)
 
 ```go
 func (r GetJobStatusResponse) StatusCode() int
@@ -3409,7 +3410,7 @@ func (r GetJobStatusResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeDiskResponse"></a>
-## type [GetNodeDiskResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3900-L3908>)
+## type [GetNodeDiskResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3912-L3920>)
 
 
 
@@ -3426,7 +3427,7 @@ type GetNodeDiskResponse struct {
 ```
 
 <a name="ParseGetNodeDiskResponse"></a>
-### func [ParseGetNodeDiskResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5785>)
+### func [ParseGetNodeDiskResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5797>)
 
 ```go
 func ParseGetNodeDiskResponse(rsp *http.Response) (*GetNodeDiskResponse, error)
@@ -3435,7 +3436,7 @@ func ParseGetNodeDiskResponse(rsp *http.Response) (*GetNodeDiskResponse, error)
 ParseGetNodeDiskResponse parses an HTTP response from a GetNodeDiskWithResponse call
 
 <a name="GetNodeDiskResponse.Status"></a>
-### func \(GetNodeDiskResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3911>)
+### func \(GetNodeDiskResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3923>)
 
 ```go
 func (r GetNodeDiskResponse) Status() string
@@ -3444,7 +3445,7 @@ func (r GetNodeDiskResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeDiskResponse.StatusCode"></a>
-### func \(GetNodeDiskResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3919>)
+### func \(GetNodeDiskResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3931>)
 
 ```go
 func (r GetNodeDiskResponse) StatusCode() int
@@ -3453,7 +3454,7 @@ func (r GetNodeDiskResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeHostnameResponse"></a>
-## type [GetNodeHostnameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3978-L3986>)
+## type [GetNodeHostnameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3990-L3998>)
 
 
 
@@ -3470,7 +3471,7 @@ type GetNodeHostnameResponse struct {
 ```
 
 <a name="ParseGetNodeHostnameResponse"></a>
-### func [ParseGetNodeHostnameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5947>)
+### func [ParseGetNodeHostnameResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5959>)
 
 ```go
 func ParseGetNodeHostnameResponse(rsp *http.Response) (*GetNodeHostnameResponse, error)
@@ -3479,7 +3480,7 @@ func ParseGetNodeHostnameResponse(rsp *http.Response) (*GetNodeHostnameResponse,
 ParseGetNodeHostnameResponse parses an HTTP response from a GetNodeHostnameWithResponse call
 
 <a name="GetNodeHostnameResponse.Status"></a>
-### func \(GetNodeHostnameResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3989>)
+### func \(GetNodeHostnameResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4001>)
 
 ```go
 func (r GetNodeHostnameResponse) Status() string
@@ -3488,7 +3489,7 @@ func (r GetNodeHostnameResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeHostnameResponse.StatusCode"></a>
-### func \(GetNodeHostnameResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3997>)
+### func \(GetNodeHostnameResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4009>)
 
 ```go
 func (r GetNodeHostnameResponse) StatusCode() int
@@ -3497,7 +3498,7 @@ func (r GetNodeHostnameResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeLoadResponse"></a>
-## type [GetNodeLoadResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4004-L4012>)
+## type [GetNodeLoadResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4016-L4024>)
 
 
 
@@ -3514,7 +3515,7 @@ type GetNodeLoadResponse struct {
 ```
 
 <a name="ParseGetNodeLoadResponse"></a>
-### func [ParseGetNodeLoadResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6001>)
+### func [ParseGetNodeLoadResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6013>)
 
 ```go
 func ParseGetNodeLoadResponse(rsp *http.Response) (*GetNodeLoadResponse, error)
@@ -3523,7 +3524,7 @@ func ParseGetNodeLoadResponse(rsp *http.Response) (*GetNodeLoadResponse, error)
 ParseGetNodeLoadResponse parses an HTTP response from a GetNodeLoadWithResponse call
 
 <a name="GetNodeLoadResponse.Status"></a>
-### func \(GetNodeLoadResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4015>)
+### func \(GetNodeLoadResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4027>)
 
 ```go
 func (r GetNodeLoadResponse) Status() string
@@ -3532,7 +3533,7 @@ func (r GetNodeLoadResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeLoadResponse.StatusCode"></a>
-### func \(GetNodeLoadResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4023>)
+### func \(GetNodeLoadResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4035>)
 
 ```go
 func (r GetNodeLoadResponse) StatusCode() int
@@ -3541,7 +3542,7 @@ func (r GetNodeLoadResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeMemoryResponse"></a>
-## type [GetNodeMemoryResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4030-L4038>)
+## type [GetNodeMemoryResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4042-L4050>)
 
 
 
@@ -3558,7 +3559,7 @@ type GetNodeMemoryResponse struct {
 ```
 
 <a name="ParseGetNodeMemoryResponse"></a>
-### func [ParseGetNodeMemoryResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6055>)
+### func [ParseGetNodeMemoryResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6067>)
 
 ```go
 func ParseGetNodeMemoryResponse(rsp *http.Response) (*GetNodeMemoryResponse, error)
@@ -3567,7 +3568,7 @@ func ParseGetNodeMemoryResponse(rsp *http.Response) (*GetNodeMemoryResponse, err
 ParseGetNodeMemoryResponse parses an HTTP response from a GetNodeMemoryWithResponse call
 
 <a name="GetNodeMemoryResponse.Status"></a>
-### func \(GetNodeMemoryResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4041>)
+### func \(GetNodeMemoryResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4053>)
 
 ```go
 func (r GetNodeMemoryResponse) Status() string
@@ -3576,7 +3577,7 @@ func (r GetNodeMemoryResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeMemoryResponse.StatusCode"></a>
-### func \(GetNodeMemoryResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4049>)
+### func \(GetNodeMemoryResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4061>)
 
 ```go
 func (r GetNodeMemoryResponse) StatusCode() int
@@ -3585,7 +3586,7 @@ func (r GetNodeMemoryResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeNetworkDNSByInterfaceResponse"></a>
-## type [GetNodeNetworkDNSByInterfaceResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4082-L4090>)
+## type [GetNodeNetworkDNSByInterfaceResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4094-L4102>)
 
 
 
@@ -3602,7 +3603,7 @@ type GetNodeNetworkDNSByInterfaceResponse struct {
 ```
 
 <a name="ParseGetNodeNetworkDNSByInterfaceResponse"></a>
-### func [ParseGetNodeNetworkDNSByInterfaceResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6163>)
+### func [ParseGetNodeNetworkDNSByInterfaceResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6175>)
 
 ```go
 func ParseGetNodeNetworkDNSByInterfaceResponse(rsp *http.Response) (*GetNodeNetworkDNSByInterfaceResponse, error)
@@ -3611,7 +3612,7 @@ func ParseGetNodeNetworkDNSByInterfaceResponse(rsp *http.Response) (*GetNodeNetw
 ParseGetNodeNetworkDNSByInterfaceResponse parses an HTTP response from a GetNodeNetworkDNSByInterfaceWithResponse call
 
 <a name="GetNodeNetworkDNSByInterfaceResponse.Status"></a>
-### func \(GetNodeNetworkDNSByInterfaceResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4093>)
+### func \(GetNodeNetworkDNSByInterfaceResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4105>)
 
 ```go
 func (r GetNodeNetworkDNSByInterfaceResponse) Status() string
@@ -3620,7 +3621,7 @@ func (r GetNodeNetworkDNSByInterfaceResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeNetworkDNSByInterfaceResponse.StatusCode"></a>
-### func \(GetNodeNetworkDNSByInterfaceResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4101>)
+### func \(GetNodeNetworkDNSByInterfaceResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4113>)
 
 ```go
 func (r GetNodeNetworkDNSByInterfaceResponse) StatusCode() int
@@ -3629,7 +3630,7 @@ func (r GetNodeNetworkDNSByInterfaceResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeOSResponse"></a>
-## type [GetNodeOSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4134-L4142>)
+## type [GetNodeOSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4146-L4154>)
 
 
 
@@ -3646,7 +3647,7 @@ type GetNodeOSResponse struct {
 ```
 
 <a name="ParseGetNodeOSResponse"></a>
-### func [ParseGetNodeOSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6271>)
+### func [ParseGetNodeOSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6283>)
 
 ```go
 func ParseGetNodeOSResponse(rsp *http.Response) (*GetNodeOSResponse, error)
@@ -3655,7 +3656,7 @@ func ParseGetNodeOSResponse(rsp *http.Response) (*GetNodeOSResponse, error)
 ParseGetNodeOSResponse parses an HTTP response from a GetNodeOSWithResponse call
 
 <a name="GetNodeOSResponse.Status"></a>
-### func \(GetNodeOSResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4145>)
+### func \(GetNodeOSResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4157>)
 
 ```go
 func (r GetNodeOSResponse) Status() string
@@ -3664,7 +3665,7 @@ func (r GetNodeOSResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeOSResponse.StatusCode"></a>
-### func \(GetNodeOSResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4153>)
+### func \(GetNodeOSResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4165>)
 
 ```go
 func (r GetNodeOSResponse) StatusCode() int
@@ -3673,7 +3674,7 @@ func (r GetNodeOSResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeStatusResponse"></a>
-## type [GetNodeStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3822-L3830>)
+## type [GetNodeStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3834-L3842>)
 
 
 
@@ -3690,7 +3691,7 @@ type GetNodeStatusResponse struct {
 ```
 
 <a name="ParseGetNodeStatusResponse"></a>
-### func [ParseGetNodeStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5623>)
+### func [ParseGetNodeStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5635>)
 
 ```go
 func ParseGetNodeStatusResponse(rsp *http.Response) (*GetNodeStatusResponse, error)
@@ -3699,7 +3700,7 @@ func ParseGetNodeStatusResponse(rsp *http.Response) (*GetNodeStatusResponse, err
 ParseGetNodeStatusResponse parses an HTTP response from a GetNodeStatusWithResponse call
 
 <a name="GetNodeStatusResponse.Status"></a>
-### func \(GetNodeStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3833>)
+### func \(GetNodeStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3845>)
 
 ```go
 func (r GetNodeStatusResponse) Status() string
@@ -3708,7 +3709,7 @@ func (r GetNodeStatusResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeStatusResponse.StatusCode"></a>
-### func \(GetNodeStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3841>)
+### func \(GetNodeStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3853>)
 
 ```go
 func (r GetNodeStatusResponse) StatusCode() int
@@ -3717,7 +3718,7 @@ func (r GetNodeStatusResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetNodeUptimeResponse"></a>
-## type [GetNodeUptimeResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4160-L4168>)
+## type [GetNodeUptimeResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4172-L4180>)
 
 
 
@@ -3734,7 +3735,7 @@ type GetNodeUptimeResponse struct {
 ```
 
 <a name="ParseGetNodeUptimeResponse"></a>
-### func [ParseGetNodeUptimeResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6325>)
+### func [ParseGetNodeUptimeResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6337>)
 
 ```go
 func ParseGetNodeUptimeResponse(rsp *http.Response) (*GetNodeUptimeResponse, error)
@@ -3743,7 +3744,7 @@ func ParseGetNodeUptimeResponse(rsp *http.Response) (*GetNodeUptimeResponse, err
 ParseGetNodeUptimeResponse parses an HTTP response from a GetNodeUptimeWithResponse call
 
 <a name="GetNodeUptimeResponse.Status"></a>
-### func \(GetNodeUptimeResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4171>)
+### func \(GetNodeUptimeResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4183>)
 
 ```go
 func (r GetNodeUptimeResponse) Status() string
@@ -3752,7 +3753,7 @@ func (r GetNodeUptimeResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetNodeUptimeResponse.StatusCode"></a>
-### func \(GetNodeUptimeResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4179>)
+### func \(GetNodeUptimeResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4191>)
 
 ```go
 func (r GetNodeUptimeResponse) StatusCode() int
@@ -3761,7 +3762,7 @@ func (r GetNodeUptimeResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="GetVersionResponse"></a>
-## type [GetVersionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4186-L4190>)
+## type [GetVersionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4198-L4202>)
 
 
 
@@ -3774,7 +3775,7 @@ type GetVersionResponse struct {
 ```
 
 <a name="ParseGetVersionResponse"></a>
-### func [ParseGetVersionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6379>)
+### func [ParseGetVersionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6391>)
 
 ```go
 func ParseGetVersionResponse(rsp *http.Response) (*GetVersionResponse, error)
@@ -3783,7 +3784,7 @@ func ParseGetVersionResponse(rsp *http.Response) (*GetVersionResponse, error)
 ParseGetVersionResponse parses an HTTP response from a GetVersionWithResponse call
 
 <a name="GetVersionResponse.Status"></a>
-### func \(GetVersionResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4193>)
+### func \(GetVersionResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4205>)
 
 ```go
 func (r GetVersionResponse) Status() string
@@ -3792,7 +3793,7 @@ func (r GetVersionResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="GetVersionResponse.StatusCode"></a>
-### func \(GetVersionResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4201>)
+### func \(GetVersionResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4213>)
 
 ```go
 func (r GetVersionResponse) StatusCode() int
@@ -3813,7 +3814,7 @@ type HealthResponse struct {
 ```
 
 <a name="Hostname"></a>
-## type [Hostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1016>)
+## type [Hostname](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1028>)
 
 Hostname defines model for Hostname.
 
@@ -3853,7 +3854,7 @@ type HostnameResponse struct {
 ```
 
 <a name="HttpRequestDoer"></a>
-## type [HttpRequestDoer](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1102-L1104>)
+## type [HttpRequestDoer](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1114-L1116>)
 
 Doer performs HTTP requests.
 
@@ -4290,8 +4291,23 @@ type OSInfoResultItem struct {
 }
 ```
 
+<a name="ObjectStoreInfo"></a>
+## type [ObjectStoreInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L859-L865>)
+
+ObjectStoreInfo defines model for ObjectStoreInfo.
+
+```go
+type ObjectStoreInfo struct {
+    // Name Object Store bucket name.
+    Name string `json:"name"`
+
+    // Size Total bytes in the store.
+    Size int `json:"size"`
+}
+```
+
 <a name="PingCollectionResponse"></a>
-## type [PingCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L859-L863>)
+## type [PingCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L868-L872>)
 
 PingCollectionResponse defines model for PingCollectionResponse.
 
@@ -4304,7 +4320,7 @@ type PingCollectionResponse struct {
 ```
 
 <a name="PingResponse"></a>
-## type [PingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L866-L890>)
+## type [PingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L875-L899>)
 
 PingResponse defines model for PingResponse.
 
@@ -4337,7 +4353,7 @@ type PingResponse struct {
 ```
 
 <a name="PostFileMultipartBody"></a>
-## type [PostFileMultipartBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1028-L1037>)
+## type [PostFileMultipartBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1040-L1049>)
 
 PostFileMultipartBody defines parameters for PostFile.
 
@@ -4355,7 +4371,7 @@ type PostFileMultipartBody struct {
 ```
 
 <a name="PostFileMultipartBodyContentType"></a>
-## type [PostFileMultipartBodyContentType](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1046>)
+## type [PostFileMultipartBodyContentType](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1058>)
 
 PostFileMultipartBodyContentType defines parameters for PostFile.
 
@@ -4373,7 +4389,7 @@ const (
 ```
 
 <a name="PostFileMultipartRequestBody"></a>
-## type [PostFileMultipartRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1070>)
+## type [PostFileMultipartRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1082>)
 
 PostFileMultipartRequestBody defines body for PostFile for multipart/form\-data ContentType.
 
@@ -4382,7 +4398,7 @@ type PostFileMultipartRequestBody PostFileMultipartBody
 ```
 
 <a name="PostFileParams"></a>
-## type [PostFileParams](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1040-L1043>)
+## type [PostFileParams](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1052-L1055>)
 
 PostFileParams defines parameters for PostFile.
 
@@ -4394,7 +4410,7 @@ type PostFileParams struct {
 ```
 
 <a name="PostFileResponse"></a>
-## type [PostFileResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3514-L3523>)
+## type [PostFileResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3526-L3535>)
 
 
 
@@ -4412,7 +4428,7 @@ type PostFileResponse struct {
 ```
 
 <a name="ParsePostFileResponse"></a>
-### func [ParsePostFileResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5003>)
+### func [ParsePostFileResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5015>)
 
 ```go
 func ParsePostFileResponse(rsp *http.Response) (*PostFileResponse, error)
@@ -4421,7 +4437,7 @@ func ParsePostFileResponse(rsp *http.Response) (*PostFileResponse, error)
 ParsePostFileResponse parses an HTTP response from a PostFileWithResponse call
 
 <a name="PostFileResponse.Status"></a>
-### func \(PostFileResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3526>)
+### func \(PostFileResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3538>)
 
 ```go
 func (r PostFileResponse) Status() string
@@ -4430,7 +4446,7 @@ func (r PostFileResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PostFileResponse.StatusCode"></a>
-### func \(PostFileResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3534>)
+### func \(PostFileResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3546>)
 
 ```go
 func (r PostFileResponse) StatusCode() int
@@ -4439,7 +4455,7 @@ func (r PostFileResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="PostJobJSONRequestBody"></a>
-## type [PostJobJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1073>)
+## type [PostJobJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1085>)
 
 PostJobJSONRequestBody defines body for PostJob for application/json ContentType.
 
@@ -4448,7 +4464,7 @@ type PostJobJSONRequestBody = CreateJobRequest
 ```
 
 <a name="PostJobResponse"></a>
-## type [PostJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3691-L3699>)
+## type [PostJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3703-L3711>)
 
 
 
@@ -4465,7 +4481,7 @@ type PostJobResponse struct {
 ```
 
 <a name="ParsePostJobResponse"></a>
-### func [ParsePostJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5346>)
+### func [ParsePostJobResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5358>)
 
 ```go
 func ParsePostJobResponse(rsp *http.Response) (*PostJobResponse, error)
@@ -4474,7 +4490,7 @@ func ParsePostJobResponse(rsp *http.Response) (*PostJobResponse, error)
 ParsePostJobResponse parses an HTTP response from a PostJobWithResponse call
 
 <a name="PostJobResponse.Status"></a>
-### func \(PostJobResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3702>)
+### func \(PostJobResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3714>)
 
 ```go
 func (r PostJobResponse) Status() string
@@ -4483,7 +4499,7 @@ func (r PostJobResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PostJobResponse.StatusCode"></a>
-### func \(PostJobResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3710>)
+### func \(PostJobResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3722>)
 
 ```go
 func (r PostJobResponse) StatusCode() int
@@ -4492,7 +4508,7 @@ func (r PostJobResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="PostNodeCommandExecJSONRequestBody"></a>
-## type [PostNodeCommandExecJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1079>)
+## type [PostNodeCommandExecJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1091>)
 
 PostNodeCommandExecJSONRequestBody defines body for PostNodeCommandExec for application/json ContentType.
 
@@ -4501,7 +4517,7 @@ type PostNodeCommandExecJSONRequestBody = CommandExecRequest
 ```
 
 <a name="PostNodeCommandExecResponse"></a>
-## type [PostNodeCommandExecResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3848-L3856>)
+## type [PostNodeCommandExecResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3860-L3868>)
 
 
 
@@ -4518,7 +4534,7 @@ type PostNodeCommandExecResponse struct {
 ```
 
 <a name="ParsePostNodeCommandExecResponse"></a>
-### func [ParsePostNodeCommandExecResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5677>)
+### func [ParsePostNodeCommandExecResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5689>)
 
 ```go
 func ParsePostNodeCommandExecResponse(rsp *http.Response) (*PostNodeCommandExecResponse, error)
@@ -4527,7 +4543,7 @@ func ParsePostNodeCommandExecResponse(rsp *http.Response) (*PostNodeCommandExecR
 ParsePostNodeCommandExecResponse parses an HTTP response from a PostNodeCommandExecWithResponse call
 
 <a name="PostNodeCommandExecResponse.Status"></a>
-### func \(PostNodeCommandExecResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3859>)
+### func \(PostNodeCommandExecResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3871>)
 
 ```go
 func (r PostNodeCommandExecResponse) Status() string
@@ -4536,7 +4552,7 @@ func (r PostNodeCommandExecResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PostNodeCommandExecResponse.StatusCode"></a>
-### func \(PostNodeCommandExecResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3867>)
+### func \(PostNodeCommandExecResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3879>)
 
 ```go
 func (r PostNodeCommandExecResponse) StatusCode() int
@@ -4545,7 +4561,7 @@ func (r PostNodeCommandExecResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="PostNodeCommandShellJSONRequestBody"></a>
-## type [PostNodeCommandShellJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1082>)
+## type [PostNodeCommandShellJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1094>)
 
 PostNodeCommandShellJSONRequestBody defines body for PostNodeCommandShell for application/json ContentType.
 
@@ -4554,7 +4570,7 @@ type PostNodeCommandShellJSONRequestBody = CommandShellRequest
 ```
 
 <a name="PostNodeCommandShellResponse"></a>
-## type [PostNodeCommandShellResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3874-L3882>)
+## type [PostNodeCommandShellResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3886-L3894>)
 
 
 
@@ -4571,7 +4587,7 @@ type PostNodeCommandShellResponse struct {
 ```
 
 <a name="ParsePostNodeCommandShellResponse"></a>
-### func [ParsePostNodeCommandShellResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5731>)
+### func [ParsePostNodeCommandShellResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5743>)
 
 ```go
 func ParsePostNodeCommandShellResponse(rsp *http.Response) (*PostNodeCommandShellResponse, error)
@@ -4580,7 +4596,7 @@ func ParsePostNodeCommandShellResponse(rsp *http.Response) (*PostNodeCommandShel
 ParsePostNodeCommandShellResponse parses an HTTP response from a PostNodeCommandShellWithResponse call
 
 <a name="PostNodeCommandShellResponse.Status"></a>
-### func \(PostNodeCommandShellResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3885>)
+### func \(PostNodeCommandShellResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3897>)
 
 ```go
 func (r PostNodeCommandShellResponse) Status() string
@@ -4589,7 +4605,7 @@ func (r PostNodeCommandShellResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PostNodeCommandShellResponse.StatusCode"></a>
-### func \(PostNodeCommandShellResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3893>)
+### func \(PostNodeCommandShellResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3905>)
 
 ```go
 func (r PostNodeCommandShellResponse) StatusCode() int
@@ -4598,7 +4614,7 @@ func (r PostNodeCommandShellResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="PostNodeFileDeployJSONRequestBody"></a>
-## type [PostNodeFileDeployJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1085>)
+## type [PostNodeFileDeployJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1097>)
 
 PostNodeFileDeployJSONRequestBody defines body for PostNodeFileDeploy for application/json ContentType.
 
@@ -4607,7 +4623,7 @@ type PostNodeFileDeployJSONRequestBody = FileDeployRequest
 ```
 
 <a name="PostNodeFileDeployResponse"></a>
-## type [PostNodeFileDeployResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3926-L3934>)
+## type [PostNodeFileDeployResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3938-L3946>)
 
 
 
@@ -4624,7 +4640,7 @@ type PostNodeFileDeployResponse struct {
 ```
 
 <a name="ParsePostNodeFileDeployResponse"></a>
-### func [ParsePostNodeFileDeployResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5839>)
+### func [ParsePostNodeFileDeployResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5851>)
 
 ```go
 func ParsePostNodeFileDeployResponse(rsp *http.Response) (*PostNodeFileDeployResponse, error)
@@ -4633,7 +4649,7 @@ func ParsePostNodeFileDeployResponse(rsp *http.Response) (*PostNodeFileDeployRes
 ParsePostNodeFileDeployResponse parses an HTTP response from a PostNodeFileDeployWithResponse call
 
 <a name="PostNodeFileDeployResponse.Status"></a>
-### func \(PostNodeFileDeployResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3937>)
+### func \(PostNodeFileDeployResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3949>)
 
 ```go
 func (r PostNodeFileDeployResponse) Status() string
@@ -4642,7 +4658,7 @@ func (r PostNodeFileDeployResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PostNodeFileDeployResponse.StatusCode"></a>
-### func \(PostNodeFileDeployResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3945>)
+### func \(PostNodeFileDeployResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3957>)
 
 ```go
 func (r PostNodeFileDeployResponse) StatusCode() int
@@ -4651,7 +4667,7 @@ func (r PostNodeFileDeployResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="PostNodeFileStatusJSONRequestBody"></a>
-## type [PostNodeFileStatusJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1088>)
+## type [PostNodeFileStatusJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1100>)
 
 PostNodeFileStatusJSONRequestBody defines body for PostNodeFileStatus for application/json ContentType.
 
@@ -4660,7 +4676,7 @@ type PostNodeFileStatusJSONRequestBody = FileStatusRequest
 ```
 
 <a name="PostNodeFileStatusResponse"></a>
-## type [PostNodeFileStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3952-L3960>)
+## type [PostNodeFileStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3964-L3972>)
 
 
 
@@ -4677,7 +4693,7 @@ type PostNodeFileStatusResponse struct {
 ```
 
 <a name="ParsePostNodeFileStatusResponse"></a>
-### func [ParsePostNodeFileStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5893>)
+### func [ParsePostNodeFileStatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5905>)
 
 ```go
 func ParsePostNodeFileStatusResponse(rsp *http.Response) (*PostNodeFileStatusResponse, error)
@@ -4686,7 +4702,7 @@ func ParsePostNodeFileStatusResponse(rsp *http.Response) (*PostNodeFileStatusRes
 ParsePostNodeFileStatusResponse parses an HTTP response from a PostNodeFileStatusWithResponse call
 
 <a name="PostNodeFileStatusResponse.Status"></a>
-### func \(PostNodeFileStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3963>)
+### func \(PostNodeFileStatusResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3975>)
 
 ```go
 func (r PostNodeFileStatusResponse) Status() string
@@ -4695,7 +4711,7 @@ func (r PostNodeFileStatusResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PostNodeFileStatusResponse.StatusCode"></a>
-### func \(PostNodeFileStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3971>)
+### func \(PostNodeFileStatusResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3983>)
 
 ```go
 func (r PostNodeFileStatusResponse) StatusCode() int
@@ -4704,7 +4720,7 @@ func (r PostNodeFileStatusResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="PostNodeNetworkPingJSONBody"></a>
-## type [PostNodeNetworkPingJSONBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1064-L1067>)
+## type [PostNodeNetworkPingJSONBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1076-L1079>)
 
 PostNodeNetworkPingJSONBody defines parameters for PostNodeNetworkPing.
 
@@ -4716,7 +4732,7 @@ type PostNodeNetworkPingJSONBody struct {
 ```
 
 <a name="PostNodeNetworkPingJSONRequestBody"></a>
-## type [PostNodeNetworkPingJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1094>)
+## type [PostNodeNetworkPingJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1106>)
 
 PostNodeNetworkPingJSONRequestBody defines body for PostNodeNetworkPing for application/json ContentType.
 
@@ -4725,7 +4741,7 @@ type PostNodeNetworkPingJSONRequestBody PostNodeNetworkPingJSONBody
 ```
 
 <a name="PostNodeNetworkPingResponse"></a>
-## type [PostNodeNetworkPingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4108-L4116>)
+## type [PostNodeNetworkPingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4120-L4128>)
 
 
 
@@ -4742,7 +4758,7 @@ type PostNodeNetworkPingResponse struct {
 ```
 
 <a name="ParsePostNodeNetworkPingResponse"></a>
-### func [ParsePostNodeNetworkPingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6217>)
+### func [ParsePostNodeNetworkPingResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6229>)
 
 ```go
 func ParsePostNodeNetworkPingResponse(rsp *http.Response) (*PostNodeNetworkPingResponse, error)
@@ -4751,7 +4767,7 @@ func ParsePostNodeNetworkPingResponse(rsp *http.Response) (*PostNodeNetworkPingR
 ParsePostNodeNetworkPingResponse parses an HTTP response from a PostNodeNetworkPingWithResponse call
 
 <a name="PostNodeNetworkPingResponse.Status"></a>
-### func \(PostNodeNetworkPingResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4119>)
+### func \(PostNodeNetworkPingResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4131>)
 
 ```go
 func (r PostNodeNetworkPingResponse) Status() string
@@ -4760,7 +4776,7 @@ func (r PostNodeNetworkPingResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PostNodeNetworkPingResponse.StatusCode"></a>
-### func \(PostNodeNetworkPingResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4127>)
+### func \(PostNodeNetworkPingResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4139>)
 
 ```go
 func (r PostNodeNetworkPingResponse) StatusCode() int
@@ -4769,7 +4785,7 @@ func (r PostNodeNetworkPingResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="PutNodeNetworkDNSJSONRequestBody"></a>
-## type [PutNodeNetworkDNSJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1091>)
+## type [PutNodeNetworkDNSJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1103>)
 
 PutNodeNetworkDNSJSONRequestBody defines body for PutNodeNetworkDNS for application/json ContentType.
 
@@ -4778,7 +4794,7 @@ type PutNodeNetworkDNSJSONRequestBody = DNSConfigUpdateRequest
 ```
 
 <a name="PutNodeNetworkDNSResponse"></a>
-## type [PutNodeNetworkDNSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4056-L4064>)
+## type [PutNodeNetworkDNSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4068-L4076>)
 
 
 
@@ -4795,7 +4811,7 @@ type PutNodeNetworkDNSResponse struct {
 ```
 
 <a name="ParsePutNodeNetworkDNSResponse"></a>
-### func [ParsePutNodeNetworkDNSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6109>)
+### func [ParsePutNodeNetworkDNSResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L6121>)
 
 ```go
 func ParsePutNodeNetworkDNSResponse(rsp *http.Response) (*PutNodeNetworkDNSResponse, error)
@@ -4804,7 +4820,7 @@ func ParsePutNodeNetworkDNSResponse(rsp *http.Response) (*PutNodeNetworkDNSRespo
 ParsePutNodeNetworkDNSResponse parses an HTTP response from a PutNodeNetworkDNSWithResponse call
 
 <a name="PutNodeNetworkDNSResponse.Status"></a>
-### func \(PutNodeNetworkDNSResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4067>)
+### func \(PutNodeNetworkDNSResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4079>)
 
 ```go
 func (r PutNodeNetworkDNSResponse) Status() string
@@ -4813,7 +4829,7 @@ func (r PutNodeNetworkDNSResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="PutNodeNetworkDNSResponse.StatusCode"></a>
-### func \(PutNodeNetworkDNSResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4075>)
+### func \(PutNodeNetworkDNSResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4087>)
 
 ```go
 func (r PutNodeNetworkDNSResponse) StatusCode() int
@@ -4822,7 +4838,7 @@ func (r PutNodeNetworkDNSResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="QueueStatsResponse"></a>
-## type [QueueStatsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L893-L905>)
+## type [QueueStatsResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L902-L914>)
 
 QueueStatsResponse defines model for QueueStatsResponse.
 
@@ -4843,7 +4859,7 @@ type QueueStatsResponse struct {
 ```
 
 <a name="ReadyResponse"></a>
-## type [ReadyResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L908-L914>)
+## type [ReadyResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L917-L923>)
 
 ReadyResponse defines model for ReadyResponse.
 
@@ -4858,7 +4874,7 @@ type ReadyResponse struct {
 ```
 
 <a name="RequestEditorFn"></a>
-## type [RequestEditorFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1097>)
+## type [RequestEditorFn](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1109>)
 
 RequestEditorFn is the function signature for the RequestEditor callback function
 
@@ -4867,7 +4883,7 @@ type RequestEditorFn func(ctx context.Context, req *http.Request) error
 ```
 
 <a name="RetryJobByIDJSONRequestBody"></a>
-## type [RetryJobByIDJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1076>)
+## type [RetryJobByIDJSONRequestBody](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1088>)
 
 RetryJobByIDJSONRequestBody defines body for RetryJobByID for application/json ContentType.
 
@@ -4876,7 +4892,7 @@ type RetryJobByIDJSONRequestBody = RetryJobRequest
 ```
 
 <a name="RetryJobByIDResponse"></a>
-## type [RetryJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3795-L3804>)
+## type [RetryJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3807-L3816>)
 
 
 
@@ -4894,7 +4910,7 @@ type RetryJobByIDResponse struct {
 ```
 
 <a name="ParseRetryJobByIDResponse"></a>
-### func [ParseRetryJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5562>)
+### func [ParseRetryJobByIDResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L5574>)
 
 ```go
 func ParseRetryJobByIDResponse(rsp *http.Response) (*RetryJobByIDResponse, error)
@@ -4903,7 +4919,7 @@ func ParseRetryJobByIDResponse(rsp *http.Response) (*RetryJobByIDResponse, error
 ParseRetryJobByIDResponse parses an HTTP response from a RetryJobByIDWithResponse call
 
 <a name="RetryJobByIDResponse.Status"></a>
-### func \(RetryJobByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3807>)
+### func \(RetryJobByIDResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3819>)
 
 ```go
 func (r RetryJobByIDResponse) Status() string
@@ -4912,7 +4928,7 @@ func (r RetryJobByIDResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="RetryJobByIDResponse.StatusCode"></a>
-### func \(RetryJobByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3815>)
+### func \(RetryJobByIDResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3827>)
 
 ```go
 func (r RetryJobByIDResponse) StatusCode() int
@@ -4921,7 +4937,7 @@ func (r RetryJobByIDResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="RetryJobRequest"></a>
-## type [RetryJobRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L917-L920>)
+## type [RetryJobRequest](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L926-L929>)
 
 RetryJobRequest defines model for RetryJobRequest.
 
@@ -4933,7 +4949,7 @@ type RetryJobRequest struct {
 ```
 
 <a name="RouteResponse"></a>
-## type [RouteResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L923-L941>)
+## type [RouteResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L932-L950>)
 
 RouteResponse A network routing table entry.
 
@@ -4960,7 +4976,7 @@ type RouteResponse struct {
 ```
 
 <a name="StatusResponse"></a>
-## type [StatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L944-L967>)
+## type [StatusResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L953-L979>)
 
 StatusResponse defines model for StatusResponse.
 
@@ -4977,6 +4993,9 @@ type StatusResponse struct {
     KvBuckets *[]KVBucketInfo `json:"kv_buckets,omitempty"`
     Nats      *NATSInfo       `json:"nats,omitempty"`
 
+    // ObjectStores Object Store statistics.
+    ObjectStores *[]ObjectStoreInfo `json:"object_stores,omitempty"`
+
     // Status Overall health status.
     Status string `json:"status"`
 
@@ -4992,7 +5011,7 @@ type StatusResponse struct {
 ```
 
 <a name="StreamInfo"></a>
-## type [StreamInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L970-L982>)
+## type [StreamInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L982-L994>)
 
 StreamInfo defines model for StreamInfo.
 
@@ -5013,7 +5032,7 @@ type StreamInfo struct {
 ```
 
 <a name="TimelineEvent"></a>
-## type [TimelineEvent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L985-L991>)
+## type [TimelineEvent](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L997-L1003>)
 
 TimelineEvent defines model for TimelineEvent.
 
@@ -5028,7 +5047,7 @@ type TimelineEvent struct {
 ```
 
 <a name="UndrainAgentResponse"></a>
-## type [UndrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3384-L3394>)
+## type [UndrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3396-L3406>)
 
 
 
@@ -5047,7 +5066,7 @@ type UndrainAgentResponse struct {
 ```
 
 <a name="ParseUndrainAgentResponse"></a>
-### func [ParseUndrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4745>)
+### func [ParseUndrainAgentResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L4757>)
 
 ```go
 func ParseUndrainAgentResponse(rsp *http.Response) (*UndrainAgentResponse, error)
@@ -5056,7 +5075,7 @@ func ParseUndrainAgentResponse(rsp *http.Response) (*UndrainAgentResponse, error
 ParseUndrainAgentResponse parses an HTTP response from a UndrainAgentWithResponse call
 
 <a name="UndrainAgentResponse.Status"></a>
-### func \(UndrainAgentResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3397>)
+### func \(UndrainAgentResponse\) [Status](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3409>)
 
 ```go
 func (r UndrainAgentResponse) Status() string
@@ -5065,7 +5084,7 @@ func (r UndrainAgentResponse) Status() string
 Status returns HTTPResponse.Status
 
 <a name="UndrainAgentResponse.StatusCode"></a>
-### func \(UndrainAgentResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3405>)
+### func \(UndrainAgentResponse\) [StatusCode](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L3417>)
 
 ```go
 func (r UndrainAgentResponse) StatusCode() int
@@ -5074,7 +5093,7 @@ func (r UndrainAgentResponse) StatusCode() int
 StatusCode returns HTTPResponse.StatusCode
 
 <a name="UptimeCollectionResponse"></a>
-## type [UptimeCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L994-L998>)
+## type [UptimeCollectionResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1006-L1010>)
 
 UptimeCollectionResponse defines model for UptimeCollectionResponse.
 
@@ -5087,7 +5106,7 @@ type UptimeCollectionResponse struct {
 ```
 
 <a name="UptimeResponse"></a>
-## type [UptimeResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1001-L1010>)
+## type [UptimeResponse](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/gen/client.gen.go#L1013-L1022>)
 
 UptimeResponse System uptime information.
 

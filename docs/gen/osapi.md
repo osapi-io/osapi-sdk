@@ -124,6 +124,7 @@ resp, err := client.Node.Exec(ctx, osapi.ExecRequest{
   - [func \(e \*NotFoundError\) Unwrap\(\) error](<#NotFoundError.Unwrap>)
 - [type OSInfo](<#OSInfo>)
 - [type OSInfoResult](<#OSInfoResult>)
+- [type ObjectStoreInfo](<#ObjectStoreInfo>)
 - [type Option](<#Option>)
   - [func WithHTTPTransport\(transport http.RoundTripper\) Option](<#WithHTTPTransport>)
   - [func WithLogger\(logger \*slog.Logger\) Option](<#WithLogger>)
@@ -289,7 +290,7 @@ type AgentState struct {
 ```
 
 <a name="AgentStats"></a>
-## type [AgentStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L65-L69>)
+## type [AgentStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L66-L70>)
 
 AgentStats represents agent statistics from the health endpoint.
 
@@ -302,7 +303,7 @@ type AgentStats struct {
 ```
 
 <a name="AgentSummary"></a>
-## type [AgentSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L72-L76>)
+## type [AgentSummary](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L73-L77>)
 
 AgentSummary represents a summary of an agent from the health endpoint.
 
@@ -475,7 +476,7 @@ type CommandResult struct {
 ```
 
 <a name="ComponentHealth"></a>
-## type [ComponentHealth](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L53-L56>)
+## type [ComponentHealth](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L54-L57>)
 
 ComponentHealth represents a component's health.
 
@@ -521,7 +522,7 @@ func (e *ConflictError) Unwrap() error
 Unwrap returns the underlying APIError.
 
 <a name="ConsumerDetail"></a>
-## type [ConsumerDetail](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L95-L100>)
+## type [ConsumerDetail](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L96-L101>)
 
 ConsumerDetail represents a single consumer's details.
 
@@ -535,7 +536,7 @@ type ConsumerDetail struct {
 ```
 
 <a name="ConsumerStats"></a>
-## type [ConsumerStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L89-L92>)
+## type [ConsumerStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L90-L93>)
 
 ConsumerStats represents JetStream consumer statistics.
 
@@ -999,7 +1000,7 @@ func (s *JobService) Retry(ctx context.Context, id string, target string) (*Resp
 Retry retries a failed job by ID, optionally on a different target.
 
 <a name="JobStats"></a>
-## type [JobStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L79-L86>)
+## type [JobStats](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L80-L87>)
 
 JobStats represents job queue statistics from the health endpoint.
 
@@ -1015,7 +1016,7 @@ type JobStats struct {
 ```
 
 <a name="KVBucketInfo"></a>
-## type [KVBucketInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L111-L115>)
+## type [KVBucketInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L112-L116>)
 
 KVBucketInfo represents a KV bucket's info.
 
@@ -1130,7 +1131,7 @@ func (s *MetricsService) Get(ctx context.Context) (string, error)
 Get fetches the raw Prometheus metrics text from the /metrics endpoint.
 
 <a name="NATSInfo"></a>
-## type [NATSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L59-L62>)
+## type [NATSInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L60-L63>)
 
 NATSInfo represents NATS connection info.
 
@@ -1355,6 +1356,18 @@ type OSInfoResult struct {
 }
 ```
 
+<a name="ObjectStoreInfo"></a>
+## type [ObjectStoreInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L119-L122>)
+
+ObjectStoreInfo represents an Object Store bucket's info.
+
+```go
+type ObjectStoreInfo struct {
+    Name string
+    Size int
+}
+```
+
 <a name="Option"></a>
 ## type [Option](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/osapi.go#L76>)
 
@@ -1516,7 +1529,7 @@ type ShellRequest struct {
 ```
 
 <a name="StreamInfo"></a>
-## type [StreamInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L103-L108>)
+## type [StreamInfo](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L104-L109>)
 
 StreamInfo represents a JetStream stream's info.
 
@@ -1530,7 +1543,7 @@ type StreamInfo struct {
 ```
 
 <a name="SystemStatus"></a>
-## type [SystemStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L38-L50>)
+## type [SystemStatus](<https://github.com/osapi-io/osapi-sdk/blob/main/pkg/osapi/health_types.go#L38-L51>)
 
 SystemStatus represents detailed system status.
 
@@ -1547,6 +1560,7 @@ type SystemStatus struct {
     Consumers          *ConsumerStats
     Streams            []StreamInfo
     KVBuckets          []KVBucketInfo
+    ObjectStores       []ObjectStoreInfo
 }
 ```
 
